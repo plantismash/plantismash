@@ -60,3 +60,4 @@ GMC_oxred_C	GMC_oxred_C	-1	GMC_oxred_C.hmm
 Amino_oxidase	Amino_oxidase	-1	Amino_oxidase.hmm
 DAHP_synth_1	DAHP_synth_1	-1	DAHP_synth_1.hmm
 DAHP_synth_2	DAHP_synth_2	-1	DAHP_synth_2.hmm
+BURP	BURP	-1	BURP.hmm

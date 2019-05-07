@@ -1768,12 +1768,13 @@ def detect_geneclusters(seq_record, options):
 
 
 def cluster_specific_analysis(plugins, seq_record, options):
-    if  options.taxon == "plants":
-        return
     "Run specific analysis steps for every detected gene cluster"
     logging.info('Running cluster-specific analyses')
 
     for plugin in plugins:
+        if  options.taxon == "plants":
+            if not plugin.name.startswith("plant_"):
+                continue
         if 'specific_analysis' in dir(plugin):
             logging.debug('Running analyses specific to %s clusters',
                           plugin.short_description)

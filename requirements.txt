@@ -3,11 +3,11 @@ straight.plugin==1.4.0-post-1
 cssselect
 pyquery==1.2.9
 numpy
-biopython>=1.65
+biopython==1.66
 helperlibs
 pysvg
 pyExcelerator
 backports.lzma
 networkx==1.11
 python-louvain==0.5
-bcbio-gff>=0.6.2
+bcbio-gff==0.6.2
