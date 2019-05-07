@@ -1,0 +1,3 @@
+ez-setup
+cobra==0.2.1
+glpk==0.3

@@ -1,0 +1,14 @@
+Workflow for cProfile / qcachegrind runtime profiling
+
+
+1. Run profiler and output data in pstats format:
+
+python -m cProfile -o pstats.NC_018750.out ~/workspace/antiSMASH2/run_antismash.py --statusfile antiSMASH-status.txt --debug --input-type nucl --full-hmmer NC_018750.gb
+
+or
+python -m cProfile -o pstats.NC_018750.out ~/workspace/antiSMASH2/run_antismash.py --statusfile antiSMASH-status.txt --debug --input-type nucl --full-hmmer --clusterblast --subclusterblast --smcogs NC_018750.gb 2>&1 |tee runlog.txt
+c
+2. Convert data into callgrind format
+pyprof2calltree -o callgrind.NC_018750.out -i pstats.NC_018750.out
+
+3. Open file with qcachegrind / kcachegrind

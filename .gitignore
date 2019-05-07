@@ -1,0 +1,8 @@
+*.swp
+*.pyc
+cover/
+.coverage
+tags
+*.h3?
+.DS_Store
+.idea/

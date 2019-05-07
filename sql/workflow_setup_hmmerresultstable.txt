@@ -1,0 +1,6 @@
+Workflow to setup hmmerresults table
+
+psql -hlocalhost -U biosql -W biosql -f hmmerresults.sql
+
+gunzip -dc antiSmashprofilesNR.csv.gz | psql -h localhost -U biosql -W biosql -c "\copy asmash.hmmer_results from STDIN csv delimiter E'\t' header"
+

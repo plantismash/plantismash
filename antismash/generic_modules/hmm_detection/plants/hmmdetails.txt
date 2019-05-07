@@ -1,0 +1,62 @@
+cMT	cMT	-1	cMT.hmm
+nMT	nMT	-1	nMT.hmm
+oMT	oMT	-1	oMT.hmm
+adh	adh	-1	adh_short.hmm
+t3pksc	t3pksc	-1	Chal_sti_synt_C.hmm
+t3pksn	t3pksn	-1	Chal_sti_synt_N.hmm
+coest	coest	-1	COesterase.hmm
+glyco28	glyco28	-1	Glyco_transf_28.hmm
+glyco1	glyco1	-1	Glycos_transf_1.hmm
+glyco2	glyco2	-1	Glycos_transf_2.hmm
+lycop	lycop	-1	Lycopene_cycl.hmm
+nad	nad	-1	NAD_binding_1.hmm
+p450	p450	-1	p450.hmm
+SQHop_cyclase_C	Squalene-hopene cyclase C-terminal domain	-1	SQHop_cyclase_C.hmm
+SQHop_cyclase_N	pren2	-1	SQHop_cyclase_N.hmm
+pren	pren	-1	Prenyltrans.hmm
+terpsyn_c	terpsyn_c	-1	Terpene_synth_C.hmm
+terpsyn	terpsyn	-1	Terpene_synth.hmm
+Transferase	Transferase family	-1	Transferase.hmm
+Bet_v_1	Bet v I allergen	-1	Bet_v_1.hmm
+Cu_amine_oxid	Copper-amine oxidase	-1	Cu_amine_oxid.hmm
+Str_synth	Strictosidine synthase	-1	Str_synth.hmm
+Aminotran_1_2	Aminotransferase I and II	-1	Aminotran_1_2.hmm
+AMP-binding	AMP-binding enzyme	-1	AMP-binding.hmm
+DIOX_N	Non-haem dioxygenase	-1	DIOX_N.hmm
+Dirigent	Dirigent-like protein	-1	Dirigent.hmm
+UDPGT	UDP-glucosyl transferase	-1	UDPGT.hmm
+Trp_syntA	Tryptophan synthase alpha chain	-1	Trp_syntA.hmm
+Peptidase_S10	Serine carboxypeptidase	-1	Peptidase_S10.hmm
+Prenyltransf	Putative undecaprenyl diphosphate synthase	-1	Prenyltransf.hmm
+2OG-FeII_Oxy	2OG-Fe(II) oxygenase	-1	2OG-FeII_Oxy.hmm
+Aminotran_3	Aminotransferase class-III	-1	Aminotran_3.hmm
+His_biosynth	Histidine biosynthesis	-1	His_biosynth.hmm
+adh_short_C2	Enoyl-(Acyl carrier protein) reductase	-1	adh_short_C2.hmm
+Epimerase	NAD dependent epimerase/dehydratase	-1	Epimerase.hmm
+PRISE	Iridoid Synthase / P5BR	-1	PRISE.hmm
+Methyltransf_2	O-methyltransferase	-1	Methyltransf_2.hmm
+Methyltransf_3	O-methyltransferase	-1	Methyltransf_3.hmm
+Methyltransf_7	O-methyltransferase	-1	Methyltransf_7.hmm
+Cellulose_synt	Cellulose_synt	-1	Cellulose_synt.hmm
+Chalcone	Chalcone	-1	Chalcone.hmm
+ERG4_ERG24	ERG4_ERG24	-1	ERG4_ERG24.hmm
+FA_desaturase	FA_desaturase	-1	FA_desaturase.hmm
+FA_desaturase_2	FA_desaturase_2	-1	FA_desaturase_2.hmm
+Methyltransf_11	Methyltransf_11	-1	Methyltransf_11.hmm
+polyprenyl_synt	polyprenyl_synt	-1	polyprenyl_synt.hmm
+SE	SE	-1	SE.hmm
+SQS_PSY	SQS_PSY	-1	SQS_PSY.hmm
+TPMT	TPMT	-1	TPMT.hmm
+UbiA	UbiA	-1	UbiA.hmm
+Lipoxygenase	Lipoxygenase	-1	Lipoxygenase.hmm
+Lyase_aromatic	Lyase_aromatic	-1	Lyase_aromatic.hmm
+HMGL-like	HMGL-like	-1	HMGL-like.hmm
+Chalcone_3	Chalcone_3	-1	Chalcone_3.hmm
+Chalcone_2	Chalcone_2	-1	Chalcone_2.hmm
+Acetyltransf_1	Acetyltransf_1	-1	Acetyltransf_1.hmm
+UDPGT_2	UDPGT_2	-1	UDPGT_2.hmm
+GMC_oxred_N	GMC_oxred_N	-1	GMC_oxred_N.hmm
+GMC_oxred_C	GMC_oxred_C	-1	GMC_oxred_C.hmm
+Amino_oxidase	Amino_oxidase	-1	Amino_oxidase.hmm
+DAHP_synth_1	DAHP_synth_1	-1	DAHP_synth_1.hmm
+DAHP_synth_2	DAHP_synth_2	-1	DAHP_synth_2.hmm

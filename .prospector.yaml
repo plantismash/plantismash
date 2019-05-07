@@ -1,0 +1,4 @@
+ignore-paths:
+    - antismash/lib/pysvg
+    - antismash/output_modules/html/indigo.py
+    - antismash/specific_modules/nrpspks/indigo.py

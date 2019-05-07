@@ -1,0 +1,10 @@
+Glycos_transf_1,Glycos_transf_2,Glyco_transf_28,UDPGT,Cellulose_synt,UDPGT_2
+SQHop_cyclase_C,SQHop_cyclase_N,Prenyltrans
+adh_short,adh_short_C2,PRISE,Epimerase
+DIOX_N,2OG-Fell_Oxy
+Terpene_synth,Terpene_synth_C
+Methyltransf_2,Methyltransf_3,Methyltransf_7,Methyltransf_11,oMT,nMT,cMT,TPMT
+Chalcone,Chalcone_2,Chalcone_3
+Chal_sti_synt_C,Chal_sti_synt_N
+GMC_oxred_N,GMC_oxred_C
+DAHP_synth_1,DAHP_synth_2

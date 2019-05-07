@@ -1,0 +1,63 @@
+To cite antiSMASH in publications, please use:
+
+Tilmann Weber, Kai Blin, Srikanth Duddela, Daniel Krug, Hyun Uk Kim, Robert
+Bruccoleri, Sang Yup Lee, Michael A. Fischbach, Rolf Müller, Wolfgang Wohlleben,
+Rainer Breitling, Eriko Takano & Marnix H. Medema (2015): antiSMASH 3.0 — a
+comprehensive resource for the genome mining of biosynthetic gene clusters.
+Nucleic Acids Research 43: W237-W243.
+
+Kai Blin, Marnix H. Medema, Daniyal Kazempour, Michael A. Fischbach, Rainer
+Breitling, Eriko Takano, & Tilmann Weber (2013): antiSMASH 2.0 — a versatile
+platform for genome mining of secondary metabolite producers. Nucleic Acids
+Research 41: W204-W212.
+
+Marnix H. Medema, Kai Blin, Peter Cimermancic, Victor de Jager, Piotr
+Zakrzewski, Michael A. Fischbach, Tilmann Weber, Rainer Breitling & Eriko
+Takano (2011). antiSMASH: Rapid identification, annotation and analysis of
+secondary metabolite biosynthesis gene clusters. Nucleic Acids Research 39:
+W339-W346.
+
+BibTeX entries are:
+
+@ARTICLE{weber_antismash3_2015,
+  author = {Weber, Tilmann and Blin, Kai and Duddela, Srikanth and Krug, Daniel
+  and Kim, Hyun Uk and Bruccoleri, Robert and Lee, Sang Yup and Fischbach, Michael
+  A. and Müller, Rolf and Wohlleben, Wolfgang and Breitling, Rainer and Takano,
+  Eriko and Medema, Marnix H.},
+  title = {{antiSMASH} 3.0 -- a comprehensive resource for the genome mining of
+  biosynthetic gene clusters},
+  volume = {43},
+  number = {W1},
+  pages = {W237-W243},
+  year = {2015},
+  doi = {10.1093/nar/gkv437},
+}
+
+@ARTICLE{blin_antismash2_2013,
+  author = {Blin, Kai and Medema, Marnix H and Kazempour, Daniyal and Fischbach,
+Michaell A and Breitling, Rainer and Takano, Eriko and Weber, Tilmann},
+  title = {{antiSMASH} 2.0 -- a versatile platform for genome mining of secondary
+metabolite producers},
+  journal = {Nucleic Acids Research},
+  year = {2013},
+  volume = {41},
+  pages = {W204--W212},
+  number = {W1},
+  doi = {10.1093/nar/gkt449},
+}
+
+@ARTICLE{medema_antismash_2011,
+  author = {Medema, Marnix H and Blin, Kai and Cimermancic, Peter and de Jager,
+Victor and Zakrzewskiakrzewski, Piotr and Fischbach, Michael A and Weber,
+Tilmann and Takanoo, Eriko and Breitling, Rainer},
+  title = {{antiSMASH}: rapid identification, annotation and analysis of secondary
+metabolite biosynthesis gene Cimermanciclusters in bacterial and fungal genome
+sequences},
+  journal = {Nucleicc Acids Research},
+  year = {2011},
+  volume = {39},
+  pages = {W339--W346},
+  number = {Web Server},
+  doi = {10.1093/nar/gkr466},
+}
+

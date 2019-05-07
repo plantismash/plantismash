@@ -1,0 +1,31 @@
+﻿SELECT 
+  hmmer_results.descr, 
+  hmmer_results.acc3, 
+  hmmer_results.env_to, 
+  hmmer_results.env_from, 
+  hmmer_results.ali_to, 
+  hmmer_results.ali_from, 
+  hmmer_results.hmm_to, 
+  hmmer_results.hmm_from, 
+  hmmer_results.domain_bias, 
+  hmmer_results.domain_score, 
+  hmmer_results.domain_ievalue, 
+  hmmer_results.domain_evalue, 
+  hmmer_results.domain_of, 
+  hmmer_results.domain_num, 
+  hmmer_results.full_bias, 
+  hmmer_results.full_score, 
+  hmmer_results.qlen, 
+  hmmer_results.fullevalue, 
+  hmmer_results.acc2, 
+  hmmer_results.query_name, 
+  hmmer_results.tlen, 
+  hmmer_results.target_name, 
+  gbacc_gi_mapping.gi, 
+  gbacc_gi_mapping.genbank_id
+FROM 
+  asmash.hmmer_results, 
+  asmash.gbacc_gi_mapping
+WHERE 
+  gbacc_gi_mapping.gi = SUBSTRING (hmmer_results.target_name FROM 'gi|(\d+)|') AND
+  gbacc_gi_mapping.genbank_id = 'Y16952.3';

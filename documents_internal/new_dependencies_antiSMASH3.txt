@@ -1,0 +1,18 @@
+pip
+
+ez_setup
+cobra
+glpk
+psycopg2
+
+
+aptitude install postgresql
+
+echo 'deb http://download.opensuse.org/repositories/home:/fbergman:/libsbml/Debian_7.0/ /' >> /etc/apt/sources.list.d/python-libsbml.list 
+aptitude update
+aptitudeinstall python-libsbml
+
+
+aptitude install glpk
+aptitude install libgmp-dev
+aptitude install python-scipy
