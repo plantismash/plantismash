@@ -25,7 +25,7 @@ class Result:
 
     def __init__(self, qualifier = None):
         if qualifier != None:
-            self.decode(self, qualifier)
+            self.decode(qualifier)
 
     def encode(self):
         qualifier = ""
@@ -34,7 +34,7 @@ class Result:
         return qualifier
         
     def decode(self, qualifier):
-        self = self.__init__(self) # re-initialize
+        self.__init__() # re-initialize
         # put here your decoding algorithm
         self.dummy_attribute = qualifier
 

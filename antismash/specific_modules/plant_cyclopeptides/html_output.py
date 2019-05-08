@@ -24,6 +24,7 @@ def will_handle(product):
 def generate_details_div(cluster, seq_record, options, js_domains, details=None):
     """Generate details div"""
     result = None
+    cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
     if "cyclopeptide_analysis" in cluster.qualifiers:
         result = Result(cluster.qualifiers["cyclopeptide_analysis"][0])
     if result != None:
@@ -36,6 +37,7 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
 def generate_sidepanel(cluster, seq_record, options, sidepanel=None):
     """Generate sidepanel div"""
     result = None
+    cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
     if "cyclopeptide_analysis" in cluster.qualifiers:
         result = Result(cluster.qualifiers["cyclopeptide_analysis"][0])
     if result != None:
