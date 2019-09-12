@@ -3,6 +3,10 @@ import sys
 from Bio.SeqFeature import FeatureLocation, CompoundLocation, SeqFeature
 from BCBio import GFF
 
+# whether to use phase (codon start) to modify reported locations
+# Augustus, NCBI, and glimmerhmm report phase but have already adjusted the
+# locations and since they're the bulk of inputs, disable further modification
+MODIFY_LOCATIONS_BY_PHASE = False
 
 def check_gff_suitability(options, sequences):
     if options.gff3:
@@ -103,12 +107,13 @@ def check_sub(feature,sequence):
                 newFeature.append(n)
         elif sub.type=='CDS':
             loc=[sub.location.start.real,sub.location.end.real]
-            if 'phase' in sub.qualifiers:
-                phase=int(sub.qualifiers['phase'][0])
-                if sub.strand==1:
-                    loc[0]+=phase
-                else:
-                    loc[1]-=phase
+            if MODIFY_LOCATIONS_BY_PHASE:
+                if 'phase' in sub.qualifiers:
+                    phase=int(sub.qualifiers['phase'][0])
+                    if sub.strand==1:
+                        loc[0]+=phase
+                    else:
+                        loc[1]-=phase
             LocList.append(FeatureLocation(loc[0],loc[1],strand=sub.strand))
             # Make sure CDSs lengths are multiple of three. Otherwise extend to next full codon.
             # This only applies for translation.
