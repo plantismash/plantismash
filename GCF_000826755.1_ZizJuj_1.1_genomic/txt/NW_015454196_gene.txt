@@ -1,0 +1,5 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+XP_015868974	490	1861	-		LOC107406380	uncharacterized protein LOC107406380
+XP_015868973	11055	13071	-		LOC107406379	polygalacturonase 1 beta-like protein 3
+XP_015868976	16156	17848	+		LOC107406381	uncharacterized protein LOC107406381
+XP_015868972	18854	20874	-		LOC107406378	polygalacturonase 1 beta-like protein 3

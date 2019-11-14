@@ -1,0 +1,2 @@
+genome accession	geneclusters
+NC_029690	NC_029690_c52;NC_029690_c53

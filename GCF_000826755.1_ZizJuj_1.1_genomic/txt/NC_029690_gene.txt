@@ -1,0 +1,32 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+XP_015897971	8653	11379	+		LOC107431541	3-oxoacyl-[acyl-carrier-protein] reductase FabG-like
+XP_015897972	15428	16175	+		LOC107431542	estradiol 17-beta-dehydrogenase 8-like
+XP_015897938	24471	26003	+		LOC107431513	10 kDa chaperonin-like
+XP_015897946	26853	29311	-		LOC107431522	serine carboxypeptidase-like 45
+XP_015897985	31527	34261	-		LOC107431550	serine carboxypeptidase-like 45 isoform X2
+XP_015897984	31527	34261	-		LOC10743_472	LOC10743_472
+XP_015897986	35102	35600	-		LOC107431551	ankyrin-1-like
+XP_015897953	36891	40198	-		LOC107431526	serine carboxypeptidase-like 45
+XP_015897955	45456	48525	-		LOC107431528	serine carboxypeptidase-like 45
+XP_015897945	51751	51967	+		LOC107431521	mitotic-spindle organizing protein 1A-like
+XP_015897973	54963	59224	+		LOC107431543	putative SWI/SNF-related matrix-associated actin-dependent regulator of chromatin subfamily A member 3-like 1
+XP_015898590	3992107	4010428	+		LOC107432049	protein SHOOT GRAVITROPISM 6 isoform X1
+XP_015898591	3992624	4010428	+		LOC10743_614	LOC10743_614
+XP_015898551	4011679	4013185	+		LOC107432013	UDP-glycosyltransferase 73C6-like
+XP_015898552	4019307	4020807	+		LOC107432014	UDP-glycosyltransferase 73C3-like
+XP_015898592	4023024	4024680	+		LOC107432050	UDP-glycosyltransferase 73C6-like
+XP_015898529	4026412	4027555	+		LOC107431985	UDP-glycosyltransferase 73C6-like
+XP_015898593	4036598	4038637	+		LOC107432051	UDP-glycosyltransferase 73C6-like
+XP_015898563	4041150	4042626	+		LOC107432024	UDP-glycosyltransferase 73C1-like
+XP_015898530	4043399	4044797	+		LOC107431986	UDP-glycosyltransferase 73E1-like
+XP_015898531	4049082	4049886	+		LOC107431988	UDP-glycosyltransferase 73D1-like
+XP_015898558	4071910	4073470	+		LOC107432019	UDP-glycosyltransferase 73C3-like
+XP_015898533	4087197	4088691	+		LOC107431991	UDP-glycosyltransferase 73D1-like
+XP_015898595	4091826	4094049	-		LOC107432053	putative pectinesterase 14
+XP_015898594	4095470	4100973	-		LOC107432052	uncharacterized protein LOC107432052
+XP_015898534	4109191	4115818	-		LOC107431992	putative leucine-rich repeat-containing protein DDB_G0290503
+XP_015898579	4117540	4120929	-		LOC107432040	caffeic acid 3-O-methyltransferase-like
+XP_015898580	4129888	4132528	-		LOC107432041	caffeic acid 3-O-methyltransferase-like
+XP_015898578	4133476	4136758	-		LOC107432039	carotene epsilon-monooxygenase, chloroplastic-like
+XP_015898560	4140417	4141980	-		LOC107432021	protein DMR6-LIKE OXYGENASE 2
+XP_015898545	4147224	4148934	-		LOC107432007	purine-uracil permease NCS1

@@ -1,0 +1,6 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+XP_015902733	5351	6071	-		LOC107435613	BURP domain protein USPL1-like
+XP_015902734	6316	8315	+		LOC107435615	uncharacterized protein LOC107435615
+XP_015902736	61170	62160	+		LOC107435618	uncharacterized mitochondrial protein AtMg00810-like
+XP_015902737	73805	74812	+		LOC107435620	LOW QUALITY PROTEIN: protein REVEILLE 7
+XP_015902739	104265	104904	+		LOC107435623	uncharacterized protein LOC107435623

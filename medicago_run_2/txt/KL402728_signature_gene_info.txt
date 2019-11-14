@@ -1,0 +1,4 @@
+signature gene	pHMM hits	e-value	bit score	number of seeds
+KEH17666	Str_synth	8.4e-26	88.9	6
+KEH17668	Peptidase_S10	3.6e-139	463.7	57
+KEH17673	Methyltransf_11	2.4e-11	43.0	141

@@ -1,0 +1,2 @@
+genome accession	geneclusters
+NW_015453410	NW_015453410_c54

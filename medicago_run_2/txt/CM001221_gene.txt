@@ -1,0 +1,296 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+AES93777	1324740	1336694	-		MTR_5g007380	insulinase (peptidase family M16)
+AES93778	1337604	1337976	+		MTR_5g007390	hypothetical protein
+AES93780	1339903	1342574	-		MTR_5g007400	GCN5-related N-acetyltransferase (GNAT) family protein
+AES93781	1346560	1348975	-		MTR_5g007410	F-box/RNI/FBD-like domain protein
+AES93782	1350743	1351216	+		MTR_5g007420	transmembrane protein, putative
+AES93783	1355345	1356937	+		MTR_5g007430	hypothetical protein
+AES93785	1363193	1365015	+		MTR_5g007450	cytochrome P450 family 71 protein
+AES93786	1368810	1370704	+		MTR_5g007460	cytochrome P450 family monooxygenase
+AES93787	1371235	1372600	-		MTR_5g007470	hypothetical protein
+AES93788	1372950	1376663	-		MTR_5g007480	protein transporter
+KEH27369	1387014	1387263	-		MTR_5g007515	hypothetical protein
+AES93790	1387810	1394165	-		MTR_5g007520	GC-rich sequence DNA-binding factor, putative
+KEH27370	1403074	1404170	+		MTR_5g007545	hypothetical protein
+AES93793	1406408	1408230	-		MTR_5g007550	cytochrome P450 family 71 protein
+AES93794	1408498	1412359	+		MTR_5g007560	hypothetical protein
+AES93795	1412547	1413063	-		MTR_5g007570	hypothetical protein
+AES93796	1414871	1415066	+		MTR_5g007580	casein kinase I, putative
+AES93797	1415180	1418172	-		MTR_5g007590	casein kinase I-like protein
+AES93798	1423315	1424761	+		MTR_5g007600	GATA type zinc finger transcription factor family protein
+AES93799	1427474	1428723	-		MTR_5g007610	F-box protein interaction domain protein
+AES93800	1434625	1440207	+		MTR_5g007630	cyclic nucleotide-gated cation channel protein
+KEH27371	1442043	1442454	+		MTR_5g007635	transmembrane protein, putative
+AES93801	1444199	1449967	+		MTR_5g007640	4-coumarate:CoA ligase-like protein
+AES93802	1450417	1450802	+		MTR_5g007650	transmembrane protein, putative
+AES93803	1451343	1452139	-		MTR_5g007660	IBR domain protein
+AES93804	1455061	1455874	-		MTR_5g007670	IBR domain protein
+KEH27372	1464308	1467736	+		MTR_5g00_41	MTR_5g00_41
+AES93807	1464308	1468054	+		MTR_5g007700	SMG9-like protein
+KEH27373	1468324	1470340	-		MTR_5g007705	hypothetical protein
+KEH27374	1471215	1473344	+		MTR_5g00_42	MTR_5g00_42
+AES93808	1471215	1474618	+		MTR_5g007710	ubiquitin-protein ligase synoviolin
+KEH27375	1477585	1478881	+		MTR_5g007713	chalcone and stilbene synthase family protein
+KEH27376	1481696	1483075	+		MTR_5g007717	chalcone and stilbene synthase family protein
+KEH27377	1485316	1487552	+		MTR_5g007723	chalcone synthase
+AES93810	1491586	1493050	+		MTR_5g007730	chalcone and stilbene synthase family protein
+AES93811	1499141	1500122	+		MTR_5g007740	chalcone and stilbene synthase family protein
+AES93812	1500884	1502427	+		MTR_5g007750	hypothetical protein
+AES93813	1504350	1505859	+		MTR_5g007760	chalcone and stilbene synthase family protein
+AES93814	1509043	1509941	+		MTR_5g007770	chalcone synthase family protein
+AES93815	1515012	1515843	-		MTR_5g007780	transmembrane protein, putative
+AES93816	1516531	1530470	+		MTR_5g007790	chromosome region maintenance protein 1/exportin
+AES93903	1925979	1926468	+		MTR_5g008790	AP2 domain class transcription factor
+AES93904	1927646	1929715	-		MTR_5g008800	long-chain acyl-CoA synthetase
+AES93905	1932715	1943924	-		MTR_5g008810	cycloartenol synthase
+AES93906	1945767	1947990	-		MTR_5g008820	fatty acyl-CoA synthetase family protein
+AES93908	1956720	1959596	-		MTR_5g008840	pentatricopeptide (PPR) repeat protein
+AES93909	1960391	1962553	-		MTR_5g008850	corticosteroid 11-beta-dehydrogenase
+AES93910	1964855	1968404	+		MTR_5g008860	cyclin-dependent kinase
+KEH27681	11278605	11291218	+		MTR_5g027200	pleckstrin-like (PH) and lipid-binding START domain protein
+AES95593	11278605	11291218	+		MTR_5g02_113	MTR_5g02_113
+AES95594	11292052	11293513	-		MTR_5g027210	UDP-glucosyltransferase family protein
+AES95595	11294652	11297745	-		MTR_5g027220	plant/K24G6-12 protein
+AES95596	11300879	11304700	+		MTR_5g027230	gibberellin 2-beta-dioxygenase
+AES95597	11307985	11311170	-		MTR_5g027240	pinoresinol-lariciresinol reductase-like protein
+KEH27682	11329385	11330287	+		MTR_5g027263	hypothetical protein
+AES95600	11344141	11345843	-		MTR_5g027290	pinoresinol-lariciresinol reductase-like protein
+AES95602	11347149	11347401	-		MTR_5g027310	hypothetical protein
+AES95604	11353441	11354985	+		MTR_5g027330	F-box protein interaction domain protein
+AES96093	14303956	14305795	+		MTR_5g033190	armadillo repeat only protein
+AES96094	14308131	14308758	+		MTR_5g033200	FBD protein
+AES96095	14312221	14315979	-		MTR_5g033210	F-box plant-like protein
+AES96096	14327195	14327543	-		MTR_5g033220	hypothetical protein
+AES96097	14330486	14336850	-		MTR_5g033230	glutamate-glyoxylate aminotransferase
+AES96098	14331505	14336850	-		MTR_5g03_25	MTR_5g03_25
+AES96101	14352360	14354443	+		MTR_5g033260	flavin containing monooxygenase YUCCA10-like protein
+AES96102	14356902	14357572	+		MTR_5g033270	hypothetical protein
+AES96103	14358320	14358512	-		MTR_5g033280	hypothetical protein
+AES96105	14363217	14367432	+		MTR_5g033300	ribose-phosphate pyrophosphokinase
+KEH27748	14363217	14367432	+		MTR_5g03_26	MTR_5g03_26
+AES96106	14370437	14378490	+		MTR_5g033320	multidrug resistance protein ABC transporter family protein
+AES96107	14381116	14383454	-		MTR_5g033330	BURP domain protein
+AES96108	14383687	14385072	-		MTR_5g033340	BURP domain protein
+AES96109	14385398	14386010	-		MTR_5g033350	polygalacturonase non-catalytic protein
+AES96110	14386249	14387174	-		MTR_5g033360	polygalacturonase non-catalytic protein
+AES96111	14388046	14390170	+		MTR_5g033370	transmembrane protein, putative
+AES96112	14391058	14393174	+		MTR_5g033380	hypothetical protein
+AES96113	14394737	14394944	-		MTR_5g033390	hypothetical protein
+AES96114	14397342	14397708	+		MTR_5g033400	hypothetical protein
+AES96115	14399616	14400938	-		MTR_5g033410	BURP domain protein
+AES96116	14401861	14403169	-		MTR_5g033420	BURP domain protein
+AES96117	14403408	14404088	-		MTR_5g033430	polygalacturonase non-catalytic protein
+AES96118	14405597	14406870	-		MTR_5g033440	BURP domain protein
+AES96119	14407133	14408120	-		MTR_5g033450	BURP domain protein
+AES96120	14409850	14410012	-		MTR_5g033460	hypothetical protein
+AES96121	14413894	14415682	-		MTR_5g033470	peroxidase family protein
+AES96123	14419194	14423174	+		MTR_5g033490	LysM type receptor kinase
+KEH27749	14425758	14429872	+		MTR_5g03_27	MTR_5g03_27
+AES96124	14425758	14431464	+		MTR_5g033500	clathrin assembly protein AP47, putative
+AES96125	14432471	14434145	-		MTR_5g033510	tryptophan aminotransferase-like protein
+AES96126	14440437	14443555	-		MTR_5g033520	tryptophan aminotransferase-like protein
+AES96128	14466238	14467963	-		MTR_5g033580	alpha/beta-hydrolase superfamily protein
+AES96129	14469321	14472781	-		MTR_5g033590	alpha/beta-hydrolase superfamily protein
+AES96130	14473976	14475496	+		MTR_5g033600	hypothetical protein
+AES96159	14669648	14674731	-		MTR_5g033940	transmembrane protein, putative
+AES96161	14677041	14677509	+		MTR_5g033960	ubiquitin-40S ribosomal S27a-like protein
+AES96164	14690846	14691215	+		MTR_5g034000	hypothetical protein
+AES96167	14701819	14703695	+		MTR_5g034030	YABBY transcription factor
+AES96168	14705582	14712702	-		MTR_5g034040	DNA-directed RNA polymerase II 8.2 kDa protein
+AES96169	14713710	14717021	-		MTR_5g034050	DNA-directed RNA polymerase II 8.2 kDa protein
+AES96170	14717638	14720040	+		MTR_5g034060	hypothetical protein
+AES96172	14726274	14726460	-		MTR_5g034080	transmembrane protein, putative
+KEH27752	14734904	14738756	+		MTR_5g03_30	MTR_5g03_30
+AES96173	14734904	14739416	+		MTR_5g034090	polygalacturonase
+AES96174	14742149	14743867	-		MTR_5g034100	hypothetical protein
+AES96176	14747852	14757625	+		MTR_5g034120	phosphatidylinositol 3-kinase
+KEH27753	14760068	14762768	+		MTR_5g034125	ADP-ribosylation factor-like protein A1D
+AES96177	14765812	14768412	+		MTR_5g034130	ADP-ribosylation factor-like protein A1D
+AES96178	14771791	14776740	-		MTR_5g034140	Rho GTPase
+AES96179	14779756	14779951	+		MTR_5g034160	hypothetical protein
+AES96181	14782692	14788607	-		MTR_5g034180	hypothetical protein
+AES96182	14794797	14795304	+		MTR_5g034200	transmembrane protein, putative
+KEH27754	14796564	14799613	-		MTR_5g03_32	MTR_5g03_32
+KEH27755	14796564	14803256	-		MTR_5g03_31	MTR_5g03_31
+AES96183	14796564	14803731	-		MTR_5g034210	receptor-like kinase
+AES96184	14812162	14812909	+		MTR_5g034230	DUF1645 family protein
+AES96185	14814983	14817406	-		MTR_5g034240	AMSH-like ubiquitin thioesterase
+AES96186	14821790	14829279	+		MTR_5g034250	carbonic anhydrase family protein
+AES96187	14824782	14829279	+		MTR_5g03_33	MTR_5g03_33
+AES96188	14830493	14831600	-		MTR_5g034260	hypothetical protein
+AES96189	14833836	14834132	+		MTR_5g034270	transmembrane protein, putative
+AES96190	14835668	14836391	+		MTR_5g034280	S-ribonuclease-binding protein SBP1, putative
+AES96191	14839396	14843414	+		MTR_5g034290	nucleic acid-binding, OB-fold-like protein
+KEH27756	14840300	14843414	+		MTR_5g03_34	MTR_5g03_34
+AES96192	14864718	14866725	+		MTR_5g034320	polygalacturonase non-catalytic protein
+AES96194	14872883	14873294	+		MTR_5g034340	hypothetical protein
+AES96195	14891382	14891992	+		MTR_5g03_36	MTR_5g03_36
+KEH27758	14891382	14892741	+		MTR_5g03_35	MTR_5g03_35
+KEH27757	14891382	14894537	+		MTR_5g034360	transmembrane protein, putative
+AES96196	14898642	14901608	+		MTR_5g034370	DUF936 family protein
+AES96197	14907730	14908371	+		MTR_5g034380	DUF936 family protein
+AES96200	14923514	14929313	+		MTR_5g034420	metal-dependent phosphohydrolase
+AES96201	14931496	14938662	+		MTR_5g034430	RNA recognition motif protein, putative
+KEH27759	14933462	14938662	+		MTR_5g03_37	MTR_5g03_37
+KEH27760	14940742	14940991	+		MTR_5g034435	RNA-binding motif protein
+AES96202	14941990	14944060	-		MTR_5g034440	armadillo/beta-catenin repeat protein
+AES96203	14945177	14945522	-		MTR_5g034450	hypothetical protein
+KEH27761	14952772	14957283	+		MTR_5g03_38	MTR_5g03_38
+AES96204	14952772	14957551	+		MTR_5g034470	spermidine synthase
+AES96205	14959868	14961613	+		MTR_5g034480	potassium transporter-like protein
+AES96207	14977306	14982626	+		MTR_5g034500	potassium transporter-like protein
+AES96208	14987073	14988482	+		MTR_5g034510	hypothetical protein
+AES96210	14993305	14993712	-		MTR_5g034530	hypothetical protein
+AES96211	15003201	15003898	+		MTR_5g034550	NHL repeat protein
+KEH27763	15008668	15009316	+		MTR_5g03_41	MTR_5g03_41
+KEH27764	15008668	15010494	+		MTR_5g03_40	MTR_5g03_40
+AES96213	15008668	15012096	+		MTR_5g034570	hypothetical protein
+KEH27762	15008668	15012096	+		MTR_5g03_39	MTR_5g03_39
+AES96214	15013414	15018720	-		MTR_5g034580	Rho GTPase-like protein
+AES96215	15027657	15029067	+		MTR_5g034590	potassium transporter-like protein
+AES96221	15045768	15050200	-		MTR_5g034660	Rho GTPase
+AES96222	15054395	15054632	+		MTR_5g034670	trehalose-6-phosphate synthase
+AES96223	15055185	15057898	-		MTR_5g034680	transmembrane protein, putative
+AES96253	15217948	15223210	+		MTR_5g034990	nodulin MtN21/EamA-like transporter family protein
+AES96254	15225681	15227207	-		MTR_5g035000	hypothetical protein
+AES96255	15228353	15229897	-		MTR_5g035010	polyketide cyclase/dehydrase and lipid transporter
+AES96257	15242643	15245008	+		MTR_5g035030	Serine/Threonine kinase family protein
+AES96258	15245869	15248625	-		MTR_5g035040	GNAT family acetyltransferase
+AES96259	15248873	15250221	-		MTR_5g035050	acyl-CoA N-acyltransferase (NAT) superfamily protein, putative
+AES96260	15250416	15253927	-		MTR_5g035060	GNAT family acetyltransferase
+AES96261	15256635	15258101	-		MTR_5g035070	Pmr5/Cas1p GDSL/SGNH-like acyl-esterase family protein
+AES97589	23261172	23262117	+		MTR_5g056480	transmembrane protein, putative
+AES97591	23269721	23270048	+		MTR_5g056500	hypothetical protein
+AES97592	23271275	23272766	-		MTR_5g056510	3-ketoacyl-CoA synthase-like protein
+AES97595	23284091	23284972	-		MTR_5g056540	hypothetical protein
+KEH27990	23286880	23288571	+		MTR_5g05_25	MTR_5g05_25
+KEH27991	23286880	23289280	+		MTR_5g05_24	MTR_5g05_24
+AES97596	23286880	23290420	+		MTR_5g056550	alpha/beta-hydrolase superfamily protein
+KEH27992	23286880	23290420	+		MTR_5g05_23	MTR_5g05_23
+AES97597	23292562	23296177	+		MTR_5g056560	S1/P1 nuclease family protein
+AES97598	23308469	23310911	-		MTR_5g056600	cinnamoyl-CoA reductase
+AES97599	23317215	23317664	-		MTR_5g056620	transmembrane protein, putative
+AES97600	23320942	23324836	+		MTR_5g056640	homocysteine S-methyltransferase-like protein
+AES97601	23326227	23326910	+		MTR_5g056650	hypothetical protein
+AES97602	23333277	23333685	-		MTR_5g056670	GRF zinc finger protein
+AES97605	23336879	23339278	+		MTR_5g056700	hypothetical protein
+AES97606	23339627	23339983	-		MTR_5g056710	Nodule Cysteine-Rich (NCR) secreted peptide
+AES97607	23342700	23347011	+		MTR_5g056720	cytochrome P450 family protein
+AES97610	23353942	23354217	+		MTR_5g056735	Nodule Cysteine-Rich (NCR) secreted peptide
+AES98763	30864047	30864725	+		MTR_5g072510	DUF640 family protein
+AES98764	30876788	>30879261	-		MTR_5g072520	APO RNA-binding protein
+AES98765	30881945	30884894	+		MTR_5g072530	small nuclear ribonucleoprotein
+AES98766	30887767	30894851	+		MTR_5g072540	gland-specific fatty acyl-CoA reductase
+AES98767	30895811	30898665	+		MTR_5g072550	fatty acyl-CoA reductase-like protein
+AES98768	30901094	30902852	+		MTR_5g072560	ferritin
+AES98769	30903470	30907108	-		MTR_5g072570	serine carboxypeptidase-like protein
+AES98772	30918844	30919323	+		MTR_5g072600	hypothetical protein
+AES98774	30922939	30926174	+		MTR_5g072620	cinnamoyl-CoA reductase-like protein
+AES98782	30980027	30981553	+		MTR_5g072780	CCT motif protein
+AES98784	30987526	30989330	+		MTR_5g072810	UDP-glucosyltransferase family protein
+AES98785	30990229	30992962	+		MTR_5g072820	UDP-glucosyltransferase family protein
+AES98786	30993544	30993829	+		MTR_5g072825	UDP-glycosyltransferase
+KEH28191	30994450	30994794	+		MTR_5g072827	UDP-glycosyltransferase superfamily protein, putative
+AES98787	30995404	30999933	+		MTR_5g072830	UDP-glucosyltransferase family protein
+AES98788	31001472	31003097	+		MTR_5g072840	UDP-glucosyltransferase family protein
+AES98789	31004375	31006581	+		MTR_5g072850	UDP-glucosyltransferase family protein
+AES98790	31009374	31010896	+		MTR_5g072860	UDP-glucosyltransferase family protein
+AES98792	31028255	31032484	+		MTR_5g072900	calcineurin-like metallo-phosphoesterase superfamily protein
+AES98793	31033092	31033362	-		MTR_5g072910	hypothetical protein
+AES98795	31039215	31040863	-		MTR_5g072930	cytochrome P450 family 71 protein
+AES98797	31043618	31045704	-		MTR_5g072950	hypothetical protein
+AES98798	31048438	31048612	-		MTR_5g072960	cytochrome P450 family protein, putative
+AES98799	31049103	31050247	-		MTR_5g072970	hypothetical protein
+AES98800	31052705	31054352	-		MTR_5g072980	cytochrome P450 family 71 protein
+AES98801	31056669	31058332	-		MTR_5g072990	hypothetical protein
+AES98802	31058462	31064756	-		MTR_5g073000	hypothetical protein
+AES98804	31071537	31073939	-		MTR_5g073020	cytochrome P450 family 71 protein
+AES99103	32675734	32680734	+		MTR_5g076590	small GTPase family RAB protein
+AES99104	32682658	32682979	+		MTR_5g076600	hypothetical protein
+AES99105	32686008	32689332	-		MTR_5g076620	squalene/phytoene synthase
+AES99106	32686654	32689332	-		MTR_5g07_41	MTR_5g07_41
+AES99107	32695598	32695793	-		MTR_5g076630	hypothetical protein
+AES99108	32702043	32705942	+		MTR_5g076640	SET domain group 40 protein
+AES99109	32709055	32710788	+		MTR_5g076660	seven in absentia family protein
+AES99110	32719030	32723271	+		MTR_5g076680	hypothetical protein
+AES99111	32725069	32728871	+		MTR_5g076690	hypothetical protein
+AES99112	32729220	32731944	+		MTR_5g076700	benzyl alcohol O-benzoyltransferase
+AES99114	32736984	32740633	+		MTR_5g076720	seven in absentia family protein
+AES99115	32747063	32748307	+		MTR_5g076740	ubiquitin-like Rad60 SUMO-like protein
+AES99116	32749611	32749902	+		MTR_5g076750	ubiquitin-like Rad60 SUMO-like protein
+AES99117	32752132	32752384	+		MTR_5g076760	ubiquitin-like Rad60 SUMO-like protein
+AES99119	32755690	32755894	+		MTR_5g076780	ubiquitin-60S ribosomal protein
+AES99121	32758519	32758699	-		MTR_5g076800	transmembrane protein, putative
+AES99122	32762501	32763534	+		MTR_5g076810	seven in absentia family protein
+AES99123	32765466	32768433	+		MTR_5g076820	seven in absentia family protein
+AES99124	32773452	32778660	+		MTR_5g076830	sucrose synthase
+AES99125	32782370	32784941	-		MTR_5g076840	NBS-LRR type disease resistance protein
+AES99126	32786764	32791257	-		MTR_5g076850	NAC transcription factor-like protein
+AET00302	39445212	39445721	-		MTR_5g090560	transmembrane protein, putative
+AET00303	39445867	39448611	-		MTR_5g090570	MFS transporter
+AET00304	39450952	39452389	+		MTR_5g090580	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00305	39452797	39454281	-		MTR_5g090590	hypothetical protein
+AET00306	39454591	39456023	+		MTR_5g090600	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00307	39457072	39458510	-		MTR_5g090610	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00308	39460202	39461642	+		MTR_5g090620	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00309	39463340	39464750	-		MTR_5g090630	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00311	39469912	39470973	-		MTR_5g090650	anthocyanidin 3-O-glucosyltransferase
+AET00312	39471988	39474539	+		MTR_5g090660	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00313	39475458	39476901	+		MTR_5g090670	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00314	39480325	39481191	+		MTR_5g090680	glycosyltransferase, putative
+AET00315	39482599	39484800	+		MTR_5g090690	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00316	39486411	39487860	+		MTR_5g090700	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET00318	39503893	39504466	+		MTR_5g090740	AAA domain protein
+AET00319	39505864	39506098	+		MTR_5g090750	F0F1 ATP synthase subunit beta
+AET00320	39506232	39508241	+		MTR_5g090760	F0F1-type ATP synthase, epsilon subunit
+KEH28396	39512826	39514825	+		MTR_5g09_9	MTR_5g09_9
+AET00321	39512826	39515716	+		MTR_5g090770	NPR1/NIM1-like regulatory protein, putative
+AET00322	39516909	39526460	-		MTR_5g090780	squalene/phytoene synthase
+AET00323	39532842	39534496	-		MTR_5g090790	hypothetical protein
+AET00325	39543052	39545265	-		MTR_5g090810	HXXXD-type acyl-transferase family protein
+AET00327	39553071	39554579	-		MTR_5g090830	HXXXD-type acyl-transferase family protein
+KEH28397	39567123	39567519	-		MTR_5g090845	hypothetical protein
+AET00329	39571405	39572521	+		MTR_5g090850	F-box-like protein
+AET00330	39575411	39576683	+		MTR_5g090860	hypothetical protein
+AET00331	39578067	39583793	-		MTR_5g090870	NB-ARC domain protein
+AET00332	39586178	39587699	-		MTR_5g090880	HXXXD-type acyl-transferase family protein
+AET00334	39594119	39597546	+		MTR_5g090900	hypothetical protein
+AET00656	41277678	41279277	-		MTR_5g094450	GRAS family transcription factor
+AET00657	41285159	41287459	+		MTR_5g094460	cytochrome P450 family 71 protein
+AET00658	41305212	41305632	+		MTR_5g094500	cytochrome P450 family 71 protein
+AET00659	41310577	41311567	+		MTR_5g094510	cytochrome P450 family 71 protein
+AET00660	41315507	41317320	+		MTR_5g094520	cytochrome P450 family 71 protein
+KEH28447	41315822	41317320	+		MTR_5g09_50	MTR_5g09_50
+AET00661	41317736	41318580	-		MTR_5g094530	(E)-beta-caryophyllene synthase
+KEH28448	41321650	41322383	+		MTR_5g094535	cytochrome P450 family 71 protein
+AET00662	41323669	41325384	+		MTR_5g094540	cytochrome P450 family 71 protein
+AET00663	41327567	41329361	+		MTR_5g094550	cytochrome P450 family 71 protein
+AET00664	41331580	41333294	+		MTR_5g094560	cytochrome P450 family 71 protein
+AET00665	41336509	41338101	+		MTR_5g094570	cytochrome P450 family 71 protein
+AET00666	41340110	41340530	+		MTR_5g094580	transmembrane protein, putative
+AET00667	41340755	41341945	+		MTR_5g094590	cytochrome P450 family protein, putative
+AET00668	41342946	41344017	-		MTR_5g094600	transmembrane protein, putative
+KEH28449	41343316	41344017	-		MTR_5g09_51	MTR_5g09_51
+AET00669	41344929	41347576	+		MTR_5g094610	transcription termination factor family protein
+AET00670	41349264	41352813	-		MTR_5g094620	sesquiterpene synthase
+KEH28450	41358598	41358838	+		MTR_5g094635	transmembrane protein, putative
+KEH28451	41361136	41361428	-		MTR_5g094645	hypothetical protein
+AET00673	41362185	41362389	-		MTR_5g094650	transmembrane protein, putative
+AET00674	41365760	41367473	+		MTR_5g094660	cytochrome P450 family 71 protein
+AET00675	41369166	41370158	+		MTR_5g094670	cytochrome P450 family 71 protein
+AET00676	41371352	41372024	-		MTR_5g094680	RING-H2 zinc finger protein
+AET00677	41376094	41380481	-		MTR_5g094700	RNA-binding domain CCCH-type zinc finger protein
+AET01042	43255630	43257471	-		MTR_5g098780	light-harvesting complex I chlorophyll A/B-binding protein
+KEH28490	43258896	43261067	-		MTR_5g098785	light-harvesting complex I chlorophyll A/B-binding protein
+AET01043	43263763	43266211	-		MTR_5g098790	Pre-mRNA-splicing factor cwc24
+AET01044	43267642	43273004	+		MTR_5g098800	coproporphyrinogen III oxidase
+AET01046	43276881	43277681	+		MTR_5g098820	ADP-ribosylation factor family protein
+KEH28491	43281443	43281865	-		MTR_5g098825	cellulose synthase-like protein
+AET01048	43282201	43282708	-		MTR_5g098840	threonine synthase, putative
+AET01049	43284289	43285945	-		MTR_5g098850	AAA family ATPase
+AET01050	43289391	43291878	+		MTR_5g098860	PPR containing plant-like protein
+AET01053	43311313	43312729	-		MTR_5g098930	UDP-glucose flavonoid 3-O-glucosyltransferase
+AET01054	43313860	43316084	-		MTR_5g098940	clathrin adaptor complex small chain
+AET01055	43321465	43322941	+		MTR_5g098950	F-box protein interaction domain protein
+AET01056	43324537	43327511	-		MTR_5g098960	UDP-glucosyltransferase family protein
+AET01057	43331439	43338527	-		MTR_5g098970	LRR receptor-like kinase

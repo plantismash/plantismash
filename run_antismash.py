@@ -35,6 +35,7 @@ from antismash.config import load_config, set_config
 from antismash import utils
 from antismash.generic_modules import check_prereqs as generic_check_prereqs
 from antismash.generic_genome_modules import check_prereqs as ggm_check_prereqs
+from antismash.specific_modules import plant_cyclopeptides
 from antismash.generic_modules import (
     hmm_detection,
     genefinding,
@@ -1087,6 +1088,9 @@ def load_detection_plugins():
     "Load available secondary metabolite detection modules"
     logging.info('Loading detection modules')
     detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
+
+    logging.info("The following modules were loaded:%s "%(detection_plugins))
+    #TODO remove this logging block
 
     # Sort after priority to ensure correct order of execution
     #detection_plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))

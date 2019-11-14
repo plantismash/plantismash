@@ -1,0 +1,6 @@
+signature gene	pHMM hits	e-value	bit score	number of seeds
+XP_015889543	AMP-binding	3.2e-77	259.1	145
+XP_015889580	Str_synth	3.2e-31	106.5	6
+XP_015889567	Str_synth	9.7e-35	117.8	6
+XP_015889559	Str_synth	1.1e-30	104.8	6
+XP_015889544	AMP-binding	5.9e-89	297.7	145

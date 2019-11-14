@@ -1,0 +1,204 @@
+
+########### antiSMASH ver. 3.0.5-f4f8368 #############
+
+usage: run_antismash.py [-h] [--help-showall] [-c CPUS]
+                        [--input-type {nucl,prot}]
+                        [--taxon {bacteria,fungi,plants}]
+                        [--hmmsearch-chunk HMMSEARCH_CHUNK] [--cdhit]
+                        [--clusterblast] [--subclusterblast]
+                        [--knownclusterblast] [--coexpress] [--smcogs]
+                        [--inclusive] [--borderpredict] [--full-hmmer] [--asf]
+                        [--ecpred {none,kegg,eficaz}]
+                        [--modeling {none,sco,eco}] [--limit LIMIT]
+                        [--from START] [--to END] [--pfamdir PFAMDIR]
+                        [--models TYPES] [--enable TYPES] [--fix-id-line]
+                        [--min-domain-number MIN_DOMAIN_NUMBER]
+                        [--dynamic-cutoff]
+                        [--cutoff-multiplier CUTOFF_MULTIPLIER]
+                        [--gene-num-cutoff GENE_NUM_CUTOFF]
+                        [--gene-num-cutoff-only] [--ignore-short-aa]
+                        [--genefinding {glimmer,prodigal,prodigal-m,none}]
+                        [--eukaryotic] [--all-orfs] [--gff3 GFF3]
+                        [--glimmerhmm-train_folder GLIMMERHMM_TRAIN_FOLDER]
+                        [--cdh-cutoff CDH_CUTOFF]
+                        [--cdh-display-cutoff CDH_DISPLAY_CUTOFF]
+                        [--nclusters NCLUSTERS] [--seed SEED]
+                        [--homologyscalelimit HOMOLOGYSCALELIMIT]
+                        [--dbgclusterblast DBGCLUSTERBLAST]
+                        [--coexpress-soft_file COEXPRESS_SOFT_FILE]
+                        [--coexpress-csv_file COEXPRESS_CSV_FILE]
+                        [--coexpress-min_MAD COEXPRESS_MIN_MAD]
+                        [--cf_cdsnr CDSNR] [--cf_threshold CF_PROB_THRES]
+                        [--cf_npfams CF_NPFAMS]
+                        [--outputfolder OUTPUTFOLDERNAME] [--db]
+                        [--dboverwrite] [--disable-xls] [--disable-genbank]
+                        [--disable-svg] [--disable-html] [--disable-txt] [-v]
+                        [-d] [--logfile LOGFILE] [--statusfile STATUSFILE]
+                        [--list-plugins] [--check-prereqs] [-V]
+                        [sequence [sequence ...]]
+
+
+arguments:
+  sequence  GenBank/EMBL/FASTA file(s) containing DNA.
+
+--------
+Options
+--------
+-h, --help              Show this help text.
+--help-showall          Show full lists of arguments on this help text.
+-c CPUS, --cpus CPUS    How many CPUs to use in parallel. (default: 48)
+
+Basic analysis options:
+
+  --input-type {nucl,prot}
+                        Determine input type: amino acid sequence(s) or
+                        nucleotide sequence(s). (default: nucl)
+  --taxon {bacteria,fungi,plants}
+                        Determine the taxon from which the sequence(s) came
+                        from. (default: bacteria)
+  --hmmsearch-chunk HMMSEARCH_CHUNK
+                        Number of sequences per hmm_search run (set lower for
+                        CPU with less RAM). (default: 10000)
+
+Additional analysis:
+  Use -h along with the corresponding options to show additional analysis
+  specific parameters. (e.g.: "run_antismash.py -h --clusterblast --smcogs")
+
+  --cdhit               Use CD-HIT to filter tandem arrays on hmm_detection.
+  --clusterblast        Compare identified clusters against a database of
+                        antiSMASH-predicted clusters.
+  --subclusterblast     Compare identified clusters against known subclusters
+                        responsible for synthesising precursors.
+  --knownclusterblast   Compare identified clusters against known gene
+                        clusters from the MIBiG database.
+  --coexpress           Compare identified clusters against a prepared
+                        Expression data.
+  --smcogs              Look for sec. met. clusters of orthologous groups.
+  --inclusive           Use inclusive ClusterFinder algorithm for additional
+                        cluster detection.
+  --borderpredict       Use ClusterFinder algorithm to predict gene cluster
+                        borders.
+  --full-hmmer          Run a whole-genome HMMer analysis.
+  --asf                 Run active site finder module.
+  --ecpred {none,kegg,eficaz}
+                        Run EC prediction. kegg = query KEGG REST API
+                        (Internet connection required!) eficaz = use
+                        EFICAZ2.5a EC predictor. (default: none)
+  --modeling {none,sco,eco}
+                        Run homology based metabolic modeling pipeline against
+                        template model eco or sco. (default: none)
+
+Advanced options:
+
+  --limit LIMIT         Only process the first <limit> records (default:
+                        1000). -1 to disable
+  --from START          Start analysis at nucleotide specified.
+  --to END              End analysis at nucleotide specified
+  --pfamdir PFAMDIR     Directory the Pfam-A.hmm file is located in.
+  --models TYPES        Select user-defined hmm detection models to be used.
+  --enable TYPES        Select sec. met. cluster types to search for.
+  --fix-id-line         Try to fix invalid sequence file ID lines.
+  --min-domain-number MIN_DOMAIN_NUMBER
+                        Minimum unique domains required for minimum_rules hmm
+                        detection.
+  --dynamic-cutoff      Use dynamic cutoff multiplier based on local
+                        intergenic distances.
+  --cutoff-multiplier CUTOFF_MULTIPLIER
+                        Multiplier for tuning hmm_detection cutoff globally.
+  --gene-num-cutoff GENE_NUM_CUTOFF
+                        Accept core genes within kb distance or having
+                        separated by equal to or less than this number of
+                        intervening genes.
+  --gene-num-cutoff-only
+                        Only use number of intervening genes for the cutoff.
+  --ignore-short-aa     In hmm detection, ignore short AA without significant
+                        pfam hits (affect dynamic cutoffs).
+
+Gene finding options (ignored when ORFs are annotated):
+
+  --genefinding {glimmer,prodigal,prodigal-m,none}
+                        Specify algorithm used for gene finding: Glimmer,
+                        Prodigal, or Prodigal Metagenomic/Anonymous mode.
+                        (default: glimmer).
+  --eukaryotic          DNA is of eukaryotic origin.
+  --all-orfs            Use all ORFs > 60 nt instead of running gene finding.
+  --gff3 GFF3           Specify GFF3 file to extract features from.
+  --glimmerhmm-train_folder GLIMMERHMM_TRAIN_FOLDER
+                        Training models for the glimmerHMM (see
+                        antismash/generic_modules/genefinding/).
+
+CD-HIT specific options:
+
+  --cdh-cutoff CDH_CUTOFF
+                        Cutoff for CD-HIT filtering, lower means more strict
+                        filtering. (0.2 - 1.0)
+  --cdh-display-cutoff CDH_DISPLAY_CUTOFF
+                        Display percentage identities for cluster of core
+                        genes passing this cutoff value. (0.2-1.0)
+
+ClusterBlast specific options:
+
+  --nclusters NCLUSTERS
+                        Number of clusters from ClusterBlast to display.
+  --seed SEED           Random number seed for ClusterBlast coloring.
+  --homologyscalelimit HOMOLOGYSCALELIMIT
+                        If positive float number greater than 1, limit
+                        horizontal shrinkage of the graphical display of the
+                        query BGC in ClusterBlast results to this ratio.
+                        Warning: some homologous genes may no longer be
+                        visible!
+  --dbgclusterblast DBGCLUSTERBLAST
+                        Retrieve the resuts from previous antiSMASH run stored
+                        in the specified directory.
+
+CoExpress specific options:
+
+  --coexpress-soft_file COEXPRESS_SOFT_FILE
+                        GEO soft formatted file (.soft) from either GEO Series
+                        (GSE) or GEO Dataset (GDS).Use ',' to separate
+                        multiple input files.
+  --coexpress-csv_file COEXPRESS_CSV_FILE
+                        CSV formatted gene expression file.Use ',' to separate
+                        multiple input files.
+  --coexpress-min_MAD COEXPRESS_MIN_MAD
+                        By default, genes with a Mean Absolute Deviation (MAD)
+                        of 0 get filtered out of any correlation calculation.
+                        A minimum MAD value can be defined to filter out genes
+                        with values below the specified one. If option is set
+                        to 0, the feature is turned off entirely as MAD is
+                        never below 0.
+
+ClusterFinder specific options:
+
+  --cf_cdsnr CDSNR      Minimum size of a ClusterFinder cluster, in number of
+                        CDS.
+  --cf_threshold CF_PROB_THRES
+                        ClusterFinder mean probability threshold.
+  --cf_npfams CF_NPFAMS
+                        Minimum number of biosynthetic Pfam domains in a
+                        ClusterFinder cluster.
+
+Output options:
+
+  --outputfolder OUTPUTFOLDERNAME
+                        Directory to write results to.
+  --db                  write results to BioSQL database.
+  --dboverwrite         Re-run antiSMASH analysis and overwrite results with
+                        same accession number in BioSQL database.
+  --disable-xls         Disable xls_txt_output
+  --disable-genbank     Disable GenBank output
+  --disable-svg         Disable SVG output
+  --disable-html        Disable HTML output
+  --disable-txt         Disable txt_database_output
+
+Debugging & Logging options:
+
+  -v, --verbose         Print verbose status information to stderr.
+  -d, --debug           Print debugging information to stderr.
+  --logfile LOGFILE     Also write logging output to a file.
+  --statusfile STATUSFILE
+                        Write the current status to a file.
+  --list-plugins        List all available sec. met. detection modules.
+  --check-prereqs       Just check if all prerequisites are met.
+  -V, --version         Display the version number and exit.
+

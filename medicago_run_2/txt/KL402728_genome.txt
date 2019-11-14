@@ -1,0 +1,2 @@
+genome accession	geneclusters
+KL402728	KL402728_c72

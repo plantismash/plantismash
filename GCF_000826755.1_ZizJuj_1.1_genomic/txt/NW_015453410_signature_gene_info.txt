@@ -1,0 +1,4 @@
+signature gene	pHMM hits	e-value	bit score	number of seeds
+XP_015900613	Str_synth	1.2e-32	111.1	6
+XP_015900595	Str_synth	4e-35	119.0	6
+XP_015900622	Aminotran_1_2	3.8e-06	25.5	48

@@ -1,0 +1,55 @@
+.hp-hidden {
+  display: none;
+}
+
+.d3-hiveplot .node circle {
+  stroke: #000;
+}
+
+.d3-hiveplot .link {
+  fill: none;
+  //stroke: #999;
+  stroke-width: 1.5px;
+  stroke-opacity: .2;
+}
+
+.d3-hiveplot .link.active {
+  stroke: #DC143C;
+  stroke-width: 2px;
+  stroke-opacity: 0.8;
+}
+
+.d3-hiveplot .nodes circle.active {
+  stroke: #DC143C;
+  stroke-width: 3px;
+}
+
+.d3-hiveplot .link.static {
+  stroke: #3C14DC;
+  stroke-width: 2px;
+  stroke-opacity: 0.8;
+}
+
+.d3-hiveplot .nodes circle.static {
+  stroke: #3C14DC;
+  stroke-width: 3px;
+}
+
+.d3-hiveplot-leg {
+    margin-top: 30px;
+    margin-bottom: 0.5em;
+    float: left;
+    overflow: auto;
+    border: 1px solid #DC143C;
+}
+
+.d3-hiveplot-leg.static {
+    border: 1px solid #3C14DC;
+}
+
+.d3-hiveplot-leg.standby {
+    border: 1px solid grey;
+    font-size: x-small;
+    font-style: italic;
+    color: black;
+}

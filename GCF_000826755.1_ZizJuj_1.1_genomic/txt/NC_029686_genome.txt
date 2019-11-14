@@ -1,0 +1,2 @@
+genome accession	geneclusters
+NC_029686	NC_029686_c38

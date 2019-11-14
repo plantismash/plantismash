@@ -1,0 +1,8 @@
+>Lyciumins
+QP{.}5W
+>DUF2775/pfam109050 presumed core peptide 
+VS[AI]Y
+>DUF2775/pfam 109050 presumed leader peptide
+FEPR
+>moroidins
+QLL

@@ -1,0 +1,2 @@
+genome accession	geneclusters
+NW_015453615	NW_015453615_c60

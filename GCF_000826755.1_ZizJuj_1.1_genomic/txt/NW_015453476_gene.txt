@@ -1,0 +1,8 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+XP_015901718	27338	27806	+		LOC107434743	probable receptor-like protein kinase At1g67000
+XP_015901720	43226	44231	+		LOC107434745	uncharacterized protein LOC107434745
+XP_015901721	44853	45924	+		LOC107434746	glycerophosphodiester phosphodiesterase protein kinase domain-containing GDPDL2-like
+XP_015901722	90712	91361	+		LOC107434750	uncharacterized protein LOC107434750
+XP_015901724	116494	118817	+		LOC107434752	cysteine-rich receptor-like protein kinase 38
+XP_015901727	137143	137533	+		LOC107434759	uncharacterized protein LOC107434759
+XP_015901725	191007	192046	-		LOC107434757	BURP domain protein USPL1-like

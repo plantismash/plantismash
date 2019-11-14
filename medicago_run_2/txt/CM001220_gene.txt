@@ -1,0 +1,342 @@
+gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
+AES86450	962519	965071	+		MTR_4g007130	acyl-CoA N-acyltransferase (NAT) superfamily protein
+AES86451	967091	971177	-		MTR_4g007140	DS12 from 2D-PAGE of leaf protein, putative
+AES86452	973377	975052	-		MTR_4g007150	hypothetical protein
+AES86453	976510	978298	+		MTR_4g007160	PPR containing plant-like protein
+AES86455	982162	985540	-		MTR_4g007180	3-ketoacyl carrier synthase III
+AES86456	988332	994937	+		MTR_4g007190	Low PSII accumulation protein
+KEH28551	1004019	1007450	+		MTR_4g007210	ubiquitin-conjugating enzyme
+AES86458	1009942	1012159	+		MTR_4g007220	galactoside 2-alpha-L-fucosyltransferase-like protein
+AES86478	1016130	1021219	+		MTR_4g007420	methyltransferase WBSCR22
+AES86477	1022601	1024420	-		MTR_4g007410	anaphase-promoting complex subunit 11 RING-H2 finger protein
+AES86476	1027599	1027857	+		MTR_4g007400	hypothetical protein
+KEH29872	19468742	19470659	-		MTR_4g053775	transmembrane protein, putative
+KEH29873	19475620	19484440	+		MTR_4g053785	gland-specific fatty acyl-CoA reductase
+KEH29874	19496092	19496683	-		MTR_4g053825	hypothetical protein
+AES88360	19501471	19507550	+		MTR_4g053880	gland-specific fatty acyl-CoA reductase
+KEH29875	19514084	19514833	+		MTR_4g053883	transmembrane protein, putative
+KEH29876	19519052	19520018	+		MTR_4g053887	hypothetical protein
+AES88362	19528543	19535304	+		MTR_4g053900	gland-specific fatty acyl-CoA reductase
+KEH29877	19535729	19535885	-		MTR_4g053902	transmembrane protein, putative
+KEH29878	19539673	19540159	-		MTR_4g053905	3-ketoacyl-CoA synthase-like protein
+AES88369	19542233	19545250	-		MTR_4g054020	white-brown-complex ABC transporter family protein, putative
+KEH29879	19548431	19548906	+		MTR_4g053908	transmembrane protein, putative
+AES88382	19650295	19651374	-		MTR_4g054200	hypothetical protein
+AES88384	19655847	19657776	+		MTR_4g054220	fatty acyl-CoA reductase
+AES88385	19658588	19658888	-		MTR_4g054230	transmembrane protein, putative
+AES88386	19662459	19664269	+		MTR_4g054240	fatty acyl-CoA reductase-like protein, putative
+KEH29881	19667838	19668138	-		MTR_4g054245	hypothetical protein
+AES88388	19671596	19672956	-		MTR_4g054260	FAE1/type III polyketide synthase-like protein
+KEH29882	19678038	19678398	-		MTR_4g054265	3-ketoacyl-CoA synthase-like protein
+KEH29883	19678899	19679589	-		MTR_4g054275	hypothetical protein
+AES88391	19682540	19691283	+		MTR_4g054290	fatty acid hydroxylase superfamily protein
+AES88392	19699620	19701868	+		MTR_4g054320	WAX2 carboxy-terminal domain protein
+AES88394	19719626	19720433	-		MTR_4g054360	ethylene-responsive transcription factor
+KEH29884	19737566	19738229	+		MTR_4g054405	hypothetical protein
+KEH29885	19742716	19748429	-		MTR_4g054415	3-ketoacyl-CoA synthase-like protein
+AES88397	19760894	19762307	+		MTR_4g054440	transmembrane protein, putative
+AES88400	19772773	19773025	+		MTR_4g054580	hypothetical protein
+AES88403	19791253	19797371	+		MTR_4g054630	3-ketoacyl-CoA synthase-like protein
+AES88405	19824926	19825456	+		MTR_4g054700	hypothetical protein
+KEH29886	19839307	19839655	-		MTR_4g054735	hypothetical protein
+AES88407	19840240	19840960	+		MTR_4g054740	ethylene-responsive transcription factor
+AES88409	19853325	19853511	-		MTR_4g054770	transmembrane protein, putative
+KEH29887	19855976	19858026	-		MTR_4g054775	hypothetical protein
+AES88411	19872641	19881213	+		MTR_4g054820	gland-specific fatty acyl-CoA reductase
+AES88414	19890556	19890883	+		MTR_4g054850	transmembrane protein, putative
+AES88415	19892511	19893345	-		MTR_4g054860	ethylene-responsive transcription factor
+KEH29888	19895254	19895467	-		MTR_4g054865	transmembrane protein, putative
+AES88417	19907371	19907759	-		MTR_4g054890	hypothetical protein
+AES88418	19917450	19919171	-		MTR_4g054900	hypothetical protein
+AES88420	19931523	19933077	+		MTR_4g054920	cytochrome P450 family 94 protein
+KEH30092	23207907	23209233	+		MTR_4g062450	heavy-metal-associated domain protein
+KEH30093	23211916	23212690	+		MTR_4g062460	disease resistance response/dirigent-like protein
+KEH30094	23214135	23215050	-		MTR_4g062470	disease resistance-responsive, dirigent domain protein
+KEH30095	23215884	23217258	-		MTR_4g062480	PPR containing plant-like protein
+KEH30096	23222864	23225062	-		MTR_4g062500	cytochrome P450 family flavone synthase
+KEH30097	23230606	23232401	-		MTR_4g062510	cytochrome P450 family flavone synthase
+KEH30098	23238073	23238985	+		MTR_4g062520	disease resistance-responsive, dirigent domain protein
+KEH30099	23243026	23244923	+		MTR_4g062530	cytochrome P450 family protein
+KEH30104	23246308	23254009	-		MTR_4g062540	DNA repair protein RAD51
+KEH30103	23246308	23254009	-		MTR_4g06_17	MTR_4g06_17
+KEH30102	23246308	23254009	-		MTR_4g06_18	MTR_4g06_18
+KEH30100	23249147	23254009	-		MTR_4g06_19	MTR_4g06_19
+KEH30101	23251048	23254009	-		MTR_4g06_20	MTR_4g06_20
+KEH30105	23251048	23254009	-		MTR_4g06_21	MTR_4g06_21
+KEH30107	23251290	23254009	-		MTR_4g06_22	MTR_4g06_22
+KEH30106	23251446	23254009	-		MTR_4g06_23	MTR_4g06_23
+AES89009	25528136	25532287	+		MTR_4g068000	plant regulator RWP-RK family protein
+KEH30351	25533469	25536110	-		MTR_4g068005	hypothetical protein
+AES89022	25540389	25549270	-		MTR_4g068150	P-loop nucleoside triphosphate hydrolase superfamily protein
+AES89023	25540389	25549270	-		MTR_4g06_76	MTR_4g06_76
+KEH30352	25549660	25550271	-		MTR_4g068155	transmembrane protein, putative
+AES89025	25557584	25562701	+		MTR_4g068180	RabGAP/TBC domain protein
+AES89026	25563397	25566172	-		MTR_4g068190	FKBP-type peptidyl-prolyl cis-trans isomerase
+AES89027	25566808	25569345	+		MTR_4g068200	disease resistance protein (TIR-NBS-LRR class)
+AES89028	25570694	25576398	+		MTR_4g068210	membrane-associated 30 kDa protein
+AES89029	25571076	25576398	+		MTR_4g06_77	MTR_4g06_77
+AES89030	25580016	25580265	+		MTR_4g068220	transmembrane protein, putative
+AES89031	25583247	25585871	+		MTR_4g068230	orn/lys/arg decarboxylase
+AES89032	25587271	25590733	+		MTR_4g068240	orn/lys/arg decarboxylase major region protein
+AES89034	25597238	25600385	+		MTR_4g068270	orn/lys/arg decarboxylase major region protein
+AES89035	25601620	25604526	+		MTR_4g068280	trigger factor-like protein, putative
+AES89036	25605082	25606712	-		MTR_4g068290	CSL zinc finger protein, putative
+AES89037	25609826	25611109	+		MTR_4g068300	B3 DNA-binding domain protein
+AES89038	25615527	25616535	+		MTR_4g068310	B3 DNA-binding domain protein
+AES89039	25619752	25622225	+		MTR_4g068320	B3 domain transcription factor VRN1-like protein
+AES89040	25623768	25624168	+		MTR_4g068330	transmembrane protein, putative
+AES89041	25625865	25626747	-		MTR_4g068340	T1.3 protein
+AES89043	25631212	25633087	-		MTR_4g068360	PPR containing plant-like protein
+KEH30353	25635195	25636373	+		MTR_4g068365	hypothetical protein
+AES89044	25637492	25637738	-		MTR_4g068370	CSL zinc finger protein
+AES89045	25638425	25641816	-		MTR_4g068380	transmembrane protein, putative
+AES89046	25645188	25645377	-		MTR_4g068400	hypothetical protein
+AES89048	25648618	25649062	+		MTR_4g068420	BURP domain protein
+KEH30354	25657526	25659004	-		MTR_4g068447	hypothetical protein
+AES89060	25659524	25676251	+		MTR_4g068580	phosphatidylinositol 3- and 4-kinase
+AES89059	25678109	25679723	+		MTR_4g068570	hypothetical protein
+AES89058	25681379	25681604	+		MTR_4g068560	hypothetical protein
+KEH30355	25697991	25698207	+		MTR_4g068453	hypothetical protein
+KEH30356	25702267	25703764	-		MTR_4g068457	transducin/WD40 repeat protein
+KEH30359	25716771	25718720	+		MTR_4g06_79	MTR_4g06_79
+KEH30357	25716771	25720040	+		MTR_4g06_78	MTR_4g06_78
+KEH30358	25716771	25720885	+		MTR_4g068475	clast3, related protein
+AES89057	25732101	25733550	+		MTR_4g068550	fatty acid hydroperoxide lyase
+AES89056	25739160	25741322	+		MTR_4g068520	cold acclimation protein WCOR413
+AES89055	25742720	25744856	+		MTR_4g068510	cold acclimation protein WCOR413
+KEH30360	25745619	25750814	-		MTR_4g068670	long-chain fatty acyl CoA ligase
+KEH30361	25754667	25757816	+		MTR_4g068700	hypothetical protein
+KEH30362	25761622	25761787	-		MTR_4g068710	import receptor subunit TOM6-like protein
+KEH30363	25767070	25768851	+		MTR_4g068730	hypothetical protein
+KEH30365	25769206	25777750	+		MTR_4g068740	LRR receptor-like kinase family protein
+KEH30364	25772511	25777750	+		MTR_4g06_80	MTR_4g06_80
+KEH30365	25769206	25777750	+		MTR_4g068740	LRR receptor-like kinase family protein
+KEH30364	25772511	25777750	+		MTR_4g06_80	MTR_4g06_80
+KEH30366	25779786	25780857	+		MTR_4g068750	hypothetical protein
+KEH30367	25791622	25794111	+		MTR_4g068770	structural constituent of ribosome protein
+KEH30368	25795492	25796475	+		MTR_4g068780	CASP-like protein
+KEH30369	25802033	25802774	+		MTR_4g068790	cysteine/histidine-rich C1 domain protein
+KEH30371	25804339	25806656	-		MTR_4g068800	PPR containing plant-like protein
+KEH30370	25805189	25806656	-		MTR_4g06_81	MTR_4g06_81
+KEH30372	25816323	25816688	+		MTR_4g068820	hypothetical protein
+KEH30373	25841392	25841815	+		MTR_4g068850	DUF4228 domain protein
+KEH30375	25844905	25845868	-		MTR_4g068860	Non-symbiotic hemoglobin
+KEH30374	25845126	25845868	-		MTR_4g06_82	MTR_4g06_82
+KEH30378	25847120	25849313	-		MTR_4g06_85	MTR_4g06_85
+KEH30377	25847120	25849833	-		MTR_4g06_84	MTR_4g06_84
+KEH30379	25847120	25850143	-		MTR_4g068870	Non-symbiotic hemoglobin
+KEH30376	25847120	25850143	-		MTR_4g06_83	MTR_4g06_83
+KEH30381	25850928	25853810	-		MTR_4g068880	plastid division protein PDV2, putative
+KEH30380	25851037	25853810	-		MTR_4g06_86	MTR_4g06_86
+KEH30382	25856269	25857738	-		MTR_4g068890	transmembrane protein, putative
+KEH30383	25858641	25860684	+		MTR_4g068900	PPR containing plant-like protein
+KEH30384	25863255	25868514	-		MTR_4g068920	ternary complex factor MIP1 leucine-zipper protein
+KEH30385	25871853	25872745	+		MTR_4g068930	hypothetical protein
+KEH30387	25876890	25880940	-		MTR_4g068940	E3 ubiquitin-protein ligase ARI3, putative
+KEH30386	25876890	25880940	-		MTR_4g06_87	MTR_4g06_87
+KEH30388	25883981	25886608	-		MTR_4g068950	S-adenosylmethionine-dependent methyltransferase, putative
+KEH30389	25891756	25892487	+		MTR_4g068960	hypothetical protein
+KEH30390	25893009	25897524	-		MTR_4g068970	NAD-dependent epimerase/dehydratase family protein
+KEH30391	25899277	25900712	-		MTR_4g068980	F-box-like protein
+KEH30393	25903243	25908935	+		MTR_4g068990	DEAD-box ATP-dependent RNA helicase-like protein
+KEH30392	25904823	25908935	+		MTR_4g06_88	MTR_4g06_88
+KEH30394	25912057	25913045	-		MTR_4g069000	nonsense-mediated mRNA decay protein
+KEH30395	25914492	25915521	-		MTR_4g069020	allene oxide cyclase
+KEH30396	25923456	25926613	+		MTR_4g069030	4-hydroxy-3-methylbut-2-enyl diphosphate reductase
+KEH30397	25928860	25930414	-		MTR_4g069040	dehydration-responsive RD22-like protein
+KEH30398	25932748	25934209	-		MTR_4g069050	transmembrane protein, putative
+KEH30399	25944751	25948375	+		MTR_4g069070	4-hydroxy-3-methylbut-2-enyl diphosphate reductase
+KEH30400	25949269	25953428	-		MTR_4g069080	cytochrome C biogenesis protein Ccs1
+KEH30401	25956705	25968902	-		MTR_4g069090	phospholipase A-2-activating protein
+KEH30402	25980957	25981479	-		MTR_4g069110	AT hook motif DNA-binding family protein
+KEH30403	25989972	25991683	+		MTR_4g069140	phospholipid/glycerol acyltransferase family protein
+KEH30404	25996652	25997777	-		MTR_4g069160	UPF0496 plant-like protein
+KEH30405	26002971	26003286	+		MTR_4g069170	Lipid transfer protein
+KEH30406	26010215	26010530	+		MTR_4g069200	Lipid transfer protein
+KEH30407	26015722	26017178	+		MTR_4g069210	Lipid transfer protein
+KEH30408	26018831	26019146	+		MTR_4g069220	Lipid transfer protein
+KEH30409	26022975	26027668	-		MTR_4g069240	oligosaccharyltransferase 48 kDa subunit beta
+KEH30410	26029530	26031404	-		MTR_4g069250	NAD(P)H:quinone oxidoreductase, type IV protein
+KEH30411	26035747	26038449	-		MTR_4g069260	nucleotide-diphospho-sugar transferase family protein
+KEH30412	26045486	26051815	-		MTR_4g069270	hypothetical protein
+KEH30413	26055958	26056354	-		MTR_4g069280	transmembrane protein, putative
+KEH30414	26061894	26062497	-		MTR_4g069290	hypothetical protein
+KEH30415	26064395	26068016	-		MTR_4g069300	nucleotide-diphospho-sugar transferase family protein
+KEH30399	25944751	25948375	+		MTR_4g069070	4-hydroxy-3-methylbut-2-enyl diphosphate reductase
+KEH30400	25949269	25953428	-		MTR_4g069080	cytochrome C biogenesis protein Ccs1
+KEH30401	25956705	25968902	-		MTR_4g069090	phospholipase A-2-activating protein
+KEH30402	25980957	25981479	-		MTR_4g069110	AT hook motif DNA-binding family protein
+KEH30403	25989972	25991683	+		MTR_4g069140	phospholipid/glycerol acyltransferase family protein
+KEH30404	25996652	25997777	-		MTR_4g069160	UPF0496 plant-like protein
+KEH30405	26002971	26003286	+		MTR_4g069170	Lipid transfer protein
+KEH30406	26010215	26010530	+		MTR_4g069200	Lipid transfer protein
+KEH30407	26015722	26017178	+		MTR_4g069210	Lipid transfer protein
+KEH30408	26018831	26019146	+		MTR_4g069220	Lipid transfer protein
+KEH30409	26022975	26027668	-		MTR_4g069240	oligosaccharyltransferase 48 kDa subunit beta
+KEH30410	26029530	26031404	-		MTR_4g069250	NAD(P)H:quinone oxidoreductase, type IV protein
+KEH30411	26035747	26038449	-		MTR_4g069260	nucleotide-diphospho-sugar transferase family protein
+KEH30412	26045486	26051815	-		MTR_4g069270	hypothetical protein
+KEH30413	26055958	26056354	-		MTR_4g069280	transmembrane protein, putative
+KEH30414	26061894	26062497	-		MTR_4g069290	hypothetical protein
+KEH30415	26064395	26068016	-		MTR_4g069300	nucleotide-diphospho-sugar transferase family protein
+KEH30416	26084120	26085591	-		MTR_4g069350	nucleotide-diphospho-sugar transferase family protein
+KEH30417	26092610	26092895	+		MTR_4g069360	transmembrane protein, putative
+KEH30418	26096395	26097460	-		MTR_4g069390	nucleotide-diphospho-sugar transferase family protein
+KEH30419	26110463	26110874	+		MTR_4g069400	hypothetical protein
+KEH30420	26111531	26111928	-		MTR_4g069410	transmembrane protein, putative
+KEH30421	26119682	26121455	-		MTR_4g069420	nucleotide-diphospho-sugar transferase family protein
+KEH30422	26126342	26128882	-		MTR_4g069430	nucleotide-diphospho-sugar transferase family protein
+KEH30423	26134083	26136623	-		MTR_4g069460	hypothetical protein
+KEH30424	26145080	26145332	-		MTR_4g069480	hypothetical protein
+KEH30426	26152195	26154883	+		MTR_4g069500	polyol/monosaccharide transporter 1
+KEH30425	26152724	26154883	+		MTR_4g06_89	MTR_4g06_89
+KEH30427	26153796	26154883	+		MTR_4g06_90	MTR_4g06_90
+KEH30428	26161843	26164451	-		MTR_4g069520	BURP domain protein
+KEH30429	26161843	26164451	-		MTR_4g06_91	MTR_4g06_91
+KEH30430	26173701	26174027	-		MTR_4g069530	hypothetical protein
+KEH30431	26176171	26176504	-		MTR_4g069540	BURP domain protein
+KEH30432	26179640	26182774	-		MTR_4g069550	BURP domain protein
+KEH30433	26189883	26190778	-		MTR_4g069560	plant/F14N23-31 protein, putative
+KEH30434	26191940	26192951	-		MTR_4g069570	BURP domain protein
+KEH30435	26195052	26195550	-		MTR_4g069580	transmembrane protein, putative
+AES89068	26207874	26208851	+		MTR_4g069680	dehydration-responsive RD22-like protein
+AES89070	26211858	26212380	+		MTR_4g069700	hypothetical protein
+AES89071	26220616	26221138	+		MTR_4g069720	hypothetical protein
+AES89074	26230300	26230688	+		MTR_4g069750	hypothetical protein
+AES89075	26232085	26232390	+		MTR_4g069760	transmembrane protein, putative
+AES89076	26235531	26235941	-		MTR_4g069770	DUF2775 family protein
+AES89078	26245664	26248293	+		MTR_4g06_93	MTR_4g06_93
+AES89077	26245664	26250099	+		MTR_4g069800	ATP-dependent Clp protease proteolytic protein
+AES89079	26245664	26250099	+		MTR_4g06_92	MTR_4g06_92
+AES89080	26254418	26256390	+		MTR_4g069810	specific tissue protein
+AES89081	26257178	26257534	+		MTR_4g069820	hypothetical protein
+AES89082	26258668	26265612	+		MTR_4g069830	SWI/SNF complex subunit SWI3D
+KEH30436	26258668	26265612	+		MTR_4g06_94	MTR_4g06_94
+AES89083	26268862	26271660	+		MTR_4g069840	group 1 family glycosyltransferase
+AES89084	26273195	26276407	-		MTR_4g069850	RAB GTPase-like protein A1D
+AES89088	26282490	26282697	-		MTR_4g069880	hypothetical protein
+AES89090	26297858	26304834	+		MTR_4g069920	coatomer subunit gamma-like protein
+AES89091	26306047	26306732	+		MTR_4g069930	hypothetical protein
+AES89092	26308596	26313012	-		MTR_4g069940	glucan endo-1,3-beta-glucosidase-like protein
+AES89093	26317303	26317618	+		MTR_4g069950	hypothetical protein
+AES89094	26318441	26322241	-		MTR_4g069960	adenylyl cyclase-associated protein
+AES89095	26324737	26328046	-		MTR_4g069970	receptor-like kinase
+KEH30437	26325033	26328046	-		MTR_4g06_95	MTR_4g06_95
+KEH30438	26325312	26328046	-		MTR_4g06_96	MTR_4g06_96
+AES89098	26337273	26340738	-		MTR_4g070000	hypothetical protein
+AES89099	26342690	26346170	+		MTR_4g070010	BTB/POZ domain plant-like protein, putative
+AES89101	26348212	26350313	-		MTR_4g070020	erythronate-4-phosphate dehydrogenase family protein
+AES89100	26349408	26350313	-		MTR_4g07_1	MTR_4g07_1
+KEH30439	26352648	26355132	-		MTR_4g070030	hypothetical protein
+AES89102	26353088	26355132	-		MTR_4g07_2	MTR_4g07_2
+AES89103	26355734	26362905	+		MTR_4g070040	phenylalanyl-tRNA synthetase alpha chain, putative
+AES89105	26367087	26370221	-		MTR_4g070060	transcription termination factor family protein
+AES89107	26374609	26375410	+		MTR_4g070080	RNA-binding (RRM/RBD/RNP motif) family protein
+KEH30440	26374609	26375410	+		MTR_4g07_3	MTR_4g07_3
+AES89108	26377793	26380276	+		MTR_4g070090	replication factor-A-like protein
+AES89111	26394213	26396413	-		MTR_4g070120	4Fe-4S-binding domain protein
+AES89112	26398809	26399468	-		MTR_4g070130	hypothetical protein
+AES89113	26401671	26402543	+		MTR_4g070140	RNA-binding (RRM/RBD/RNP motif) family protein
+AES89115	26409756	26410855	+		MTR_4g070160	plant OB fold protein, putative
+AES89117	26413517	26415265	-		MTR_4g070180	hypothetical protein
+AES89118	26418904	26419710	+		MTR_4g070190	RNA-binding (RRM/RBD/RNP motif) family protein
+AES89119	26420929	26421295	-		MTR_4g070200	hypothetical protein
+AES89622	29900436	29905004	-		MTR_4g077880	P-loop nucleoside triphosphate hydrolase superfamily protein
+KEH30663	29901146	29905004	-		MTR_4g07_80	MTR_4g07_80
+AES89623	29911805	29914804	+		MTR_4g077900	acyl:CoA ligase
+AES89624	29916554	29920862	-		MTR_4g077910	cellulose synthase-like protein
+KEH30665	29927101	29932467	-		MTR_4g077920	exostosin family protein
+AES89625	29927101	29932467	-		MTR_4g07_81	MTR_4g07_81
+KEH30664	29928894	29932467	-		MTR_4g07_82	MTR_4g07_82
+KEH30667	29933758	29938650	-		MTR_4g07_83	MTR_4g07_83
+AES89626	29933758	29939342	-		MTR_4g077930	ABC transporter B family protein
+KEH30666	29934522	29939342	-		MTR_4g07_84	MTR_4g07_84
+AES89627	29940173	29942827	-		MTR_4g07_85	MTR_4g07_85
+KEH30668	29940173	29943288	-		MTR_4g077940	protein transporter
+KEH30669	29947205	29947987	-		MTR_4g077947	hypothetical protein
+KEH30670	29948394	29950217	+		MTR_4g07_86	MTR_4g07_86
+AES89628	29948394	29952298	+		MTR_4g077950	import inner membrane translocase subunit TIM22
+AES89629	29953770	29955102	+		MTR_4g077960	UDP-glucosyltransferase family protein
+KEH30671	29957868	29958909	-		MTR_4g07_87	MTR_4g07_87
+AES89630	29957868	29960010	-		MTR_4g077970	heat shock transcription factor A3
+AES89640	29966964	29967346	-		MTR_4g078090	hypothetical protein
+AES89632	29967830	29969885	+		MTR_4g078000	PIF1-like helicase
+AES89642	29972261	29975536	-		MTR_4g078110	cytochrome P450 family protein
+AES89643	29980928	29984437	-		MTR_4g078120	cation/H+ exchanger 3
+KEH30672	29986752	29987515	+		MTR_4g478130	S-norcoclaurine synthase-like protein
+KEH30673	29991118	29992110	+		MTR_4g478140	S-norcoclaurine synthase-like protein
+KEH30674	29999230	30000044	+		MTR_4g478150	hypothetical protein
+KEH31174	36508168	36510943	-		MTR_4g092010	(3S)-linalool/(E)-nerolidol/(E,E)-geranyl linalool synthase
+KEH31175	36522160	36525097	-		MTR_4g092020	(3S)-linalool/(E)-nerolidol/(E,E)-geranyl linalool synthase
+KEH31177	36526642	36529840	-		MTR_4g09_19	MTR_4g09_19
+KEH31176	36526642	36531816	-		MTR_4g092040	FYVE zinc finger protein
+KEH31178	36533902	36538281	-		MTR_4g092050	eukaryotic translation initiation factor-like protein
+KEH31179	36546073	36549360	+		MTR_4g092070	dual-specificity kinase domain protein
+KEH31180	36550023	36552544	-		MTR_4g092080	anthocyanidin reductase ANR1-1
+KEH31182	36555070	36559181	-		MTR_4g09_20	MTR_4g09_20
+KEH31181	36555070	36559217	-		MTR_4g092090	DUF3128 family protein
+KEH31445	39037513	39042718	-		MTR_4g094808	transmembrane protein, putative
+KEH31446	39047580	39050067	+		MTR_4g094812	caffeoyl-CoA 3-O-methyltransferase
+KEH31447	39053451	39056145	+		MTR_4g094815	caffeoyl-CoA 3-O-methyltransferase
+KEH31448	39064433	39067302	-		MTR_4g094820	pi-PLC X domain plant-like protein
+KEH31449	39070789	39072524	-		MTR_4g094825	transferase family protein
+KEH31450	39075063	39076419	-		MTR_4g094828	HXXXD-type acyl-transferase family protein
+KEH31451	39082193	39084748	-		MTR_4g094832	HXXXD-type acyl-transferase family protein
+KEH31452	39087847	39089191	-		MTR_4g094835	anthranilate N-benzoyltransferase
+KEH31453	39091238	39092588	-		MTR_4g094838	HXXXD-type acyl-transferase family protein
+KEH31454	39093700	39095443	+		MTR_4g094840	hypothetical protein
+KEH31455	39097530	39098874	-		MTR_4g094842	anthranilate N-benzoyltransferase
+KEH31457	39104279	39108251	-		MTR_4g09_85	MTR_4g09_85
+KEH31456	39104279	39109272	-		MTR_4g094848	filament-like plant protein
+KEH31471	39230672	39231584	+		MTR_4g094895	polysaccharide biosynthesis protein
+KEH31473	39234759	39238423	+		MTR_4g094898	caffeoyl-CoA 3-O-methyltransferase
+KEH31472	39236683	39238423	+		MTR_4g09_90	MTR_4g09_90
+KEH31474	39240790	39243478	+		MTR_4g094900	2OG-Fe(II) oxygenase family oxidoreductase
+KEH31475	39244542	39244860	-		MTR_4g094902	tRNA-dihydrouridine synthase-like protein
+KEH31476	39247002	39249252	-		MTR_4g094905	tRNA-dihydrouridine synthase-like protein
+KEH31477	39255311	39256749	-		MTR_4g094908	WRKY family transcription factor
+KEH31478	39271204	39277247	+		MTR_4g094912	beta-1,4-xylosyltransferase, putative
+KEH31479	39283495	39286036	+		MTR_4g094918	papain family cysteine protease
+KEH31480	39287266	39288775	-		MTR_4g094920	UDP-glucosyltransferase family protein
+KEH31481	39289967	39290252	+		MTR_4g094922	hypothetical protein
+KEH31483	39290986	39292860	-		MTR_4g09_91	MTR_4g09_91
+KEH31482	39290986	39292873	-		MTR_4g094925	caffeoyl-CoA 3-O-methyltransferase
+KEH32677	55876953	55877435	-		MTR_4g133573	hypothetical protein
+KEH32678	55878172	55878454	+		MTR_4g133577	hypothetical protein
+AES92761	55883734	55887888	+		MTR_4g133600	calcium-binding protein
+AES92762	55884655	55887888	+		MTR_4g13_56	MTR_4g13_56
+AES92763	55889195	55891034	+		MTR_4g133610	PPR containing plant-like protein
+KEH32679	55891298	55891574	+		MTR_4g133615	hypothetical protein
+AES92764	55894861	55896520	-		MTR_4g133620	auxin-responsive family protein
+KEH32680	55905466	55905685	+		MTR_4g133627	hypothetical protein
+AES92766	55907275	55909075	+		MTR_4g133640	F-box/LRR protein, putative
+AES92768	55912856	55914491	-		MTR_4g133660	GRAS family transcription factor
+AES92771	55928667	55930406	+		MTR_4g133690	mannose-1-phosphate guanyltransferase
+AES92772	55932135	55932572	-		MTR_4g133700	TPR superfamily protein, putative
+AES92774	55939091	55939541	+		MTR_4g133720	hypothetical protein
+AES92775	55942677	55943567	+		MTR_4g133730	glucan endo-1,3-beta-glucosidase-like protein
+KEH32681	55946017	55946734	+		MTR_4g133735	carbohydrate-binding X8 domain protein
+AES92776	55949219	55951340	-		MTR_4g133740	pentatricopeptide (PPR) repeat protein
+AES92777	55954694	55956671	-		MTR_4g133750	cytochrome P450 family 71 protein
+AES92778	55958244	55959898	-		MTR_4g133760	cytochrome P450 family 71 protein
+AES92779	55962872	55963448	+		MTR_4g133770	transmembrane protein, putative
+AES92780	55964698	55965521	+		MTR_4g133780	transmembrane protein, putative
+AES92781	55965625	55967085	-		MTR_4g133790	cytochrome C biogenesis protein ccsA, putative
+AES92782	55970926	55972117	+		MTR_4g133800	peroxidase family protein
+AES92784	55973845	55974579	+		MTR_4g133820	hypothetical protein
+AES92785	55977113	55978500	+		MTR_4g133830	polygalacturonase non-catalytic protein
+AES92786	55980013	55980635	+		MTR_4g133840	polygalacturonase non-catalytic protein
+AES92787	55983011	55983224	-		MTR_4g133850	hypothetical protein
+AES92789	55994424	55996041	+		MTR_4g133870	outward rectifying potassium channel protein
+KEH32682	56005060	56009196	+		MTR_4g133890	myosin II heavy chain family protein
+AES92791	56005084	56009237	+		MTR_4g13_57	MTR_4g13_57
+AES92792	56012225	56013343	-		MTR_4g133900	heavy-metal-associated domain protein
+AES92794	56019980	56021368	-		MTR_4g133920	Serine/Threonine kinase PBS1
+KEH32684	56043110	56046419	+		MTR_4g13_58	MTR_4g13_58
+KEH32683	56043110	56047106	+		MTR_4g133968	oligopeptide transporter OPT family protein
+AES92801	56048569	56050796	-		MTR_4g133970	SNF1-related kinase regulatory beta protein
+KEH32685	56056789	56057284	+		MTR_4g133928	acyl carrier protein
+KEH32686	56058043	56059905	-		MTR_4g133932	pollen Ole e I family allergen
+KEH32687	56067828	56068239	+		MTR_4g133938	nuclear transcription factor Y protein
+KEH32688	56069373	56070974	-		MTR_4g133942	galacturonosyltransferase
+KEH32689	56072588	56076151	-		MTR_4g133945	nudix hydrolase superfamily protein

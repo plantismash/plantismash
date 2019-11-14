@@ -1,0 +1,2 @@
+genome accession	geneclusters
+NW_015454196	NW_015454196_c62
