@@ -113,24 +113,19 @@ def check_known_classes(feat):
     known_classes = get_known_classes_from_file(filepath)
     feat.qualifiers["ripp_evidence"] = {}
     for key in known_classes:
-        for pattern in known_classes[key]:
-            p = re.compile(pattern)
-            pattern_occurrences = []
-            pattern_instances = []
-            matches = p.finditer(feat.qualifiers["translation"][0])
-            #print feat.qualifiers["translation"][0]
+        pattern = known_classes[key]
+        p = re.compile(pattern)
+        pattern_instances = []
+        matches = p.finditer(feat.qualifiers["translation"][0])
+        mlen = 0
+        for m in matches:
+            mlen +=1
+            pattern_instances.append(m.start())
+        
+        #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key)
+        
+        feat.qualifiers["ripp_evidence"][key+ " pattern: " + pattern] = pattern_instances
 
-            for m in matches:
-                pattern_occurrences.append(m.start())
-                pattern_instances.append(m.group())
-            #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key)
-            feat.qualifiers["ripp_evidence"][key+ "| pattern: "+pattern] = pattern_occurrences,pattern_instances# {"occurrences":pattern_occurrences,"instances":pattern_instances}
-
-
-                #check locations ( are they close)
-
-                #if everything checks out
-                #feat.qualifiers[ripp_evidence] = string string string +key
 
 def get_known_classes_from_file(filepath):
     known_classes = {}
@@ -140,14 +135,12 @@ def get_known_classes_from_file(filepath):
 
     for li in infile:
         line = re.sub("\\n", "",li)
+        line = re.sub("\\r","",line)
         if line.startswith(">"):
             current_key = line[1:]
 
-        elif current_key in known_classes:
-            known_classes[current_key].append(line)
-
         else:
-            known_classes[current_key] = [line]
+            known_classes[current_key] = line
 
     infile.close()
 
@@ -178,17 +171,9 @@ def classify_feat(feat):
 
 if __name__ == "__main__":
 
-    fpl = sp.make_filepath_list("C://users/ezmod/data/algorithm_output_v6")
 
+    known_dict = get_known_classes_from_file("known_motifs.txt")
 
-    seq_record_list = []
-    for fp in fpl:
-
-        seq_record_list.append(sp.open_gbk(fp))
-    for seqr in seq_record_list:
-        for feat in seqr.features:
-            if "table" in feat.qualifiers:
-                if feat.type == "CDS" and len(feat.qualifiers["table"][0]) > 3:
-                    check_glutamine_aromat_structure(feat)
-                    check_instances_aromat_structure(feat)
-                    check_known_classes(feat)
+    for k in known_dict:
+        print k
+        print known_dict[k]

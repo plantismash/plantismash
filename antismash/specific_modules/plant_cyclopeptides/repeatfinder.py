@@ -43,9 +43,18 @@ def run_fbk(seq_record):
                         repeat_regions.append("unknown region")
                     make_pattern(feat)
                     feat.qualifiers["has_repeat"] = True
-
                     seq_record.annotations["repeat_regions"] = repeat_regions
-                    Classifier.classify_feat(feat)
+                    should_delete = False
+                    for t in feat.qualifiers["table"]:
+                        if len(set(list(t))) <=2:
+                            should_delete = True
+                    if should_delete:
+                        feat.qualifiers["table"] = None
+                        feat.qualifiers["has_repeat"] = False
+                        del(feat.qualifiers["pattern"]) 
+                    else:
+
+                        Classifier.classify_feat(feat)
                     #output.add_html_output(seq_record)
 
 
@@ -53,6 +62,7 @@ def run_fbk(seq_record):
 def assess_cluster(seq_record):
     """""this will run the assessment of the cluster, looking at coverage, spacing, classification,
     identity inter repeat regions and complexity/compressibility"""
+    
     print "placeholder"
     #TODO: write the actual function
 
@@ -119,7 +129,8 @@ def expand_table(feature,cutoff = 2):
 
         cont = expand_forward(seq,hits,table,cutoff)
         #print table
-
+    #remove duplicate repeats
+        
     #feature.qualifiers["table"] = table
 
 

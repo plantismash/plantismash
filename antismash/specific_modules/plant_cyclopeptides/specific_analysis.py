@@ -6,7 +6,6 @@
 '''
 
 
-import logging
 #workaround for the import error
 from antismash import utils
 #import utils
@@ -19,7 +18,6 @@ def specific_analysis(seq_record, options):
         if 'product' not in cluster.qualifiers or \
            'cyclopeptide' not in cluster.qualifiers['product'][0]:
             continue
-        logging.debug("Finding repeats within BURP region (%s)" % (cluster.qualifiers['note'][0]))
         #cluster_record = seq_record[cluster.start:cluster.end]
         find_repeats(seq_record)
          
@@ -41,6 +39,13 @@ def fbk_output_to_result(seq_record):
                 result.sequence = feat.qualifiers["translation"][0]
                 result.feature_type = feat.type
                 result.position = (feat.location.start,feat.location.end)
+                if 'gene' in feat.qualifiers:
+                    result.cds_id = feat.qualifiers['gene'][0]
+                elif 'locus_tag' in feat.qualifiers:
+                    result.cds_id = feat.qualifiers['locus_tag'][0]
+                elif 'db_xref' in feat.qualifiers:
+                    result.CDS_id = feat.qualifiers['db_xref'][0]
+                result.evidence = feat.qualifiers["ripp_evidence"]
                 feat.qualifiers['cyclopeptide_analysis'] = [result.encode()]
    
 ###########  
@@ -52,6 +57,8 @@ class Result:
     sequence = ""
     feature_type = ""
     position = None
+    cds_id = None
+    evidence = {}
     def __init__(self, qualifier = None):
         if qualifier != None:
             self.decode(qualifier)
@@ -64,6 +71,11 @@ class Result:
         qualifier += "//" + self.sequence
         qualifier += "//" + self.feature_type
         qualifier += "//" + str(self.position[0]) + "|" + str(self.position[1])
+        qualifier += "//" + self.cds_id
+        qualifier += "//" + "|".join(self.evidence.keys())
+        qualifier += "//" + "|".join([str(x) for x in self.evidence.values()])
+        
+
         #qualifier = [self.pattern,str(self.instances),self.sequence,\
         #        self.feature_type ,self.position]
         return qualifier
@@ -78,6 +90,22 @@ class Result:
         self.sequence = q[2]
         self.feature_type = q[3]
         self.position = tuple(q[4].split("|"))
+        self.cds_id = q[5]#TODO removed length if statement. if it breaks this is probably the reason
+        keys = q[6].split("|")
+        values_strings = q[7].split("|")
+        vallist = []
+        for v in values_strings:
+            vallist.append(list(v[2:-2].split(",")))
+        self.evidence = dict(zip(keys,vallist))
+        has_evidence = True#TODO CHANGE BACK OR REMOVE THIS PIECE OF CODE 
+
+        #for vallist in vallist_list:
+         #   if len(vallist) > 1:
+          #      has_evidence = True
+        #if has_evidence:    
+        #    self.evidence = dict(zip(evidence_keys,vallist_list)) 
+        #else: 
+        #    self.evidence = None
 
 def find_repeats(seq_record):
     result = None 

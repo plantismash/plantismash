@@ -1,7 +1,17 @@
 import re
 from .specific_analysis import Result
-import logging
-
+class effects:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+    
 def highlight_seq(sequence, instances, color = "#FF0000"):
     """"This function highlights the repeats in a certain sequence"""
 
@@ -17,17 +27,41 @@ def highlight_seq(sequence, instances, color = "#FF0000"):
 
     return formatted_string
 
+def format_string(sequence, instances,effects_list, stringlength):
+
+    formatted_string = sequence
+    str_effects = ""
+    for e in effects_list:
+        str_effects += e
+
+    for instance in instance:
+        replacement = str_effects + instance + effects.END 
+        formatted_string = re.sub(instance,replacement,formatted_string)
+    
+    return formatted_string
+
 def write_result_summary(result,instance_line_nr = 5):
-    br = "<br>"
-    hr = "<hr>"
+    br = "<br>"#CHANGED FOR PLAINTEXT VERSION, <br> is html
+    hr = "<hr>"#CHANGED FOR PLAINTEXT VERSION, <hr> is html
     summary = hr
-    summary += "Repeat found between %s and %s %s"%(result.position[0],result.position[1],br)
+    if result.cds_id:
+        summary += "Repeat found in %s <br>"%(result.cds_id)
+    summary += "Location between %s and %s %s"%(result.position[0],result.position[1],br)
     summary += "Repeat was found %s times in a sequence of %s amino acids"%(len(result.instances),len(result.sequence))+br
-    coverage = round((float(len(result.instances)*len(result.instances[0]))/len(result.instances[0]))*100,2)
+    coverage = round((float(len(result.instances)*len(result.instances[0]))/len(result.sequence))*100,2)
     summary += "Coverage of %s %s"%(coverage,"%")+br
     summary += "Instances:<br> %s%s"%(format_instances(result.instances,instance_line_nr),br)
     summary += "pattern: %s%s"%(result.pattern,br)
-
+    if result.evidence:
+        summary_text_printed = False
+        for ek in result.evidence:
+            
+            if len(result.evidence[ek]) > 1: 
+                if not summary_text_printed:
+                    summary += "the following known Motifs were found: <br>"
+                    summary_text_printed = True
+                    
+                summary += "%s was found %s times in this sequence<br>"%(ek,len(result.evidence[ek]))
     return summary
 
 def write_feature_summary(feature,instance_line_nr = 5):
@@ -76,7 +110,6 @@ def format_linebreaks(line,max_length):
     break_index_list = []
     counter = 0
     should_count = True
-    logging.info("line = %s"%(line))
     for i,char in enumerate(line):
 
         if char == "<":
@@ -97,19 +130,17 @@ def format_linebreaks(line,max_length):
     correction = 0
     for index in break_index_list:
         index = index + correction
-        line = line[:index] + "<br>" + line[index:]
+        line = line[:index] + "<br>" + line[index:]#CHANGE BACK TO HTML MAYBE
 
         correction += 4
     print "line at end of formatting is %s"%(line)
     return line
 
 def create_result_output(result):
-    logging.info("result seq = %s"%(result.sequence))
     html_seq = highlight_seq(result.sequence,result.instances)
-    logging.info("html_seq = %s"%(html_seq))
     #highlight_seq(feature,=feature.qualifiers["glutamine_aromat_structures"][0],output_key="html_seq_glutamine")
     output_line = write_result_summary(result)
-    output_line += "Sequence: <br>"
+    output_line += "Sequence: <br>"#<br> in html
     output_line += format_linebreaks(html_seq,64)
     #output_line += write_evidence_summary()
     #output_line += "<br>glutamine sequences highlighted <br>"
