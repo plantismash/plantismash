@@ -1,1 +1,0 @@
-RiPP ID	annotation	core peptide	molecular weight	monoisotopic_mass	alternative molecular weights	number of bridges

@@ -1,2 +1,0 @@
-signature gene	pHMM hits	e-value	bit score	number of seeds
-XP_015901725	BURP	1.4e-64	216.8	101

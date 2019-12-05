@@ -1,2 +1,0 @@
-genome accession	geneclusters
-KL403037	KL403037_c73

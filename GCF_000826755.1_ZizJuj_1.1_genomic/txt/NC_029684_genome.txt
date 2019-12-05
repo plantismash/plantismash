@@ -1,2 +1,0 @@
-genome accession	geneclusters
-NC_029684	NC_029684_c31;NC_029684_c32;NC_029684_c33;NC_029684_c34;NC_029684_c35

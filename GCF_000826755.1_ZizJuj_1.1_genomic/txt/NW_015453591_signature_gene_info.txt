@@ -1,6 +1,0 @@
-signature gene	pHMM hits	e-value	bit score	number of seeds
-XP_015865645	p450	2.3e-52	177.4	50
-XP_015865632	p450	7.1e-54	182.4	50
-XP_015865637	Bet_v_1	4.9e-39	132.8	18
-XP_015865639	NAD_binding_1	1e-17	63.9	?
-XP_015865629	Str_synth	4.9e-26	89.8	6

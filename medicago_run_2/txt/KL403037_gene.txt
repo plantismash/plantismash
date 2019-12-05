@@ -1,5 +1,0 @@
-gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
-KEH16132	1690	4889	+		MTR_0312s0020	OPT family oligopeptide transporter
-KEH16133	9573	11087	+		MTR_0312s0030	dehydration-responsive protein RD22
-KEH16134	12716	17550	-		MTR_0312s0040	DNA polymerase theta-like protein
-KEH16135	19625	19997	+		MTR_0312s0050	metal-nicotianamine transporter YSL3-like protein

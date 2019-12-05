@@ -1,2 +1,0 @@
-old genome accession	new genome accession
-CM001222	CM001222

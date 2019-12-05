@@ -1,2 +1,0 @@
-genome accession	geneclusters
-NW_015453824	NW_015453824_c61

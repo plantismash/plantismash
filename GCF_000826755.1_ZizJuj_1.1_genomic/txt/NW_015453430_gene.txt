@@ -1,8 +1,0 @@
-gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
-XP_015901047	9030	9711	+		LOC107434136	UDP-glucose flavonoid 3-O-glucosyltransferase 6-like
-XP_015901048	9777	10495	+		LOC107434137	UDP-glycosyltransferase 71A16-like
-XP_015901049	48522	50615	+		LOC107434138	uncharacterized protein LOC107434138
-XP_015901044	55728	61337	-		LOC107434135	protein CAJ1
-XP_015901046	55728	61337	-		LOC10743_1149	LOC10743_1149
-XP_015901055	110133	117612	+		LOC107434144	aspartate aminotransferase, mitochondrial
-XP_015901056	119251	123301	-		LOC107434145	shaggy-related protein kinase zeta

@@ -1,6 +1,0 @@
-signature gene	pHMM hits	e-value	bit score	number of seeds
-XP_015865828	adh_short	7.2e-49	165.0	?
-XP_015865830	adh_short	5.6e-50	168.7	?
-XP_015865826	adh_short	3.2e-13	48.7	?
-XP_015865831	adh_short	6.2e-19	67.4	?
-XP_015865840	Transferase	1.9e-98	329.1	7

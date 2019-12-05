@@ -1,2 +1,0 @@
-genome accession	geneclusters
-NC_029679	NC_029679_c1;NC_029679_c2;NC_029679_c3;NC_029679_c4

@@ -1,2 +1,0 @@
-old genome accession	new genome accession
-NC_029685	NC_029685

@@ -1,2 +1,0 @@
-BGC ID	BGC type	detection rules used	BGC_range	genes	subclusters	NRPSs/PKSs	signature_genes	RiPPs	predicted structure	monomers
-NW_015453548_c58	cyclopeptide	"plants/cyclopeptide: (BURP);"	0;169959	XP_015902733.1;XP_015902734.1;XP_015902736.1;XP_015902737.1;XP_015902739.1			XP_015902733	-		N/A

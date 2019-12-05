@@ -1,6 +1,0 @@
-gene ID	gene start	gene end	gene strand	smCOG	locus_tag	annotation
-XP_015901335	98467	100033	-		LOC107434384	scopoletin glucosyltransferase-like
-XP_015901336	100897	102352	-		LOC107434385	UDP-glycosyltransferase 89A2-like
-XP_015901338	102583	105442	+		LOC107434386	protein LOW PSII ACCUMULATION 3, chloroplastic-like
-XP_015901331	107269	108896	-		LOC107434379	LOW QUALITY PROTEIN: bifunctional pinoresinol-lariciresinol reductase 2-like
-XP_015901318	110682	114731	+		LOC107434366	WD repeat-containing protein 55-like

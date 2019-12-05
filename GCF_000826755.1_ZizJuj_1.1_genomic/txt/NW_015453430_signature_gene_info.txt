@@ -1,4 +1,0 @@
-signature gene	pHMM hits	e-value	bit score	number of seeds
-XP_015901047	UDPGT_2	3.1e-09	35.6	248
-XP_015901048	UDPGT_2	8.6e-32	109.9	248
-XP_015901055	Aminotran_1_2	1e-89	300.4	48
