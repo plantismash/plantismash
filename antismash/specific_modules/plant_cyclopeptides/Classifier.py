@@ -1,7 +1,7 @@
 #import IO.seqparse as sp
 import re
 #The filepath for the known motifs file
-filepath = "./antismash/specific_modules/plant_cyclopeptides/known_motifs.txt"
+filepath = "./plantismash/antismash/specific_modules/plant_cyclopeptides/known_motifs.txt"
 #######################################
 
 def get_properties_table():
@@ -111,21 +111,26 @@ def check_known_classes(feat):
     #known clases are checked for by comparing the repeat containing sequences to these regex snippets
     #known classes are stored as regex patterns in a fasta like txt file
     known_classes = get_known_classes_from_file(filepath)
-    feat.qualifiers["ripp_evidence"] = {}
+    #feat.qualifiers["ripp_evidence"] = {}
+    qualdict = {}
     for key in known_classes:
         pattern = known_classes[key]
         p = re.compile(pattern)
         pattern_instances = []
         matches = p.finditer(feat.qualifiers["translation"][0])
-        mlen = 0
+        mlen = 0 
         for m in matches:
-            mlen +=1
+            mlen += 1 
             pattern_instances.append(m.start())
         
-        #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key)
+        #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key) 
+        if mlen is not 0: 
+            qualdict[key+ " pattern: " + pattern] = pattern_instances
         
-        feat.qualifiers["ripp_evidence"][key+ " pattern: " + pattern] = pattern_instances
-
+    if len(qualdict) is not 0: 
+        feat.qualifiers["ripp_evidence"] = qualdict
+    else:
+        feat.qualifiers["ripp_evidence"] = {}
 
 def get_known_classes_from_file(filepath):
     known_classes = {}

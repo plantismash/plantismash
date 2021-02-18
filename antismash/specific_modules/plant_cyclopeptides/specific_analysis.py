@@ -30,30 +30,35 @@ def fbk_output_to_result(seq_record):
         if "seq_met" in feat.qualifiers:
             
             feature_type = feat.qualifiers["seq_met"][0]
+        has_ripp = False
         if "pattern" in feat.qualifiers:
-            if len(feat.qualifiers["table"][0]) > 5 \
-                    and len(feat.qualifiers["top_kmer_hits"]) >= 3:
-                has_repeat = True
+            if (len(feat.qualifiers["table"][0]) > 5 and len(feat.qualifiers["top_kmer_hits"]) >= 3): 
+                has_ripp = True
                 result.pattern = feat.qualifiers["pattern"]
                 result.instances = feat.qualifiers["table"]#top_kmer_hits for locations
-                result.sequence = feat.qualifiers["translation"][0]
-                result.feature_type = feat.type
-                result.position = (feat.location.start,feat.location.end)
-                if 'gene' in feat.qualifiers:
-                    result.cds_id = feat.qualifiers['gene'][0]
-                elif 'locus_tag' in feat.qualifiers:
-                    result.cds_id = feat.qualifiers['locus_tag'][0]
-                elif 'db_xref' in feat.qualifiers:
-                    result.CDS_id = feat.qualifiers['db_xref'][0]
-                result.evidence = feat.qualifiers["ripp_evidence"]
-                feat.qualifiers['cyclopeptide_analysis'] = [result.encode()]
-   
+        if "ripp_evidence" in feat.qualifiers and \
+            len(feat.qualifiers["ripp_evidence"]) > 0:
+            has_ripp = True
+                       
+            result.evidence = feat.qualifiers["ripp_evidence"]
+
+        if has_ripp:
+            result.sequence = feat.qualifiers["translation"][0]
+            result.feature_type = feat.type
+            result.position = (feat.location.start,feat.location.end)
+            if 'gene' in feat.qualifiers:
+                result.cds_id = feat.qualifiers['gene'][0]
+            elif 'locus_tag' in feat.qualifiers:
+                result.cds_id = feat.qualifiers['locus_tag'][0]
+            elif 'db_xref' in feat.qualifiers:
+                result.CDS_id = feat.qualifiers['db_xref'][0]
+            feat.qualifiers['cyclopeptide_analysis'] = [result.encode()]
 ###########  
 
 class Result:
     
     pattern = ""
-    instances = 0
+    instances = []
     sequence = ""
     feature_type = ""
     position = None

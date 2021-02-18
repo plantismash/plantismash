@@ -43,25 +43,36 @@ def format_string(sequence, instances,effects_list, stringlength):
 def write_result_summary(result,instance_line_nr = 5):
     br = "<br>"#CHANGED FOR PLAINTEXT VERSION, <br> is html
     hr = "<hr>"#CHANGED FOR PLAINTEXT VERSION, <hr> is html
-    summary = hr
-    if result.cds_id:
-        summary += "Repeat found in %s <br>"%(result.cds_id)
-    summary += "Location between %s and %s %s"%(result.position[0],result.position[1],br)
-    summary += "Repeat was found %s times in a sequence of %s amino acids"%(len(result.instances),len(result.sequence))+br
-    coverage = round((float(len(result.instances)*len(result.instances[0]))/len(result.sequence))*100,2)
-    summary += "Coverage of %s %s"%(coverage,"%")+br
-    summary += "Instances:<br> %s%s"%(format_instances(result.instances,instance_line_nr),br)
-    summary += "pattern: %s%s"%(result.pattern,br)
+    summary ="" 
+    seqprint = False
+    if len(result.instances) > 1:
+        summary += hr
+        if result.cds_id:
+            summary += "Repeat found in %s <br>"%(result.cds_id)
+        summary += "Location between %s and %s %s"%(result.position[0],result.position[1],br)
+        summary += "Repeat was found %s times in a sequence of %s amino acids"%(len(result.instances),len(result.sequence))+br
+        coverage = round((float(len(result.instances)*len(result.instances[0]))/len(result.sequence))*100,2)
+        summary += "Coverage of %s %s"%(coverage,"%")+br
+        summary += "Instances:<br> %s%s"%(format_instances(result.instances,instance_line_nr),br)
+        summary += "pattern: %s%s"%(result.pattern,br)
+        seqprint = True
     if result.evidence:
         summary_text_printed = False
         for ek in result.evidence:
             
             if len(result.evidence[ek]) > 1: 
+                if summary == "":
+                    summary += hr
                 if not summary_text_printed:
                     summary += "the following known Motifs were found: <br>"
                     summary_text_printed = True
                     
                 summary += "%s was found %s times in this sequence<br>"%(ek,len(result.evidence[ek]))
+                seqprint = True
+    if seqprint:
+        html_seq = highlight_seq(result.sequence,result.instances)
+        summary += "Sequence: <br>"#<br> in html
+        summary += format_linebreaks(html_seq,64)
     return summary
 
 def write_feature_summary(feature,instance_line_nr = 5):
@@ -137,11 +148,8 @@ def format_linebreaks(line,max_length):
     return line
 
 def create_result_output(result):
-    html_seq = highlight_seq(result.sequence,result.instances)
     #highlight_seq(feature,=feature.qualifiers["glutamine_aromat_structures"][0],output_key="html_seq_glutamine")
     output_line = write_result_summary(result)
-    output_line += "Sequence: <br>"#<br> in html
-    output_line += format_linebreaks(html_seq,64)
     #output_line += write_evidence_summary()
     #output_line += "<br>glutamine sequences highlighted <br>"
     #output_line += format_linebreaks(feature.qualifiers["html_seq_glutamine"],64)
@@ -182,5 +190,9 @@ def add_html_output(seqrecord):
 
     for feat in seqrecord.features:
         if "has_repeat" in feat.qualifiers:
-
-            create_output(feat)
+            print(feat.qualifiers["table"])
+            print(feat.qualifiers["ripp_evidence"])
+            if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0: 
+                create_output(feat)
+                print("condition reached")
+                exit(0)

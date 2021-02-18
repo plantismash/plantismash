@@ -44,6 +44,7 @@ def run_fbk(seq_record):
                     make_pattern(feat)
                     feat.qualifiers["has_repeat"] = True
                     seq_record.annotations["repeat_regions"] = repeat_regions
+                    Classifier.classify_feat(feat)
                     should_delete = False
                     for t in feat.qualifiers["table"]:
                         if len(set(list(t))) <=2:
@@ -52,9 +53,7 @@ def run_fbk(seq_record):
                         feat.qualifiers["table"] = None
                         feat.qualifiers["has_repeat"] = False
                         del(feat.qualifiers["pattern"]) 
-                    else:
 
-                        Classifier.classify_feat(feat)
                     #output.add_html_output(seq_record)
 
 
