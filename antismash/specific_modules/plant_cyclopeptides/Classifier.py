@@ -1,8 +1,11 @@
 #import IO.seqparse as sp
 import re
+import sys
+print(sys.path)
+from antismash import utils 
 #The filepath for the known motifs file
-filepath = "./plantismash/antismash/specific_modules/plant_cyclopeptides/known_motifs.txt"
-#######################################
+#filepath = "./plantismash/antismash/specific_modules/plant_cyclopeptides/known_motifs.txt"
+filepath = utils.get_full_path(__file__,"known_motifs.txt")
 
 def get_properties_table():
 

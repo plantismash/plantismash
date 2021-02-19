@@ -28,7 +28,7 @@ def run_fbk(seq_record):
     for feat in seq_record.features:
         if feat.type == "CDS":
             scan_seqfeature_translation(seq_record,feat)
-
+            Classifier.check_known_classes(feat)
             find_top_kmer(feat)
             if len(feat.qualifiers["top_kmer_hits"])>0:
                 build_table(feat)
@@ -44,7 +44,6 @@ def run_fbk(seq_record):
                     make_pattern(feat)
                     feat.qualifiers["has_repeat"] = True
                     seq_record.annotations["repeat_regions"] = repeat_regions
-                    Classifier.classify_feat(feat)
                     should_delete = False
                     for t in feat.qualifiers["table"]:
                         if len(set(list(t))) <=2:
