@@ -8,9 +8,9 @@ QP{.}3Y.W
 VS[AI]Y
 >DUF2775/pfam 109050 presumed leader peptide
 FEPR
->moroidins
-QLL
 >Cca-like peptide
-QI..W
+QI{.}2W
 >stephanotic acid
-QL..W
+QL{.}2W
+>Valine-tyrosine pattern
+V{.}2Y

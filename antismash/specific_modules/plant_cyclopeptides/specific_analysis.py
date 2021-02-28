@@ -4,12 +4,7 @@
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 '''
 '''
-
-
-#workaround for the import error
 from antismash import utils
-#import utils
-#TODO FIX THIS BEFORE RELEASE
 import repeatfinder
 
 def specific_analysis(seq_record, options):
@@ -18,10 +13,7 @@ def specific_analysis(seq_record, options):
         if 'product' not in cluster.qualifiers or \
            'cyclopeptide' not in cluster.qualifiers['product'][0]:
             continue
-        #cluster_record = seq_record[cluster.start:cluster.end]
         find_repeats(seq_record)
-         
-
 
 def fbk_output_to_result(seq_record):
     nr_of_repeat_seqs = 0
@@ -81,14 +73,12 @@ class Result:
         qualifier += "//" + "|".join([str(x) for x in self.evidence.values()])
         
 
-        #qualifier = [self.pattern,str(self.instances),self.sequence,\
-        #        self.feature_type ,self.position]
         return qualifier
         
     def decode(self, qualifier):
         self.__init__() # re-initialize
         # put here your decoding algorithm
-        print qualifier
+        print(qualifier)
         q = qualifier.split("//")
         self.pattern = q[0]
         self.instances = q[1].split("|")

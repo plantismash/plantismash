@@ -39,7 +39,7 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
         # write visualization script for sidepanel here
         output_html = ""
         for r in result_list:
-            output_html += output.create_result_output(r)
+                output_html += output.write_result_summary(r)
         
         details.html(output_html)
 

@@ -128,7 +128,7 @@ def check_known_classes(feat):
         
         #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key) 
         if mlen is not 0: 
-            qualdict[key+ " pattern: " + pattern] = pattern_instances
+            qualdict[pattern] = pattern_instances
         
     if len(qualdict) is not 0: 
         feat.qualifiers["ripp_evidence"] = qualdict
