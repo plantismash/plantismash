@@ -94,13 +94,6 @@ class Result:
         self.evidence = dict(zip(keys,vallist))
         has_evidence = True#TODO CHANGE BACK OR REMOVE THIS PIECE OF CODE 
 
-        #for vallist in vallist_list:
-         #   if len(vallist) > 1:
-          #      has_evidence = True
-        #if has_evidence:    
-        #    self.evidence = dict(zip(evidence_keys,vallist_list)) 
-        #else: 
-        #    self.evidence = None
 
 def find_repeats(seq_record):
     result = None 

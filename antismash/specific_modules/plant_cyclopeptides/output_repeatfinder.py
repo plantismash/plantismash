@@ -65,7 +65,6 @@ def generate_html_seq(seq,pattern_a,pattern_b = None):
 def matches_to_SeqEl(pattern,seq,kind):
     SeqEl_list = []
     if isinstance(pattern,list):
-        print(pattern)
         for p in pattern:
             SeqEl_list += make_SeqEl_list(p,seq,kind)
 
@@ -239,8 +238,6 @@ def write_result_summary(result,instance_line_nr = 5):
             if known_motif_found:
                 #repeat and known motifs
                 known_motifs = list(result.evidence.keys())
-                print(known_motifs)
-                print(type(known_motifs))
                 html_seq = generate_html_seq(result.sequence,result.pattern,known_motifs)
             else:
                 #repeat but no known motifs
@@ -361,9 +358,6 @@ def add_html_output(seqrecord):
 
     for feat in seqrecord.features:
         if "has_repeat" in feat.qualifiers:
-            print(feat.qualifiers["table"])
-            print(feat.qualifiers["ripp_evidence"])
-            if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0: 
+            if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0:
                 create_output(feat)
-                print("condition reached")
                 exit(0)

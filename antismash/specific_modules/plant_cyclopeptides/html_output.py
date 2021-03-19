@@ -52,16 +52,11 @@ def generate_sidepanel(cluster, seq_record, options, sidepanel=None):
     cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
     cluster_record = seq_record[cluster.location.start:cluster.location.end]
     result_list = gather_results(cluster_record) 
-    sidepanel = pq('<div>')#TODO add class and put it in the details div class
+    sidepanel = pq('<div>')
     sidepanel.addClass('sidepanel')
     if len(result_list) > 0:
     
         # write visualization script for sidepanel here
-        #output_html = ""
-        #for r in result_list:
-        #    output_html += output.create_result_output(r)
-        
-        #sidepanel.html(output_html)
         id_list = []
         for result in result_list:
 
