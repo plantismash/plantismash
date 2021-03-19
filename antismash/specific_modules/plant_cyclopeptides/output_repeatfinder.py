@@ -148,47 +148,6 @@ def apply_styles(Seqel_list):
         if el.k == "c":
             el.t = html.bstyle+html.color.blue+ html.stclose+ el.t + html.bclose
 
-def highlight_seq(sequence, instances, color = "#FF0000"):
-    """"This function highlights the repeats in a certain sequence"""
-    formatted_string = sequence
-    for instance in set(instances):
-
-        b_start = "<b style=\"color:" + color +"\">"
-        b_end = "</b>"
-        replacement = b_start+instance+b_end
-        formatted_string = re.sub(instance,replacement,formatted_string)
-
-    return formatted_string
-
-def underscore_multi(sequence, pattern_dict):
-
-    for k in pattern_dict:
-       sequence = underscore_seq(sequence,pattern_dict[k])
-
-    return sequence
-
-def underscore_seq(sequence,instances):
-    u_start = "<u>"
-    u_end = "</b>"
-    formatted_string = ""
-    for instance in set(instances):
-        replacement = u_start + instance + u_end
-        formatted_string = re.sub(instance, replacement, sequence)
-
-    return formatted_string
-
-def format_string(sequence, instances,effects_list, stringlength):
-
-    formatted_string = sequence
-    str_effects = ""
-    for e in effects_list:
-        str_effects += e
-
-    for instance in instances:
-        replacement = str_effects + instance + Effects.END
-        formatted_string = re.sub(instance,replacement,formatted_string)
-    
-    return formatted_string
 
 def write_result_summary(result,instance_line_nr = 5):
     br = "<br>"#CHANGED FOR PLAINTEXT VERSION, <br> is html
@@ -253,46 +212,6 @@ def write_result_summary(result,instance_line_nr = 5):
 
     return ""
 
-def write_feature_summary(feature,instance_line_nr = 5):
-    """"This function takes all the ancillary data from a repeat feature and stylizes it with HTML
-    repeat_feature is a repeat feature object found in the misc package
-    returns a string readable by a HTML parser"""
-    br = "<br>"
-    hr = "<hr>"
-    summary = ""
-    summary += hr
-    summary += "Repeat found between %s and %s %s"%(feature.location.start,feature.location.end,br)
-    summary += "Repeat was found %s times in a sequence of %s amino acids"%(len(feature.qualifiers["table"]),len(feature.qualifiers["translation"]))+br
-    coverage = round((float(len(feature.qualifiers["table"])*len(feature.qualifiers["table"][0]))/len(feature.qualifiers["translation"][0]))*100,2)
-    summary += "Coverage of %s %s"%(coverage,"%")+br
-    summary += "Instances:<br> %s%s"%(format_instances(feature.qualifiers["table"],instance_line_nr),br)
-    summary += "pattern: %s%s"%(feature.qualifiers["pattern"],br)
-
-    return summary
-def write_evidence_summary(feat):
-    br = "<br>"
-    hr = "<hr>"
-    summary = "the following evidence was found for RiPPs " + br +hr
-    known_ripp_found = False
-    for key in feat.qualifiers["ripp_evidence"]:
-        current_evidence_len = len(feat.qualifiers["ripp_evidence"][key][0])
-        if current_evidence_len >0:
-            substrings = key.split("|")
-            known_ripp_str = substrings[0]
-            pattern = substrings[1]
-
-            summary += "the pattern %s, associated with %s was found %s times %s"%(pattern,known_ripp_str,current_evidence_len,br)
-            known_ripp_found = True
-    if known_ripp_found == False:
-        summary += "no known ripp patterns found in this sequence" + br
-
-    summary += "Putative glutamine core peptides found:" + br
-    glut_struct_instances = feat.qualifiers["glutamine_aromat_structures"][0]
-
-    summary += format_instances(glut_struct_instances,5)
-    summary += br
-    #summary += feat.qualifiers["html_seq_glutamine"]
-    return summary
 
 
 def format_linebreaks(line,max_length):
@@ -324,17 +243,6 @@ def format_linebreaks(line,max_length):
         correction += 4
     return line
 
-def create_output(feature):
-    """"Wrapper function to create stylized html output per repeat feature"""
-    highlight_seq(feature.qualifiers["translation"][0],instances=feature.qualifiers["table"],output_key="html_seq")
-    highlight_seq(feature.qualifiers["translation"][0],instances=feature.qualifiers["glutamine_aromat_structures"][0],output_key="html_seq_glutamine")
-    output_line = write_feature_summary(feature)
-    output_line += "Sequence: <br>"
-    output_line += format_linebreaks(feature.qualifiers["html_seq"],64)
-    output_line += write_evidence_summary(feature)
-    output_line += "<br>glutamine sequences highlighted <br>"
-    output_line += format_linebreaks(feature.qualifiers["html_seq_glutamine"],64)
-    feature.qualifiers["html_output"] = output_line
 
 def format_instances(instances,nr_on_line):
     """formats the amount of instances you see on one line.
@@ -352,12 +260,3 @@ def format_instances(instances,nr_on_line):
             counter = 0
 
     return output_string
-
-def add_html_output(seqrecord):
-    seqrecord.annotations["html_output"] = "Cluster %s from %s with %s potential repeat regions"%(seqrecord.id,seqrecord.description, len(seqrecord.annotations["repeat_regions"]))
-
-    for feat in seqrecord.features:
-        if "has_repeat" in feat.qualifiers:
-            if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0:
-                create_output(feat)
-                exit(0)
