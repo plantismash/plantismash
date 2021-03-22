@@ -35,6 +35,7 @@ from antismash.config import load_config, set_config
 from antismash import utils
 from antismash.generic_modules import check_prereqs as generic_check_prereqs
 from antismash.generic_genome_modules import check_prereqs as ggm_check_prereqs
+from antismash.specific_modules import plant_cyclopeptides
 from antismash.generic_modules import (
     hmm_detection,
     genefinding,
@@ -1088,6 +1089,9 @@ def load_detection_plugins():
     logging.info('Loading detection modules')
     detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
 
+    logging.info("The following modules were loaded:%s "%(detection_plugins))
+    #TODO remove this logging block
+
     # Sort after priority to ensure correct order of execution
     #detection_plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
 
@@ -1768,12 +1772,13 @@ def detect_geneclusters(seq_record, options):
 
 
 def cluster_specific_analysis(plugins, seq_record, options):
-    if  options.taxon == "plants":
-        return
     "Run specific analysis steps for every detected gene cluster"
     logging.info('Running cluster-specific analyses')
 
     for plugin in plugins:
+        if  options.taxon == "plants":
+            if not plugin.name.startswith("plant_"):
+                continue
         if 'specific_analysis' in dir(plugin):
             logging.debug('Running analyses specific to %s clusters',
                           plugin.short_description)

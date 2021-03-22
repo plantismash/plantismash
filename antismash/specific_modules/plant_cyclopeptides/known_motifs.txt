@@ -1,0 +1,16 @@
+>Lyciumins
+QP{.}5W
+>Legumenin
+QP{.}3Y.W
+>bicyclic cyclopeptide alkaloid
+.L.Y..Y
+>DUF2775/pfam109050 presumed core peptide 
+VS[AI]Y
+>DUF2775/pfam 109050 presumed leader peptide
+FEPR
+>Cca-like peptide
+QI{.}2W
+>stephanotic acid
+QL{.}2W
+>Valine-tyrosine pattern
+V{.}2Y

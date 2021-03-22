@@ -484,6 +484,18 @@ a:visited {
 .sesterterpene a {
   color: white;
 }
+.sesterterpene {
+  background-color: rebeccapurple;
+}
+.sesterterpene a {
+  color: white;
+}
+.cyclopeptide {
+  background-color: royalblue;
+}
+.cyclopeptide a {
+  color: white;
+}
 /* endof plant sec_mets */
 .fused {
   background-color: royalblue;
