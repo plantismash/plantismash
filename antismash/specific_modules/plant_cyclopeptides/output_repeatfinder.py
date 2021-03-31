@@ -53,6 +53,8 @@ def generate_html_seq(seq,pattern_a,pattern_b = None):
     SeqEl_list = se_sort(SeqEl_list)
     #fill list
     SeqEl_list = fill_Seqel_list(SeqEl_list,seq)
+    #remove duplicates
+    #SeqEl_list = remove_duplicates(SeqEl_list)
     #style code
     apply_styles(SeqEl_list)
 
@@ -102,6 +104,7 @@ def fill_Seqel_list(SeqEl_list, seq):
     f = SeqEl_list[0].s
     start_el = SeqEl(0,f,"n",seq[0:f])
     new_el_list = [start_el]
+    to_remove = [] 
     for i,el in enumerate(SeqEl_list[:-1]):
         el1 = el
         el2 = SeqEl_list[i+1]
@@ -133,11 +136,27 @@ def fill_Seqel_list(SeqEl_list, seq):
             nk = "n"
             nt = seq[ns:ne]
             new_el_list.append(SeqEl(ns,ne,nk,nt))
+        elif el1.s == el2.s and el1.e == el2.e:
+            to_remove.append(el1)
+    for el in to_remove:
+        SeqEl_list.remove(el)
 
     SeqEl_list = se_sort(SeqEl_list+new_el_list)
     l = SeqEl_list[-1].e
     SeqEl_list.append(SeqEl(l,len(seq),"n",seq[l:len(seq)]))
     return SeqEl_list
+
+def remove_duplicates(SeqEl_list):
+    to_remove = [] 
+    for i,el in enumerate(SeqEl_list[:-1]):
+        el1 = el
+        el2 = SeqEl_list[i+1]
+        if el1.s == el2.s and el1.e == el2.e and el1.t == el2.t:
+            to_remove.append(el1)
+    for el in to_remove:
+        SeqEl_list.remove(el)
+    return SeqEl_list
+
 
 def apply_styles(Seqel_list):
     for el in Seqel_list:
@@ -173,21 +192,18 @@ def write_result_summary(result,instance_line_nr = 5):
         summary_text_printed = False
         for ek in result.evidence:
             
-            if len(result.evidence[ek]) > 1:
+            if len(result.evidence[ek]) >= 1 and len(ek) > 0:
                 known_motif_found = True
                 if summary == "":
                     summary += hr
                 if not summary_text_printed:
-                    if repeat_found:
-                        summary += "The following known motifs were found: <br>"
-                    elif result.cds_id:
+                    if result.cds_id:
                         summary += "The following known motifs were found in CDS %s <br>"%(result.cds_id)
                         summary += "Location between %s and %s %s" % (result.position[0], result.position[1], br)
                     else:
                         summary += "The following known motifs were found between locations %s and %s <br>" % (result.position[0], result.position[1], br)
 
                     summary_text_printed = True
-
                 summary += "%s was found %s times in this sequence<br>"%(ek,len(result.evidence[ek]))
                 seqprint = True
     if seqprint:
@@ -196,14 +212,14 @@ def write_result_summary(result,instance_line_nr = 5):
             #repeat
             if known_motif_found:
                 #repeat and known motifs
-                known_motifs = list(result.evidence.keys())
+                known_motifs = populate_known_motifs(list(result.evidence.keys()))
                 html_seq = generate_html_seq(result.sequence,result.pattern,known_motifs)
             else:
                 #repeat but no known motifs
                 html_seq = generate_html_seq(result.sequence,result.pattern)
         elif known_motif_found:
            # no repeat, known motif
-            known_motifs = list(result.evidence.keys())
+            known_motifs = populate_known_motifs(list(result.evidence.keys()))
             html_seq = generate_html_seq(result.sequence,known_motifs)
 
             summary += "Sequence: <br>"  # <br> in html
@@ -212,6 +228,11 @@ def write_result_summary(result,instance_line_nr = 5):
 
     return ""
 
+def populate_known_motifs(keylist):
+    outlist = []
+    for k in keylist:
+        outlist = k.split(": ")[-1]
+    return outlist
 
 
 def format_linebreaks(line,max_length):
