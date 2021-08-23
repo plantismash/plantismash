@@ -327,6 +327,11 @@ def main():
                        dest='gff3',
                        default=False,
                        help="Specify GFF3 file to extract features from.")
+    group.add_argument('--use_phase',
+                       dest='use_phase',
+                       default=False,
+                       action='store_true',
+                       help="This flag forces CDS coordinates in the GFF3 to be modified by phase before translation. Otherwise this field of the GFF3 file will be ignored. (Phytozome GFF3s require applying phase before translation, whereas NCBI, augustus and glimmerhmm GFF3s do not.)")
     group.add_argument('--glimmerhmm-train_folder',
                        dest='glimmerhmm_train_folder',
                        default='crypto',

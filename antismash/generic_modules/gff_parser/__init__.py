@@ -3,10 +3,6 @@ import sys
 from Bio.SeqFeature import FeatureLocation, CompoundLocation, SeqFeature
 from BCBio import GFF
 
-# whether to use phase (codon start) to modify reported locations
-# Augustus, NCBI, and glimmerhmm report phase but have already adjusted the
-# locations and since they're the bulk of inputs, disable further modification
-MODIFY_LOCATIONS_BY_PHASE = False
 
 def check_gff_suitability(options, sequences):
     if options.gff3:
@@ -76,7 +72,7 @@ def run(sequence, options):
             if feature.type=='CDS':
                 newFeature=feature
             else:
-                newFeature=check_sub(feature,sequence)
+                newFeature=check_sub(feature,sequence,options)
                 if not newFeature:
                     continue
                 if not type(newFeature)==list:
@@ -94,7 +90,15 @@ def run(sequence, options):
                     sequence.features.append(n)
 
 
-def check_sub(feature,sequence):
+def check_sub(feature, sequence, options):
+    # whether to use phase (codon start) to modify reported locations
+    # Augustus, NCBI, and glimmerhmm report phase but have already adjusted the
+    # locations and since they're the bulk of inputs, disable further modification
+    if options.use_phase:
+        MODIFY_LOCATIONS_BY_PHASE = True
+    else:
+        MODIFY_LOCATIONS_BY_PHASE = False
+
     newFeature=[]
     LocList=[]
     TransLocList=[]
@@ -102,7 +106,7 @@ def check_sub(feature,sequence):
     topop=[]
     for sub in feature.sub_features:
         if sub.sub_features:                                # If there are sub_features, go deeper
-            deepFeature=check_sub(sub,sequence)
+            deepFeature=check_sub(sub,sequence,options)
             for n in deepFeature:
                 newFeature.append(n)
         elif sub.type=='CDS':
