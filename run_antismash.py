@@ -1524,43 +1524,44 @@ def parse_input_sequences(options):
     sequences = new_seqs
 
     # Concatenate contigs < 100kbp that are having no annotations and run genefinding at once
-    new_seqs = []
-    concated_seq_loc = []
-    seq_type = generic_dna
-    num_concated = 0
-    if options.input_type == 'prot':
-        seq_type = generic_protein
-    concat_seq_text = ""
-    for sequence in sequences:
-        concated_seq_loc.append((-1, -1))
-        if len(utils.get_cds_features(sequence)) < 1:
-            if options.gff3:
-                if sequence.id in options.gff_ids: # sequence is covered in provided gff, skip genefinding
-                    continue
-            if len(concat_seq_text) > 1:
-                concat_seq_text += "TGA-TGA--TGA" # 3-frames stop codon to prevent cross-contig gene prediction
-                for ix in xrange(0, 30): # create gaps to separate between contigs
-                    concat_seq_text += "-"
-            s_pos = len(concat_seq_text)
-            concat_seq_text += "%s" % sequence.seq
-            e_pos = len(concat_seq_text) - 1
-            concated_seq_loc[-1] =  (s_pos, e_pos) # take note of the contig's start and end position
-            num_concated += 1
-    if num_concated > 0:
-        concat_seq = SeqRecord(Seq(concat_seq_text, seq_type))
-        logging.info("Running genefinding on %s Contigs without annotations.." % num_concated)
-        genefinding.find_genes(concat_seq, options)
-        for det_gene in utils.get_cds_features(concat_seq): # pass the annotations back into the sequences
-            gene_start = det_gene.location.start
-            gene_end = det_gene.location.end
-            for ci in xrange(0, len(concated_seq_loc)):
-                s_pos, e_pos = concated_seq_loc[ci]
-                if (e_pos >= gene_start >= s_pos) and (e_pos >= gene_end >= s_pos):
-                    det_gene.location = FeatureLocation((gene_start - s_pos), (e_pos - gene_end))
-                    sequences[ci].features.append(det_gene)
-                    break
-        del concat_seq
-    del concated_seq_loc
+    if options.genefinding != 'none':  # changed
+        new_seqs = []
+        concated_seq_loc = []
+        seq_type = generic_dna
+        num_concated = 0
+        if options.input_type == 'prot':
+            seq_type = generic_protein
+        concat_seq_text = ""
+        for sequence in sequences:
+            concated_seq_loc.append((-1, -1))
+            if len(utils.get_cds_features(sequence)) < 1:
+                if options.gff3:
+                    if sequence.id in options.gff_ids: # sequence is covered in provided gff, skip genefinding
+                        continue
+                if len(concat_seq_text) > 1:
+                    concat_seq_text += "TGA-TGA--TGA" # 3-frames stop codon to prevent cross-contig gene prediction
+                    for ix in xrange(0, 30): # create gaps to separate between contigs
+                        concat_seq_text += "-"
+                s_pos = len(concat_seq_text)
+                concat_seq_text += "%s" % sequence.seq
+                e_pos = len(concat_seq_text) - 1
+                concated_seq_loc[-1] =  (s_pos, e_pos) # take note of the contig's start and end position
+                num_concated += 1
+        if num_concated > 0:
+            concat_seq = SeqRecord(Seq(concat_seq_text, seq_type))
+            logging.info("Running genefinding on %s Contigs without annotations.." % num_concated)
+            genefinding.find_genes(concat_seq, options)
+            for det_gene in utils.get_cds_features(concat_seq): # pass the annotations back into the sequences
+                gene_start = det_gene.location.start
+                gene_end = det_gene.location.end
+                for ci in xrange(0, len(concated_seq_loc)):
+                    s_pos, e_pos = concated_seq_loc[ci]
+                    if (e_pos >= gene_start >= s_pos) and (e_pos >= gene_end >= s_pos):
+                        det_gene.location = FeatureLocation((gene_start - s_pos), (e_pos - gene_end))
+                        sequences[ci].features.append(det_gene)
+                        break
+            del concat_seq
+        del concated_seq_loc
 
     # re-filter the resulting sequences, discard checked contigs without genes
     new_seqs = []

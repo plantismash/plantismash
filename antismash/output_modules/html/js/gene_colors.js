@@ -6,12 +6,12 @@ var gene_colors = [
   { label: "Glycosyltransferase", color: "#F477A6", members : ["plants/Glycos_transf_1", "plants/Glycos_transf_2", "plants/Glyco_transf_28", "plants/UDPGT", "plants/UDPGT_2"] },
   { label: "Ketosynthase", color: "#75FFD8", members : ["plants/Chal_sti_synt_C", "plants/Chal_sti_synt_N"] },
   { label: "Squalene epoxidase", color: "#206B14", members : ["plants/SE"] },
-  { label: "COesterase", color: "#A221FF", members : ["plants/COesterase"] },
-  { label: "Methyltransferase", color: "#CF0FFF", members : ["plants/Methyltransf_2", "plants/Methyltransf_3", "plants/Methyltransf_7", "plants/Methyltransf_11", "plants/cMT", "plants/nMT", "plants/oMT"] },
+  { label: "Carboxylesterase", color: "#A221FF", members : ["plants/COesterase"] },
+  { label: "Methyltransferase", color: "#CF0FFF", members : ["plants/Dimerisation", "plants/Methyltransf_2", "plants/Methyltransf_3", "plants/Methyltransf_7", "plants/Methyltransf_11", "plants/cMT", "plants/nMT", "plants/oMT"] },
   { label: "BAHD acyltransferase", color: "#0003EC", members : ["plants/Transferase"] },
   { label: "Scl acyltransferase", color: "#2935E2", members : ["plants/Peptidase_S10"] },
   { label: "Epimerase", color: "#F245BD", members : ["plants/Epimerase"] },
-  { label: "Oxidoreductase", color: "#40D885", members : ["plants/adh_short", "plants/adh_short_C2", "plants/NAD_binding_1", "plants/GMC_oxred_N", "plants/GMC_oxred_C"] },
+  { label: "Oxidoreductase", color: "#40D885", members : ["plants/ADH_zinc_N","plants/ADH_N", "plants/BBE", "plants/FAD_binding_4", "plants/adh_short", "plants/adh_short_C2", "plants/NAD_binding_1", "plants/GMC_oxred_N", "plants/GMC_oxred_C"] },
   { label: "Dioxygenase", color: "#F5B2FF", members : ["plants/DIOX_N", "plants/2OG-FeII_Oxy"] },
   { label: "Transporter", color: "#060808", members : [] },
   { label: "CoA-ligase", color: "#8F400B", members : ["plants/AMP-binding"] },
@@ -24,6 +24,11 @@ var gene_colors = [
   { label: "Cellulose synthase-like", color: "#009115", members :  ["plants/Cellulose_synt"]},
   { label: "Fatty acid desaturase", color: "#ef900b", members : ["plants/FA_desaturase", "plants/FA_desaturase_2"]},
   { label: "Lipoxygenase", color: "#071daf", members : ["plants/Lipoxygenase"] },
+  { label: "pyridoxal-dependent decarboxylase", color: "#FFC300", members : ["plants/Orn_Arg_deC_N", "plants/Orn_DAP_Arg_deC", "plants/Pyridoxal_deC"] },
+  { label: "pyridoxal synthase", color: "#4CAF50", members : ["plants/YjeF_N", "plants/Pyridox_oxidase", "plants/PNPOx_C"] },
+  { label: "transporter", color: "#6a0c35", members : ["plants/MatE"] },
+  { label: "hydrolase", color: "#1040ef", members : ["plants/Abhydrolase_3","plants/Glyco_hydro_1"] },
+  { label: "Aldo-keto reductase", color: "#8299f6", members : ["plants/Aldo_ket_red"] },
   { label: "Polyprenyl synthetase", color: "#ffa83f", members : ["plants/polyprenyl_synt"] }
 ];
 
