@@ -467,6 +467,7 @@ def execute(commands, input=None):
         raise
 # pylint: enable=redefined-builtin
 
+
 def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
     "Run hmmsearch"
     config = get_config()
@@ -511,17 +512,24 @@ def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
     return results
 
 
-def run_hmmscan(target_hmmfile, query_sequence, opts=None):
+def run_hmmscan(target_hmmfile, query_sequence, opts=None, query_sequence_path=None):
     "Run hmmscan"
     config = get_config()
     command = ["hmmscan", "--cpu", str(config.cpus), "--nobias"]
     if opts is not None:
         command.extend(opts)
-    command.extend([target_hmmfile, '-'])
-    try:
-        out, err, retcode = execute(command, input=query_sequence)
-    except OSError:
-        return []
+    if query_sequence_path:
+        command.extend([target_hmmfile, query_sequence])
+        try:
+            out, err, retcode = execute(command)
+        except OSError:
+            return []
+    else:
+        command.extend([target_hmmfile, '-'])
+        try:
+            out, err, retcode = execute(command, input=query_sequence)
+        except OSError:
+            return []
     if retcode != 0:
         logging.debug('hmmscan returned %d: %r while scanning %r' , retcode,
                         err, query_sequence)

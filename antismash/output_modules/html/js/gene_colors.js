@@ -3,7 +3,7 @@ var gene_colors = [
   { label: "Terpene synthase", color: "#35F800", members : ["plants/Terpene_synth", "plants/Terpene_synth_C", "plants/SQHop_cyclase_C", "plants/SQHop_cyclase_N", "plants/Lycopene_cycl"] },
   { label: "Copper amine oxidase", color: "#E9C63E", members : ["plants/Cu_amine_oxid"] },
   { label: "Pictet-Spengler enzyme (Bet v1)", color: "#735100", members : ["plants/Bet_v_1"] },
-  { label: "Glycosyltransferase", color: "#F477A6", members : ["plants/Glycos_transf_1", "plants/Glycos_transf_2", "plants/Glyco_transf_28", "plants/UDPGT", "plants/UDPGT_2"] },
+  { label: "Glycosyltransferase", color: "#F477A6", members : ["plants/Glycos_transf_1", "plants/Glycos_transf_2", "plants/Glyco_transf_28", "plants/UDPGT", "plants/UDPGT_2", "plants/A__Glycosidic_branch_elongating", "plants/G__Monoterpenoid_cyanogenic_glucoside"] },
   { label: "Ketosynthase", color: "#75FFD8", members : ["plants/Chal_sti_synt_C", "plants/Chal_sti_synt_N"] },
   { label: "Squalene epoxidase", color: "#206B14", members : ["plants/SE"] },
   { label: "Carboxylesterase", color: "#A221FF", members : ["plants/COesterase"] },

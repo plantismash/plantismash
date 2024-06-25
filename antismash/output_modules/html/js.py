@@ -98,6 +98,7 @@ def convert_cds_features(record, features, annotations, options):
             for hsp in sorted(options.hmm_results[prefix + js_orf['locus_tag']], key=lambda x: x.bitscore, reverse=True):
                 domains.append(hsp.query_id)
         js_orf['domains'] = domains
+        js_orf['subgroup'] = feature.qualifiers.get('subgroup', ['-'])[0]
         if options.coexpress:
             js_orf['geo'] = utils.parse_geo_feature(feature)
         js_orfs.append(js_orf)

@@ -48,7 +48,8 @@ from antismash.generic_modules import (
     active_site_finder,
     coexpress,
     ecpredictor,
-    gff_parser
+    gff_parser,
+    subgroup
 )
 try:
     from antismash.db.biosql import get_record
@@ -199,6 +200,16 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a prepared Expression data.")
+    group.add_argument('--disable_subgroup',
+                       dest='disable_subgroup',
+                       action='store_true',
+                       default=False,
+                       help="disable identifying the subgroup of protein sequences in clusters using given subgroups models.")
+    group.add_argument('--subgroup_inputpath',
+                       dest="subgroup_inputpath",
+                       type=str,
+                       default="",
+                       help="give path of folder contains Subgroup_Model.csv and the subgroup models (the structure same to subgroup folder).")
     group.add_argument('--smcogs',
                        dest='smcogs',
                        action='store_true',
@@ -882,6 +893,15 @@ def main():
                         else:
                             temp_qual.append(row)
                     cds.qualifiers['sec_met'] = temp_qual
+
+    # run subgroup identification
+    # output family sequences fasta files and hmmscan results txt in the output folder, and update seq_records
+    if not options.disable_subgroup:
+        logging.info("identificating subgroup")
+        subgroup.subgroup_identification(seq_records,path.abspath(options.outputfoldername), options.subgroup_inputpath)
+    else:
+        logging.info("subgroup identification is disabled")
+
 
     #Write results
     options.plugins = plugins

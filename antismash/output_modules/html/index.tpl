@@ -397,7 +397,7 @@ function addTableSummary() {
     if (geneclusters.hasOwnProperty(anchor)) {
       var contStyle = "font-size: 80%; overflow: scroll; padding-left: 0.5em; margin-bottom: 0.5em;";
       var theTable = "<table style='margin-top: 1em; border: 1px solid black;'>";
-      theTable += "<thead><tr style='border: 1px solid black;'><th style='width: 13em;'>Locus tag</th><th style='width: 15em;'>Functional annotation</th><th style='width: 5.5em;'>From</th><th style='width: 5.5em;'>To</th><th style='width: 5em;'>Strand</th><th style='width: 10em;'>Category</th><th style='width: 15em;'>Domains</th></tr></thead><tbody>";
+      theTable += "<thead><tr style='border: 1px solid black;'><th style='width: 13em;'>Locus tag</th><th style='width: 15em;'>Functional annotation</th><th style='width: 5.5em;'>From</th><th style='width: 5.5em;'>To</th><th style='width: 5em;'>Strand</th><th style='width: 10em;'>Category</th><th style='width: 15em;'>Domains</th><th style='width: 15em;'>Subgroup</th></tr></thead><tbody>";
       for (var i in geneclusters[anchor]["orfs"]) {
         var orf = geneclusters[anchor]["orfs"][i];
         var locus_tag = orf["locus_tag"];
@@ -408,6 +408,7 @@ function addTableSummary() {
           strand = "-";
         }
         var annot_name = "-";
+        var subgroup = orf["subgroup"];
         var domains = "";
         var category = get_legend_obj(orf);
         if (category === null) {
@@ -441,10 +442,10 @@ function addTableSummary() {
         if (domains === "") {
           domains = "n/a<br />"
         }
-        theTable += "<tr id='cl-summary-" + anchor +"-tab-" + locus_tag.replace(/(:|\.)/g, '-') + "' onmouseover='javascript: highlightGene(\"" + anchor + "\", \"" + locus_tag + "\");' onmouseout='javascript: deHighlightGene(\"" + anchor + "\", \"" + locus_tag + "\");'><td>" + locus_tag + "</td><td>" + annot_name + "</td><td style='text-align: right;'>" + from + "</td><td style='text-align: right;'>" + to + "</td><td style='text-align: center;'>" + strand + "</td><td>" + category + "</td><td>" + domains + "</td></tr>"
+        theTable += "<tr id='cl-summary-" + anchor +"-tab-" + locus_tag.replace(/(:|\.)/g, '-') + "' onmouseover='javascript: highlightGene(\"" + anchor + "\", \"" + locus_tag + "\");' onmouseout='javascript: deHighlightGene(\"" + anchor + "\", \"" + locus_tag + "\");'><td>" + locus_tag + "</td><td>" + annot_name + "</td><td style='text-align: right;'>" + from + "</td><td style='text-align: right;'>" + to + "</td><td style='text-align: center;'>" + strand + "</td><td>" + category + "</td><td>" + domains + "</td><td>" + subgroup + "</td></tr>"
       }
       theTable += "</tbody></table>";
-      $("#" + anchor + ".page .description-container").after("<div id='cl-summary-" + anchor +"' style='" + contStyle + "'><div><b>Genes:</b> <button class='showhidebutton' onclick='javascript: showHideTableSummary(\"" + anchor + "\");'>show</button></div><div class='cl-summary-tab hidden'>" + theTable + "</div></div>");
+      $("#" + anchor + ".page .description-container").after("<div id='cl-summary-" + anchor +"' style='" + contStyle + "'><div><b>Genes:</b> <button class='showhidebutton' onclick='javascript: showHideTableSummary(\"" + anchor + "\");'>hide</button></div><div class='cl-summary-tab'>" + theTable + "</div></div>");
     }
   }
 }
