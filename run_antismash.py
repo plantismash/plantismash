@@ -33,9 +33,9 @@ import straight.plugin
 from helperlibs.bio import seqio
 from antismash.config import load_config, set_config
 from antismash import utils
+from antismash.output_modules import xls
 from antismash.generic_modules import check_prereqs as generic_check_prereqs
 from antismash.generic_genome_modules import check_prereqs as ggm_check_prereqs
-from antismash.specific_modules import plant_cyclopeptides
 from antismash.generic_modules import (
     hmm_detection,
     genefinding,
@@ -185,6 +185,16 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a database of antiSMASH-predicted clusters.")
+    group.add_argument('--update_clusterblast',
+                       dest='update_clusterblast',
+                       action='store_true',
+                       default=False,
+                       help="update the database of antiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta, plantgeneclusterprots.dmnd) using this time found clusters.")
+    group.add_argument('--clusterblastdir',
+                       dest='clusterblastdir',
+                       type=str,
+                       default="",
+                       help="the clusterblastdir contain the database of antiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta).")
     group.add_argument('--subclusterblast',
                        dest='subclusterblast',
                        action='store_true',
@@ -204,12 +214,22 @@ def main():
                        dest='disable_subgroup',
                        action='store_true',
                        default=False,
-                       help="disable identifying the subgroup of protein sequences in clusters using given subgroups models.")
+                       help="disable identifying the subgroup.")
+    group.add_argument('--disable_treesvg',
+                       dest='disable_treesvg',
+                       action='store_true',
+                       default=False,
+                       help="disable making svg pictures of subgroupping tree to save time.")
     group.add_argument('--subgroup_inputpath',
                        dest="subgroup_inputpath",
                        type=str,
                        default="",
-                       help="give path of folder contains Subgroup_Model.csv and the subgroup models (the structure same to subgroup folder).")
+                       help="give path of folder with the structure same to subgroup folder in antismash/generic_modules.")
+    group.add_argument('--disable_specific_modules',
+                       dest='disable_specific_modules',
+                       action='store_true',
+                       default=False,
+                       help="disable specific modules.")
     group.add_argument('--smcogs',
                        dest='smcogs',
                        action='store_true',
@@ -320,7 +340,7 @@ def main():
     group = parser.add_argument_group('Gene finding options (ignored when ORFs are annotated)')
     group.add_argument('--genefinding',
                        dest='genefinding',
-                       default='glimmer',
+                       default='none',
                        choices=['glimmer', 'prodigal', 'prodigal-m', 'none'],
                        help="Specify algorithm used for gene finding: Glimmer, "
                             "Prodigal, or Prodigal Metagenomic/Anonymous mode. (default: %(default)s).")
@@ -351,6 +371,11 @@ def main():
 
     group = parser.add_argument_group('CD-HIT specific options', '',
                                       param=["--cdhit"])
+    group.add_argument('--cdh-memory',
+                       dest='cdh_memory',
+                       type=str,
+                       default="2000",
+                       help="memory of using CD-HIT, default 2000M.")
     group.add_argument('--cdh-cutoff',
                        dest='cdh_cutoff',
                        default=0.5,
@@ -601,7 +626,10 @@ def main():
 
     #Load and filter plugins
     utils.log_status("Loading detection plugins")
-    plugins = load_detection_plugins()
+    if not options.disable_specific_modules:
+        plugins = load_specific_modules()
+    else:
+        plugins = []
     if options.list_plugins:
         list_available_plugins(plugins, output_plugins)
         sys.exit(0)
@@ -627,6 +655,13 @@ def main():
     if not os.path.exists(options.outputfoldername):
         os.mkdir(options.outputfoldername)
     options.full_outputfolder_path = path.abspath(options.outputfoldername)
+
+    #Remove old clusterblast files
+    clusterblast_files = ["subclusterblastoutput.txt", "clusterblastoutput.txt", "knownclusterblastoutput.txt"]
+    for clusterblast_file in clusterblast_files:
+        clusterblastoutput_path = os.path.join(options.full_outputfolder_path, clusterblast_file)
+        if os.path.exists(clusterblastoutput_path):
+            os.remove(clusterblastoutput_path)
 
     if options.debug and os.path.exists(options.dbgclusterblast):
         logging.debug("Using %s instead of computing Clusterblasts and variantes!", options.dbgclusterblast)
@@ -898,9 +933,46 @@ def main():
     # output family sequences fasta files and hmmscan results txt in the output folder, and update seq_records
     if not options.disable_subgroup:
         logging.info("identificating subgroup")
-        subgroup.subgroup_identification(seq_records,path.abspath(options.outputfoldername), options.subgroup_inputpath)
+        subgroup.subgroup_identification(seq_records,path.abspath(options.outputfoldername), options)
     else:
         logging.info("subgroup identification is disabled")
+
+    if options.update_clusterblast:
+        logging.info("Updating ClusterBlast database use this time results")
+
+        # make sure the clusterblastdir and files exists
+        if options.clusterblastdir == "":
+            options.clusterblastdir = clusterblast.where_is_clusterblast()
+        if not os.path.exists(options.clusterblastdir):
+            os.makedirs(options.clusterblastdir)
+        clusteblast_txt = path.join(options.clusterblastdir, "plantgeneclusters.txt")
+        clusteblast_fasta = path.join(options.clusterblastdir, "plantgeneclusterprots.fasta")
+        if not path.exists(clusteblast_fasta) or not path.exists(clusteblast_txt):
+            with open(clusteblast_fasta, "w") as clusteblast_file:
+                pass
+            with open(clusteblast_txt, "w") as clusteblast_file:
+                pass
+
+        # write the plantgeneclusterprots.fasta
+        clusterblast.make_geneclusterprots(seq_records, options)
+        outputname =path.join(path.abspath(options.outputfoldername), "plantgeneclusterprots.fasta")
+        with open(clusteblast_fasta, "a") as clusteblast_file:
+            with open(outputname, "r") as fastafile:
+                clusteblast_file.write(fastafile.read())
+
+        # write the plantgeneclusters.txt
+        xls.write(seq_records, options)
+        with open(clusteblast_txt, "a") as clusteblast_file:
+            with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
+                clusteblast_file.write(txtfile.read())
+        with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
+            non_empty_line_count = 0
+            for line in txtfile:
+                # Strip leading and trailing whitespace characters
+                if line.strip():
+                    non_empty_line_count += 1
+
+        logging.info("Numbers of clusters\t{}\t{}".format(options.sequences, non_empty_line_count) )
 
 
     #Write results
@@ -1109,9 +1181,9 @@ def setup_logging(options):
         logging.getLogger('').addHandler(fh)
 
 
-def load_detection_plugins():
+def load_specific_modules():
     "Load available secondary metabolite detection modules"
-    logging.info('Loading detection modules')
+    logging.info('Loading specific modules')
     detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
 
     logging.info("The following modules were loaded:%s "%(detection_plugins))
