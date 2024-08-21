@@ -1,5 +1,5 @@
 import subprocess
-
+import os
 
 def install_packages(packages):
     for package in packages:
@@ -13,8 +13,28 @@ def install_packages(packages):
         except subprocess.CalledProcessError as e:
             print("Failed to install {}: {}".format(package, e))
 
+def merge_plantgeneclusterprots_fasta():
+    input_dir = 'antismash/generic_modules/clusterblast'
+    input_prefix = 'plantgeneclusterprots_part_'
+    output_file = 'plantgeneclusterprots.fasta'
+
+    input_files = sorted(f for f in os.listdir(input_dir) if f.startswith(input_prefix))
+
+    with open(os.path.join(input_dir, output_file), 'w') as outfile:
+        for fname in input_files:
+            file_path = os.path.join(input_dir, fname)
+            with open(file_path) as infile:
+                outfile.write(infile.read())
+
+    print("merged plantgeneclusterprots.fasta")
+
+    for fname in input_files:
+        file_path = os.path.join(input_dir, fname)
+        os.remove(file_path)
 
 if __name__ == "__main__":
+    merge_plantgeneclusterprots_fasta()
+
     # List of packages to be installed
     packages_to_install = [
         'glimmer',
