@@ -58,7 +58,7 @@ def make_blastdb(inputfile, dbname):
 def load_geneclusters(searchtype):
     #Load gene cluster database into memory
     options = config.get_config()
-    if not 'clusterblastdir' in options:
+    if options.clusterblastdir =="":
         options.clusterblastdir = path.dirname(utils.get_full_path(__file__, ''))
         options.subclusterblastdir = path.join(path.dirname(options.clusterblastdir), 'subclusterblast')
         options.knownclusterblastdir = path.join(path.dirname(options.clusterblastdir), 'knownclusterblast')
@@ -96,7 +96,7 @@ def load_geneclusters(searchtype):
 
 def load_geneclusterproteins(accessiondict, searchtype):
     options = config.get_config()
-    if not 'clusterblastdir' in options:
+    if options.clusterblastdir =="":
         options.clusterblastdir = path.dirname(utils.get_full_path(__file__, ''))
         options.subclusterblastdir = path.join(path.dirname(options.clusterblastdir), 'subclusterblast')
         options.knownclusterblastdir = path.join(path.dirname(options.clusterblastdir), 'knownclusterblast')
@@ -159,7 +159,8 @@ def find_overlapping_groups(cdsfeatures):
     for cdsfeature in cdsfeatures:
         overlaps = False
         for othercdsfeature in cdsfeatures:
-            if utils.features_overlap(cdsfeature, othercdsfeature):
+            if utils.features_overlap(cdsfeature, othercdsfeature) and (cdsfeature.strand == othercdsfeature.strand):
+                # consider only overlaps on the same strand
                 overlaps = True
                 added = False
                 overlapping_groups2 = []
@@ -205,9 +206,10 @@ def create_blast_inputs(genecluster, seq_record):
                              str(cds.location.start).replace(">","").replace("<","") + "-" + \
                              str(cds.location.end).replace(">","").replace("<",""), \
                              strand, utils.get_gene_acc(cds), utils.get_gene_annotation(cds)])
-        queryclusterseqs.append(str(utils.get_aa_sequence(cds)))
-        queryclusternames.append(fullname)
-        queryclusterprotsnames.append(utils.get_gene_acc(cds))
+        if fullname not in queryclusternames:
+            queryclusterseqs.append(str(utils.get_aa_sequence(cds)))
+            queryclusternames.append(fullname)
+            queryclusterprotsnames.append(utils.get_gene_acc(cds))
 
     return queryclusternames, queryclusterseqs, queryclusterprotsnames
 
@@ -469,15 +471,16 @@ def read_clusterblast_output(options):
         blastoutput = blastoutput + output
     return blastoutput
 
-def write_raw_clusterblastoutput(outputfoldername, blastoutput, searchtype="general"):
+def write_raw_clusterblastoutput(outputfoldername, blastoutputs, searchtype="general"):
     if searchtype == "general":
-        blastoutputfile = open(outputfoldername + os.sep + "clusterblastoutput.txt","w")
+        blastoutputfile = open(outputfoldername + os.sep + "clusterblastoutput.txt","a")
     elif searchtype == "subclusters":
-        blastoutputfile = open(outputfoldername + os.sep + "subclusterblastoutput.txt","w")
+        blastoutputfile = open(outputfoldername + os.sep + "subclusterblastoutput.txt","a")
     elif searchtype == "knownclusters":
-        blastoutputfile = open(outputfoldername + os.sep + "knownclusterblastoutput.txt","w")
-    blastoutputfile.write(blastoutput)
-    blastoutputfile.close()
+        blastoutputfile = open(outputfoldername + os.sep + "knownclusterblastoutput.txt","a")
+    for blastoutput in blastoutputs:
+        blastoutputfile.write(blastoutput)
+    blastoutputfile.close() # now all rows are written
 
 def remove_queries_without_hits(querylist, blastdict):
     #Remove queries without hits
@@ -674,6 +677,7 @@ def perform_clusterblast(options, seq_record, clusters, proteinlocations, protei
     logging.info("Running DIAMOND gene cluster searches..")
     geneclusters = utils.get_sorted_cluster_features(seq_record)
     with TemporaryDirectory(change=True) as tempdir:
+        blastoutputs = []
         for genecluster in geneclusters:
             clusternumber = utils.get_cluster_number(genecluster)
             if options.debug and os.path.exists(options.dbgclusterblast + os.sep + "clusterblast" + os.sep + "cluster" + str(clusternumber) + ".txt"):
@@ -695,9 +699,7 @@ def perform_clusterblast(options, seq_record, clusters, proteinlocations, protei
 
                 with open("input.out", 'r') as fh:
                     blastoutput = fh.read()
-
-                write_raw_clusterblastoutput(options.full_outputfolder_path, blastoutput)
-                logging.info("   DIAMOND search finished. Parsing results...")
+                blastoutputs.append(blastoutput)
                 minseqcoverage = 10
                 minpercidentity = 30
                 blastdict, querylist, hitclusters = parse_blast(blastoutput, seq_record, minseqcoverage, minpercidentity)
@@ -721,3 +723,6 @@ def perform_clusterblast(options, seq_record, clusters, proteinlocations, protei
 
                 #write_clusterblast_output(options, seq_record, clusternumber, queryclusterprots, clusters, hitclusterdata, rankedclusters, rankedclustervalues, proteintags, proteinlocations, proteinannotations, proteinstrands)
                 write_clusterblast_output(options, seq_record, clusterblastStorage)
+
+        write_raw_clusterblastoutput(options.full_outputfolder_path, blastoutputs)
+        logging.info("   DIAMOND search finished. Parsing results...")

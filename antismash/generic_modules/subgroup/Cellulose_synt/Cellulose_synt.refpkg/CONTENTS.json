@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "create_date": "2024-08-07 17:10:12",
+        "format_version": "1.1",
+        "locus": "plant_Cellulose_synt"
+    },
+    "files": {
+        "phylo_model": "phylo_model43z48qug.json",
+        "aln_fasta": "CSLs_all_to_check_with_add.afa",
+        "seq_info": "node-subgroup.txt",
+        "tree": "RAxML_bipartitions.CSLs_all_to_check_with_add",
+        "tree_stats": "RAxML_info.CSLs_all_to_check_with_add"
+    },
+    "md5": {
+        "phylo_model": "77482213833f854602e42679b793f9be",
+        "aln_fasta": "e6b7d1936d4297c2e0b6abea494b82b0",
+        "seq_info": "88bb1bb99a8e68b82a86a6d71a40e658",
+        "tree": "e7a41eba535209631c1528196b18d01d",
+        "tree_stats": "7374bfa8deaad28c496c44c09c294ef0"
+    },
+    "log": [
+        "Stripped refpkg (removed 0 files)",
+        "Loaded initial files into empty refpkg"
+    ],
+    "rollback": null,
+    "rollforward": null
+}

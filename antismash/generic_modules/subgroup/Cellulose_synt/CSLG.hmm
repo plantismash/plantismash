@@ -1,5 +1,5 @@
 HMMER3/f [3.4 | Aug 2023]
-NAME  CSLG.fa.afa
+NAME  CSLG
 LENG  732
 ALPH  amino
 RF    no
@@ -7,7 +7,7 @@ MM    no
 CONS  yes
 CS    no
 MAP   yes
-DATE  Mon Mar 18 15:51:49 2024
+DATE  Sat Jul 27 11:43:52 2024
 NSEQ  3
 EFFN  0.413086
 CKSUM 1508275363

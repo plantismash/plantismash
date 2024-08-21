@@ -1,0 +1,4 @@
+Enable	Family Name	Folder Name	Family model name(s)	Reference Package
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT / UDPGT_2	UDPGT.refpkg
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	Cellulose_synt.refpkg
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	OSC.refpkg

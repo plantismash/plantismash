@@ -59,9 +59,11 @@ def convert_clusters(record, annotations, options):
         js_cluster['knowncluster'] = "-"
         js_cluster['BGCid'] = "-"
         js_cluster['domains'] = utils.get_cluster_domains(cluster, record)
+        js_cluster['substrates'] = utils.get_cluster_substrates(cluster, record)
+
 
         if options.enable_cdhit:
-            js_cluster['cdhitclusters'] = utils.get_cluster_cdhit_table(cluster, record)
+            js_cluster['cdhitclusters'] = utils.get_cluster_cdhit_table(cluster, record, options)
 
         if 'knownclusterblast' in cluster.qualifiers:
             knownclusters = cluster.qualifiers['knownclusterblast']
@@ -98,7 +100,9 @@ def convert_cds_features(record, features, annotations, options):
             for hsp in sorted(options.hmm_results[prefix + js_orf['locus_tag']], key=lambda x: x.bitscore, reverse=True):
                 domains.append(hsp.query_id)
         js_orf['domains'] = domains
-        js_orf['subgroup'] = feature.qualifiers.get('subgroup', ['-'])[0]
+        js_orf['domain_present'] = "; ".join([domain.split("/")[1] for domain in domains]) if domains else "n/a"
+        js_orf['domain_record'] = feature.qualifiers.get('domain_record', "n/a")
+        js_orf['subgroup'] = "; ".join(feature.qualifiers.get('subgroup', ['-']))
         if options.coexpress:
             js_orf['geo'] = utils.parse_geo_feature(feature)
         js_orfs.append(js_orf)

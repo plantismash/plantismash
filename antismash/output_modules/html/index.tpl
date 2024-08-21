@@ -47,6 +47,7 @@
             <th>To</th>
             <th>Size (kb)</th>
             <th>Core domains</th>
+            <th>Product/substrate predicted by subgroup</th>
             <th>Most similar known cluster</th>
             <th>MIBiG BGC-ID</th>
           </tr>
@@ -378,9 +379,9 @@ function addCdhitSummary() {
     for (var clusterid in geneclusters) {
         if (geneclusters.hasOwnProperty(clusterid)) {
             var cluster = geneclusters[clusterid];
-                if ($("#cluster-overview>thead th:contains('CD-HIT Clusters')").length === 0) {
+                if ($("#cluster-overview>thead th:contains('CD-HIT')").length === 0) {
                 sibling_col_idx = $("#cluster-overview>thead th:contains('Most similar known cluster')").index();
-                $("#cluster-overview>thead th:contains('Most similar known cluster')").before("<th>CD-HIT Clusters</th");
+                $("#cluster-overview>thead th:contains('Most similar known cluster')").before("<th>CD-HIT</th");
             }
             if (sibling_col_idx > 0) {
                 if (!("cdhitclusters" in cluster)) {
@@ -440,14 +441,48 @@ function addTableSummary() {
           }
         }
         if (domains === "") {
-          domains = "n/a<br />"
+          domains = orf['domain_present']
         }
         theTable += "<tr id='cl-summary-" + anchor +"-tab-" + locus_tag.replace(/(:|\.)/g, '-') + "' onmouseover='javascript: highlightGene(\"" + anchor + "\", \"" + locus_tag + "\");' onmouseout='javascript: deHighlightGene(\"" + anchor + "\", \"" + locus_tag + "\");'><td>" + locus_tag + "</td><td>" + annot_name + "</td><td style='text-align: right;'>" + from + "</td><td style='text-align: right;'>" + to + "</td><td style='text-align: center;'>" + strand + "</td><td>" + category + "</td><td>" + domains + "</td><td>" + subgroup + "</td></tr>"
       }
       theTable += "</tbody></table>";
       $("#" + anchor + ".page .description-container").after("<div id='cl-summary-" + anchor +"' style='" + contStyle + "'><div><b>Genes:</b> <button class='showhidebutton' onclick='javascript: showHideTableSummary(\"" + anchor + "\");'>hide</button></div><div class='cl-summary-tab'>" + theTable + "</div></div>");
+
+      $("#cl-summary-" + anchor + " .cl-summary-tab tr td:last-child").on("click", function() {
+          var locusTag = $(this).closest("tr").find("td:first").text();
+          var subgroup = $(this).text(); // Get the subgroup text
+          openSvgInWindow(locusTag, subgroup); // Pass subgroup as an additional parameter
+      });
     }
   }
+}
+
+var svgWindow = null;
+
+function openSvgInWindow(locusTag, subgroup) {
+    var svgUrl = "subgroup/tree_svg/" + locusTag + ".svg";
+    var legendUrl = "subgroup/tree_svg/" + locusTag + "_legend.svg";
+    var windowTitle = locusTag + " - subgroup: " + subgroup;
+
+    var content = `
+        <html>
+        <head><title>${windowTitle}</title></head>
+        <body>
+            <div><img src='${svgUrl}' alt='SVG'></div>
+            <div style='position: fixed; top: 0; left: 0;'><img src='${legendUrl}' alt='SVG Legend'></div>
+        </body>
+        </html>
+    `;
+
+    if (svgWindow && !svgWindow.closed) {
+        svgWindow.document.open();
+        svgWindow.document.write(content);
+        svgWindow.document.close();
+        svgWindow.focus();
+    } else {
+        svgWindow = window.open("", "_blank", "width=600,height=800,left=" + (window.screen.width - 600) + ",top=0");
+        svgWindow.document.write(content);
+    }
 }
 
 function showHideTableSummary(anchor) {

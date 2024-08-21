@@ -473,9 +473,27 @@ a:visited {
   color: black;
 }
 .phenolamide {
-  background-color: Beige;
+  background-color: lightgoldenrodyellow;
 }
 .phenolamide a {
+  color: black;
+}
+.MatE {
+  background-color: lightsteelblue;
+}
+.MatE a {
+  color: black;
+}
+.strictosidine_like {
+  background-color: lightgreen;
+}
+.strictosidine_like a {
+  color: black;
+}
+.fatty_acid {
+  background-color: lightsalmon;
+}
+.fatty_acid a {
   color: black;
 }
 .polyketide {
