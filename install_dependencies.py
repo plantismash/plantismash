@@ -18,6 +18,10 @@ def merge_plantgeneclusterprots_fasta():
     input_prefix = 'plantgeneclusterprots_part_'
     output_file = 'plantgeneclusterprots.fasta'
 
+    if os.path.exists(os.path.join(input_dir, output_file)):
+        print("plantgeneclusterprots.fasta already exists")
+        return
+
     input_files = sorted(f for f in os.listdir(input_dir) if f.startswith(input_prefix))
 
     with open(os.path.join(input_dir, output_file), 'w') as outfile:

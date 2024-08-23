@@ -177,13 +177,15 @@ The reference package, which contains the reference tree for `pplacer` to place 
 - The log file from the tool (iqtree, raxmlng, raxml, fasttree,phyml) used to create the tree. `RAxML_info.CSLs_all_to_check_with_add`
 - A table containing node names and their corresponding subgroup names. `node-subgroup.txt`
 ```bash
+cd /your/work/folder/path    # Replace with your actual path
 git clone https://github.com/fhcrc/taxtastic.git
 cd taxtastic
+mamba  create -n plantismash  python=3
 conda activate python3
 source taxtastic-env/bin/activate
 pip install .
-
-taxit create -P  Cellulose_synt.refpkg  -l plant_Cellulose_synt  --aln-fasta  CSLs_all_to_check_with_add.afa  --tree-stats  RAxML_info.CSLs_all_to_check_with_add    --tree-file   RAxML_bipartitionsBranchLabels.CSLs_all_to_check_with_add.newick  --seq-info node-subgroup.txt
+cd ../plantismash/antismash/generic_modules/subgroup/Cellulose_synt/Cellulose_synt.refpkg
+taxit create -P  Cellulose_synt.refpkg  -l plant_Cellulose_synt  --aln-fasta  CSLs_all_to_check_with_add.afa  --tree-stats  RAxML_info.CSLs_all_to_check_with_add    --tree-file   RAxML_bipartitions.CSLs_all_to_check_with_add  --seq-info node-subgroup.txt
 ```
 `Taxtastic` generates `CONTENTS.json` recording the files and `phylo_model.json` recording information from the log file. Verify `phylo_model.json` to ensure the parameters match those in the log file.  If it is not, it can be changed directly on it.
 
