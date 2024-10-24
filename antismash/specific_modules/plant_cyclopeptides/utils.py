@@ -1193,7 +1193,7 @@ def get_version():
     return version
 
 
-def get_cluster_cdhit_table(cluster, seq_record):
+def get_cluster_cdhit_table(cluster, seq_record, options):
     "Get cd-hit clusters of a Cluster record"
     withinclusterfeatures = []
     for feature in get_cds_features(seq_record):
@@ -1203,7 +1203,7 @@ def get_cluster_cdhit_table(cluster, seq_record):
             continue
         if feature not in withinclusterfeatures:
             withinclusterfeatures.append(feature)
-    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures)
+    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures, options)
     return cdhit_table
 
 
@@ -1238,7 +1238,7 @@ def parse_cdhit_file(file_path):
     return clusters, gene_to_cluster
 
 
-def get_cdhit_table(cds_array, cutoff = None):
+def get_cdhit_table(cds_array, options, cutoff = None):
     "Do cdhit analysis on a cds arrays"
     config = get_config()
     if cutoff is None:
@@ -1295,7 +1295,7 @@ def get_cdhit_table(cds_array, cutoff = None):
                 word_length = 5
 
             #execute cd-hit and load result file to an array
-            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix,
+            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix, "-M", options.cdh_memory,
                         "-c", str(cutoff), "-n", str(word_length), "-T", str(config.cpus), "-B", str(1)]
             error = False
             retcode = 0

@@ -232,6 +232,58 @@ def get_cluster_domains(cluster, seq_record):
     result.sort()
     return result
 
+def sort_substrates(substrates, type):
+    # Count occurrences
+    count_dict = {}
+    for substrate in substrates:
+        if substrate in count_dict:
+            count_dict[substrate] += 1
+        else:
+            count_dict[substrate] = 1
+
+    # Sort by count (descending) then alphabetically
+    sorted_substrates = sorted(count_dict.items(), key=lambda x: (-x[1], x[0]))
+
+    # Prioritize elements based on conditions
+    prioritized = []
+    others = []
+    for substrate, count in sorted_substrates:
+        if ("terpenoid"  in substrate.lower() or "oleananes" in substrate.lower()) and "terpene" in type:
+            substrate = "*" + substrate
+            if count > 1:
+                prioritized.append("{}-{}".format(substrate, count))
+            else:
+                prioritized.append(substrate)
+        elif substrate in type:
+            substrate = "*" + substrate
+            if count > 1:
+                prioritized.append("{}-{}".format(substrate, count))
+            else:
+                prioritized.append(substrate)
+        else:
+            if count > 1:
+                others.append("{}-{}".format(substrate, count))
+            else:
+                others.append(substrate)
+
+    # Combine prioritized and other elements
+    sorted_substrates_times = prioritized + others
+
+    return sorted_substrates_times if sorted_substrates_times else ["-"]
+
+
+def get_cluster_substrates(cluster, seq_record):
+    "Get unique predicted substrates type list of a gene cluster"
+    result = []
+    substrates = []
+    type = get_cluster_type(cluster).split("-")
+    features = get_cluster_cds_features(cluster, seq_record)
+    for feature in features:
+        if 'substrates' in feature.qualifiers:
+            substrates += feature.qualifiers['substrates']
+
+    return sort_substrates(substrates, type)
+
 
 def features_overlap(a, b):
     "Check if two features have overlapping locations"
@@ -467,6 +519,7 @@ def execute(commands, input=None):
         raise
 # pylint: enable=redefined-builtin
 
+
 def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
     "Run hmmsearch"
     config = get_config()
@@ -511,17 +564,24 @@ def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
     return results
 
 
-def run_hmmscan(target_hmmfile, query_sequence, opts=None):
+def run_hmmscan(target_hmmfile, query_sequence, opts=None, query_sequence_path=None):
     "Run hmmscan"
     config = get_config()
     command = ["hmmscan", "--cpu", str(config.cpus), "--nobias"]
     if opts is not None:
         command.extend(opts)
-    command.extend([target_hmmfile, '-'])
-    try:
-        out, err, retcode = execute(command, input=query_sequence)
-    except OSError:
-        return []
+    if query_sequence_path:
+        command.extend([target_hmmfile, query_sequence])
+        try:
+            out, err, retcode = execute(command)
+        except OSError:
+            return []
+    else:
+        command.extend([target_hmmfile, '-'])
+        try:
+            out, err, retcode = execute(command, input=query_sequence)
+        except OSError:
+            return []
     if retcode != 0:
         logging.debug('hmmscan returned %d: %r while scanning %r' , retcode,
                         err, query_sequence)
@@ -1193,7 +1253,7 @@ def get_version():
     return version
 
 
-def get_cluster_cdhit_table(cluster, seq_record):
+def get_cluster_cdhit_table(cluster, seq_record, options):
     "Get cd-hit clusters of a Cluster record"
     withinclusterfeatures = []
     for feature in get_cds_features(seq_record):
@@ -1203,7 +1263,7 @@ def get_cluster_cdhit_table(cluster, seq_record):
             continue
         if feature not in withinclusterfeatures:
             withinclusterfeatures.append(feature)
-    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures)
+    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures, options)
     return cdhit_table
 
 
@@ -1238,7 +1298,7 @@ def parse_cdhit_file(file_path):
     return clusters, gene_to_cluster
 
 
-def get_cdhit_table(cds_array, cutoff = None):
+def get_cdhit_table(cds_array, options, cutoff = None):
     "Do cdhit analysis on a cds arrays"
     config = get_config()
     if cutoff is None:
@@ -1295,7 +1355,7 @@ def get_cdhit_table(cds_array, cutoff = None):
                 word_length = 5
 
             #execute cd-hit and load result file to an array
-            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix,
+            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix, "-M", options.cdh_memory,
                         "-c", str(cutoff), "-n", str(word_length), "-T", str(config.cpus), "-B", str(1)]
             error = False
             retcode = 0

@@ -341,7 +341,7 @@ def create_rules_dict(enabled_clustertypes):
             rulesdict[key] = (rules, cutoff, extension)
     return rulesdict
 
-def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps):
+def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps, options):
     "Apply cluster rules to determine if HMMs lead to secondary metabolite core gene detection"
     typedict = {}
     cfg = config.get_config()
@@ -492,7 +492,7 @@ def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rule
                         #do cdhit filtering
                         clcds = [feature_by_id[key] for key in neighborcds]
                         clcds.append(feature_by_id[cds])
-                        cdhit_table, gene_to_cluster = utils.get_cdhit_table(clcds)
+                        cdhit_table, gene_to_cluster = utils.get_cdhit_table(clcds, options)
                         detected_cdh_cluster = [gene_to_cluster[cds]]
                         for othercds in neighborcds:
                             if not (gene_to_cluster[othercds] in detected_cdh_cluster):
@@ -571,7 +571,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
             del options.hmm_results[(prefix + gene_id)]
 
     #Use rules to determine gene clusters
-    typedict = apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps)
+    typedict = apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps, options)
 
     #Rearrange hybrid clusters name in typedict alphabetically
     fix_hybrid_clusters_typedict(typedict)
@@ -582,13 +582,18 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     #Save final results to seq_record
     for cds in results_by_id.keys():
         feature = feature_by_id[cds]
+
+        # Add domain record to feature no matter what
+        result = "; ".join(["%s (E-value: %s, bitscore: %s, seeds: %s)" % (
+        res.query_id, res.evalue, res.bitscore, nseqdict.get(res.query_id, '?')) for res in results_by_id[cds]])
+        feature.qualifiers['domain_record'] = result
+
         if typedict[cds] != "none":
             _update_sec_met_entry(feature, results_by_id[cds], typedict[cds], nseqdict)
 
+
     find_clusters(seq_record, rulesdict, overlaps)
 
-    #Find additional NRPS/PKS genes in gene clusters
-    add_additional_nrpspks_genes(typedict, results_by_id, seq_record, nseqdict)
 
     #Rearrange hybrid clusters name alphabetically
     fix_hybrid_clusters(seq_record)
@@ -606,7 +611,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
 
     #Display %identity
     if options.enable_cdhit:
-        store_percentage_identities(seq_record)
+        store_percentage_identities(seq_record, options)
 
 
 def get_nseq():
@@ -721,12 +726,12 @@ def remove_irrelevant_allorfs(seq_record):
         del seq_record.features[featurenr]
 
 
-def store_percentage_identities(seq_record):
+def store_percentage_identities(seq_record, options):
     clusters = utils.get_cluster_features(seq_record)
     cfg = config.get_config()
     for cluster in clusters:
         features = [feature for feature in utils.get_cluster_cds_features(cluster, seq_record) if 'sec_met' in feature.qualifiers]
-        cdhit_table, gene_to_cluster = utils.get_cdhit_table(features, float(cfg.cdh_display_cutoff))
+        cdhit_table, gene_to_cluster = utils.get_cdhit_table(features, options, float(cfg.cdh_display_cutoff))
         for cdhit_cluster in cdhit_table:
             if len(cdhit_cluster["genes"]) > 1:
                 cl_features = [feature for feature in features if utils.get_gene_id(feature) in cdhit_cluster["genes"].keys()]
@@ -737,16 +742,6 @@ def store_percentage_identities(seq_record):
                         if ann.startswith("Percentage identity"):
                             del ann
                     cds.qualifiers['sec_met'].append("Percentage identity: %s" % (result))
-
-
-def add_additional_nrpspks_genes(typedict, results_by_id, seq_record, nseqdict):
-    nrpspksdomains = ["PKS_KS", "PKS_AT", "ATd", "ene_KS", "mod_KS", "hyb_KS", "itr_KS", "tra_KS", "Condensation", "AMP-binding", "A-OX"]
-    clustercdsfeatures = utils.get_withincluster_cds_features(seq_record)
-    othercds_with_results = [cds for cds in clustercdsfeatures if results_by_id.has_key(utils.get_gene_id(cds)) and typedict[utils.get_gene_id(cds)] == "none"]
-    for cds in othercds_with_results:
-        cdsresults = [res.query_id for res in results_by_id[utils.get_gene_id(cds)]]
-        if len(set(nrpspksdomains) & set(cdsresults)) >= 1:
-            _update_sec_met_entry(cds, results_by_id[utils.get_gene_id(cds)], "other", nseqdict)
 
 
 def fix_hybrid_clusters(seq_record):
