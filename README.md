@@ -3,7 +3,7 @@ PlantiSMASH - Plant Secondary Metabolites Analysis Shell
 
 # 1. Installing PlantiSMASH 2.0
 
-## 1.1. Create a Linux Environment in Windows
+## 1.1 Create a Linux Environment in Windows
 Skip this step if using a Linux server. Refer to the [WSL setup guide](https://medium.com/@larysha.rothmann/getting-started-with-wsl-for-bioinformatics-setting-up-a-fully-functional-and-pretty-53b9c79b5380).
 
 1. Open the Windows command prompt: Press `Win Key`, search for ‘command prompt’, and select ‘Run as administrator’. Click ‘Yes’ when prompted by Windows to allow the app to make changes.
@@ -14,7 +14,7 @@ Skip this step if using a Linux server. Refer to the [WSL setup guide](https://m
 6. To have root as the administrator every time you start, use: `sudo -s`.
 7. If any issues arise, unregister Ubuntu in PowerShell with: `wsl --unregister Ubuntu`, then click Ubuntu.exe to register Ubuntu again.
 
-## 1.2. Install Conda
+## 1.2 Install Conda
 Click Ubuntu.exe or visit your Linux server terminal. Refer to the [Conda manual](https://git.wur.nl/bioinformatics/working-at-bif/-/blob/main/04-conda-manual.md?ref_type=heads).
 
 ```bash
@@ -37,19 +37,29 @@ nano ~/.condarc
 which conda 
 ```
 
-## 1.3. Install PlantiSMASH
-```bash
-cd /your/work/folder/path    # Replace with your actual path
+## 1.3 Install PlantiSMASH
+Create virtual conda enviroment. 
+```bash 
 mamba create -n plantismash python=2.7.15
 conda activate plantismash
+```
+Install plantiSMASH. 
+```bash
+cd /your/work/folder/path    # Replace with your actual path
 git clone https://github.com/plantismash/plantismash.git
 cd plantismash
+```
+Install dependencies. 
+```bash
 python install_dependencies.py   # Takes about 10 minutes
 python download_databases.py   # Only need PFAM for fullhmmer
-# For usage instructions of plantismash, use the command:
+```
+For usage instructions of plantismash, use the command: 
+```bash
 python run_antismash.py -h
 ```
-## 1.4.1. Run PlantiSMASH on a NCBI referent genome (genebank format) to test
+## 1.4 Run a test dataset
+### 1.4.1 Run PlantiSMASH on a NCBI reference genome (genebank format) to test
 ```bash
 mkdir Arabidopsis_thaliana
 cd Arabidopsis_thaliana
@@ -58,22 +68,22 @@ unzip ncbi_dataset.zip
 python ../run_antismash.py --clusterblast --knownclusterblast --verbose --debug --limit -1 --taxon plants --outputfolder result/ ncbi_dataset/data/GCF_000001735.4/genomic.gbff
 # --clusterblast --knownclusterblast are optional
 ```
-## 1.4.2. For using a genome with gff3 + fasta
+### 1.4.2 Run PlantiSMASH on a genome with gff3 + fasta
 ```bash
 python run_antismash.py --verbose --debug --limit -1 --taxon plants --outputfolder result/ --use_phase --gff3 path/to/gff3/file path/to/fasta/file
 # Please check the error message. The genome names in the gff3 file may differ from those in the fasta file, causing an error.
 ```
-## Notion
+## Note
 It is recommended to change the output folder or delete it every time you run PlantiSMASH. Because when using the same output folder, files from the previous run may be partially preserved (only rewriting files with the same names).
 
-# 2. Making your rules
+# 2. Customizing plantiSMASH detection rules
 This module is in `antismash\generic_modules\hmm_detection`
 
-## 2.1. How rules find BGCs?
+## 2.1. How do rules find BGCs?
 ### 2.1.1 Identify domains of proteins
-HMMs are used to do that by running hmmerscan. The HMMs files, `cluster_rules.txt`, `hmmdetails.txt`, and `filterhmmdetails.txt`. for plant are in `plant`. The `hmmdetails.txt` controls which HMMs will be used (4th column) and the bitscore cutoff (3rd column) to filter hmmerscan results. Usually the bitscore cutoff is `-1` equal to no filter. 
+PlantiSMASH detects protein domains (HMMs) by running hmmerscan. The HMMs files, `cluster_rules.txt`, `hmmdetails.txt`, and `filterhmmdetails.txt` for plants are in `plant`. The `hmmdetails.txt` controls which HMMs will be used (4th column) and the bitscore cutoff (3rd column) to filter hmmerscan results. Usually the bitscore cutoff is `-1` equal to no filter. 
 
-The result recorded in the output .gbk files. To only show the HMMs with highest bitscore from matches on same proteins sequence range, add them in `filterhmmdetails.txt`. For example, the same domain range match HMM UDPGT and UDPGT_2 , but the output will only show the one with highest bitscore.
+The results are recorded in the output .gbk files. To only show the HMMs with highest bitscore from matches on same proteins sequence range, add them in `filterhmmdetails.txt`. For example, the same domain range match HMM UDPGT and UDPGT_2 , but the output will only show the one with highest bitscore.
 
 Note: Another module by using the command `--full-hmmer` will use Pfam-A.hmm to identify any kind of domains. But the results only recorded in the output .gbk files and did not used in other module.
 
@@ -103,7 +113,7 @@ The cluster contains at least three genes with `required` HMMs matches (set by t
 ### 2.1.4. output
 The cluster also contain genes in the `Extension` of the both ends biosynthetic genes. The cluster type is same to the name of rule found and saved it. 
 
-## 2.2. How to implant a rule to find a cluster with a certain domain composition
+## 2.2. How to implement a rule to find a cluster with a certain domain composition
 ### 2.2.1. Check the `hmmdetails.txt` whether containing the HMMs involved in
 
 If not, add HMMs files in `plant` and update `hmmdetails.txt`
@@ -196,7 +206,8 @@ After creating the reference package, add the corresponding information to `Subg
 ## Notion
 Module uses ete3 to parse the tree file. But to ete3, 0.003847[100] format is not supported. bootstrap values in newick format should look like: ')100:0.003847'.
 
-## reference for the Subgroup Module
+## References for the Subgroup Module
+
 Chung, S. Y., Seki, H., Fujisawa, Y., Shimoda, Y., Hiraga, S., Nomura, Y., Saito, K., Ishimoto, M., & Muranaka, T. (2020). A cellulose synthase-derived enzyme catalyses 3-O-glucuronosylation in saponin biosynthesis. Nature Communications 2020 11:1, 11(1), 1–11. https://doi.org/10.1038/s41467-020-19399-0
 
 
