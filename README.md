@@ -3,7 +3,7 @@ PlantiSMASH - Plant Secondary Metabolites Analysis Shell
 
 # 1. Installing PlantiSMASH 2.0
 
-## 1.1 Create a Linux Environment in Windows
+## 1.1. Create a Linux Environment in Windows
 Skip this step if using a Linux server. Refer to the [WSL setup guide](https://medium.com/@larysha.rothmann/getting-started-with-wsl-for-bioinformatics-setting-up-a-fully-functional-and-pretty-53b9c79b5380).
 
 1. Open the Windows command prompt: Press `Win Key`, search for ‘command prompt’, and select ‘Run as administrator’. Click ‘Yes’ when prompted by Windows to allow the app to make changes.
@@ -14,7 +14,7 @@ Skip this step if using a Linux server. Refer to the [WSL setup guide](https://m
 6. To have root as the administrator every time you start, use: `sudo -s`.
 7. If any issues arise, unregister Ubuntu in PowerShell with: `wsl --unregister Ubuntu`, then click Ubuntu.exe to register Ubuntu again.
 
-## 1.2 Install Conda
+## 1.2. Install Conda
 Click Ubuntu.exe or visit your Linux server terminal. Refer to the [Conda manual](https://git.wur.nl/bioinformatics/working-at-bif/-/blob/main/04-conda-manual.md?ref_type=heads).
 
 ```bash
@@ -37,7 +37,7 @@ nano ~/.condarc
 which conda 
 ```
 
-## 1.3 Install PlantiSMASH
+## 1.3. Install PlantiSMASH
 Create virtual conda enviroment. 
 ```bash 
 mamba create -n plantismash python=2.7.15
@@ -49,7 +49,7 @@ cd /your/work/folder/path    # Replace with your actual path
 git clone https://github.com/plantismash/plantismash.git
 cd plantismash
 ```
-Install dependencies. 
+Install dependencies and download databases.  
 ```bash
 python install_dependencies.py   # Takes about 10 minutes
 python download_databases.py   # Only need PFAM for fullhmmer
@@ -58,8 +58,8 @@ For usage instructions of plantismash, use the command:
 ```bash
 python run_antismash.py -h
 ```
-## 1.4 Run a test dataset
-### 1.4.1 Run PlantiSMASH on a NCBI reference genome (genebank format) to test
+## 1.4. Run a test dataset
+### 1.4.1. Run PlantiSMASH on a NCBI reference genome (genebank format) to test
 ```bash
 mkdir Arabidopsis_thaliana
 cd Arabidopsis_thaliana
@@ -68,7 +68,7 @@ unzip ncbi_dataset.zip
 python ../run_antismash.py --clusterblast --knownclusterblast --verbose --debug --limit -1 --taxon plants --outputfolder result/ ncbi_dataset/data/GCF_000001735.4/genomic.gbff
 # --clusterblast --knownclusterblast are optional
 ```
-### 1.4.2 Run PlantiSMASH on a genome with gff3 + fasta
+### 1.4.2. Run PlantiSMASH on a genome with gff3 + fasta
 ```bash
 python run_antismash.py --verbose --debug --limit -1 --taxon plants --outputfolder result/ --use_phase --gff3 path/to/gff3/file path/to/fasta/file
 # Please check the error message. The genome names in the gff3 file may differ from those in the fasta file, causing an error.
