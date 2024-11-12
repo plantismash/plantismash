@@ -163,7 +163,7 @@ You can specify which families to subgroup by altering the ‘Enable’ column f
 
 The `Family model name(s)` column in the configuration file designates which domain pHMMs can be associated with a particular family. The `Subgroup Model` and `Match type` columns determine what is displayed on the web pages for each cluster, in the overview, and within .gbk files.
 
-Similar ideas in `Subgroup_Tree.txt`, the reference package (in family folders) containing the referent tree is for the pplacer to place the sequence on the tree.
+ `Subgroup_Tree.txt`, the reference package (in family folders) contains the reference tree for the pplacer to place the sequence on the tree.
 
 ## Using the Subgroup Module
 
@@ -177,7 +177,7 @@ Commands for the module include:
 
 Take the Cellulose synthase family as an example. If a subgroup of the Cellulose synthase on the family tree has been well studied, you can collect those sequences, divide them into subgroups, and create HMMs using `hmmbuild`. Ensure to add the corresponding information in `Subgroup_Model.txt`.
 
-## Notion
+## Note
 The .hmm file name and the NAME in the .hmm file content should match.
 
 The reference package, which contains the reference tree for `pplacer` to place the sequence on, is created using `taxtastic` with the following components:
@@ -203,7 +203,7 @@ For example, change `"subs_model": "AUTO"` to `"subs_model": "LG"`.  The same st
 
 After creating the reference package, add the corresponding information to `Subgroup_Tree.txt`.
 
-## Notion
+## Note
 Module uses ete3 to parse the tree file. But to ete3, 0.003847[100] format is not supported. bootstrap values in newick format should look like: ')100:0.003847'.
 
 ## References for the Subgroup Module
