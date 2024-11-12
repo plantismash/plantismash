@@ -29,8 +29,8 @@ from os import path
 
 PFAM_URL = "ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam27.0/Pfam-A.hmm.gz"
 PFAM_CHECKSUM = "b29bc2c54db8090531df0361a781b8d7397f60ebedc0c36a16e7d45e999cc329"
-CLUSTERBLAST_URL = "https://bitbucket.org/antismash/antismash/downloads/clusterblast_dmnd07.tar.xz"
-CLUSTERBLAST_CHECKSUM = "0b4911ee3e30bc2fbe00b85fdd100ec7389c835c22527586d7b93ab661a0a57b"
+# CLUSTERBLAST_URL = "https://bitbucket.org/antismash/antismash/downloads/clusterblast_dmnd07.tar.xz"
+# CLUSTERBLAST_CHECKSUM = "0b4911ee3e30bc2fbe00b85fdd100ec7389c835c22527586d7b93ab661a0a57b"
 
 if sys.platform == ('win32') or sys.platform == ('darwin'):
     os.environ['EXEC'] = os.getcwd() + "\exec"
@@ -199,20 +199,20 @@ def main():
     delete_file(filename + ".gz")
 
     #Download and compile ClusterBlast database
-    check_diskspace(CLUSTERBLAST_URL)
-    filename = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast",
-                         CLUSTERBLAST_URL.rpartition('/')[2])
-    download_if_not_present(CLUSTERBLAST_URL, filename, CLUSTERBLAST_CHECKSUM)
-    filename = unzip_file(filename, lzma, lzma.LZMAError)
-    untar_file(filename)
-    delete_file(filename)
-    delete_file(filename + ".xz")
+    # check_diskspace(CLUSTERBLAST_URL)
+    # filename = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast",
+    #                      CLUSTERBLAST_URL.rpartition('/')[2])
+    # download_if_not_present(CLUSTERBLAST_URL, filename, CLUSTERBLAST_CHECKSUM)
+    # filename = unzip_file(filename, lzma, lzma.LZMAError)
+    # untar_file(filename)
+    # delete_file(filename)
+    # delete_file(filename + ".xz")
 
     # hmmpress the NRPS/PKS specific databases
-    compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "abmotifs.hmm"))
-    compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "dockingdomains.hmm"))
-    compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "ksdomains.hmm"))
-    compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "nrpspksdomains.hmm"))
+    # compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "abmotifs.hmm"))
+    # compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "dockingdomains.hmm"))
+    # compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "ksdomains.hmm"))
+    # compile_pfam(path.join("antismash", "specific_modules", "nrpspks", "nrpspksdomains.hmm"))
 
     # hmmpress the smcog specific database
     compile_pfam(path.join("antismash", "generic_modules", "smcogs", "smcogs.hmm"))

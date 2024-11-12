@@ -31,7 +31,7 @@ def write(seq_records, options):
         return
     #Open up TXT file and XLS record
     outfolder = options.full_outputfolder_path
-    txtfile = open(path.join(outfolder, "geneclusters.txt"),"w")
+    txtfile = open(path.join(outfolder, "plantgeneclusters.txt"),"w")
     wb = Workbook()
     font1 = Font()
     style1 = XFStyle()
@@ -48,7 +48,7 @@ def write(seq_records, options):
     #For each gene cluster, write out info
     column = 1
     for seq_record in seq_records:
-        clusters = utils.get_cluster_features(seq_record)
+        clusters = utils.get_sorted_cluster_features(seq_record)
         for cluster in clusters:
             clustertype = utils.get_cluster_type(cluster)
             clusternr = utils.get_cluster_number(cluster)
@@ -72,5 +72,10 @@ def write(seq_records, options):
                seq_record.closestcompounddict.has_key(clusternr):
                 ws0.write(column, 5, seq_record.closestcompounddict[clusternr])
             column += 1
-            txtfile.write("\t".join([seq_record.id, seq_record.description, clustertype, ";".join(clustergenes), ";".join(accessions)]) + "\n")
+            txtfile.write("\t".join([seq_record.id, seq_record.description, "c" + str(utils.get_cluster_number(cluster)), clustertype, ";".join(clustergenes), ";".join(accessions)]) + "\n")
+    txtfile.close()
+
+
+
+
     wb.save(path.join(outfolder,  "%s.geneclusters.xls" % seq_record.id))

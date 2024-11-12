@@ -202,6 +202,10 @@ def add_overview_entry(d, cluster, odd):
     td = pq('<td>')
     td.text(", ".join(cluster['domains']))
     tr.append(td)
+    # predicted substrate type
+    td = pq('<td>')
+    td.text(", ".join(cluster['substrates']))
+    tr.append(td)
     # closest cluster match BGCid description
     td = pq('<td>')
     td.text(cluster['knowncluster'])

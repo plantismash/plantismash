@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "create_date": "2024-08-07 18:03:31",
+        "format_version": "1.1",
+        "locus": "plant_OSCs"
+    },
+    "files": {
+        "phylo_model": "phylo_modeluledw961.json",
+        "aln_fasta": "oscdata_v2.4.pep.afa",
+        "seq_info": "node-subgroup.txt",
+        "tree": "RAxML_bipartitions.oscdata_v2.4.pep",
+        "tree_stats": "RAxML_info.oscdata_v2.4.pep"
+    },
+    "md5": {
+        "phylo_model": "49dc45c9e3246392e20a0cb83ee3fa5e",
+        "aln_fasta": "91079ffdda0b0b38e41fa393537ff800",
+        "seq_info": "e728aafc442be7052e00b7c9c84f3519",
+        "tree": "202c09a94a48e81c751452d750ac16d0",
+        "tree_stats": "9899abebe2f51741fca189e884692896"
+    },
+    "log": [
+        "Stripped refpkg (removed 0 files)",
+        "Loaded initial files into empty refpkg"
+    ],
+    "rollback": null,
+    "rollforward": null
+}
