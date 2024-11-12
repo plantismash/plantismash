@@ -61,11 +61,11 @@ python run_antismash.py -h
 ## 1.4. Run a test dataset
 ### 1.4.1. Run PlantiSMASH on a NCBI reference genome (genebank format) to test
 ```bash
-mkdir Arabidopsis_thaliana
-cd Arabidopsis_thaliana
+mkdir -p test_datasets/Arabidopsis_thaliana
+cd test_datasets/Arabidopsis_thaliana
 datasets download genome accession GCF_000001735.4 --include gbff
 unzip ncbi_dataset.zip
-python ../run_antismash.py --clusterblast --knownclusterblast --verbose --debug --limit -1 --taxon plants --outputfolder result/ ncbi_dataset/data/GCF_000001735.4/genomic.gbff
+python ../../run_antismash.py --clusterblast --knownclusterblast --verbose --debug --limit -1 --taxon plants --outputfolder result/ ncbi_dataset/data/GCF_000001735.4/genomic.gbff
 # --clusterblast --knownclusterblast are optional
 ```
 ### 1.4.2. Run PlantiSMASH on a genome with gff3 + fasta

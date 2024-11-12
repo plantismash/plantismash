@@ -7,3 +7,4 @@ tags
 .DS_Store
 .idea/
 /antismash/generic_modules/fullhmmer/Pfam-A.hmm
+test_datasets/
