@@ -219,7 +219,7 @@ The scripts are in `antismash/generic_modules/clusterblast` also with database f
 Use `--clusterblastdir` to specify the database directory which you want to use.
 
 ## 4.2. How to update the ClusterBlast Module database?
-1. change the minimum number of each rule in `clusterblast_rules.txt` to 2 (so will save clusters only with 2 genes);
+1. change the minimum number of each rule in `plant/cluster_rules.txt` to 2 (so will save clusters only with 2 genes);
 2. download the genomes you want to use to make the database, for example NCBI reference genomes of Streptophyta:
 ```bash
 datasets download genome taxon 35493 --annotated --reference --include gbff  --dehydrated  --filename streptophyta_ref_anno.zip
