@@ -1,0 +1,107 @@
+Enable	Family Full Name	Folder Name	Family model name(s)	Subgroup Model	Predicted Function/Substrate	Match type
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT / UDPGT_2	A_glycosidic_branch_elongating.hmm	Glycosidic branch elongating	saccharide
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	B.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	C.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	D_Triterpenoid(oleananes),flavonoid-7-O-.hmm	Triterpenoid(oleananes) and Flavonoid-7-O	oleananes, flavonoid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	E.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	E_flavonoid-7-O-.hmm	Flavonoid-7-O	flavonoid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	E_small_phenolic.hmm	Small phenolic	small phenolic
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	F_flavonoid-3-O-.hmm	Flavonoid-3-O	flavonoid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	G_monoterpenoid,cyanogenic_glucoside.hmm	Monoterpenoid and cyanogenic glucoside	monoterpenoid, cyanogenic glucoside
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	H_cytokinin_N-.hmm	Cytokinin-N	cytokinin
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	I.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	J.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	K.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	L.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT / UDPGT_2	L_ester-forming.hmm	Ester forming	carboxyl
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	L_flavonoid-5-O-.hmm	Flavonoid-5-O	flavonoid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	L_hydroxycinnamate.hmm	Hydroxycinnamate	hydroxycinnamate
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	L_IAA.hmm	IAA	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	M.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	N.hmm	Flavonoid	flavonoid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	O_cytokinin,alkaloid.hmm	cytokinin,alkaloid	cytokinin, alkaloid
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	P.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	Q.hmm	Not summarized	
+Y	Glycosyl Transferase Family 1	UDPGT	UDPGT/UDPGT_2	R_flavonoid-C-.hmm	Flavonoid-C	flavonoid
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CesA.hmm	cellulose synthesis	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLB.hmm	Unknown	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLD.hmm	Unknown	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLE.hmm	Unknown	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLF.hmm	(1,3;1,4)-β-glucan synthesis	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLG.hmm	Unknown	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLH.hmm	(1,3;1,4)-β-glucan synthesis	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLJ.hmm	(1,3;1,4)-β-glucan synthesis	
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLM_Triterpenoid(oleananes)-3-C-.hmm	transfer glucuronic acid to triterpenoid oleananes aglycones C-3	oleananes
+Y	Glycosyl Transferase Family 2	Cellulose_synt	Cellulose_synt	CSLM_UnknownFunction.hmm	Unknown	
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	basal_CAS.hmm	Cycloartenol synthases from basal Viridiplantae	Cycloartenol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	basal_core_BAS.hmm	OSCs from basal dicots which produce beta-amyrin	beta-amyrin
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	brassica_core_BAS_other.hmm	OSCs from brassicas which produce beta-amyrin and other triterpene scaffolds	beta-amyrin, triterpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	brassica_diverse_OSC.hmm	OSCs from brassicas which produce diverse triterpene scaffolds not likely to be beta-amyrin	triterpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	cucurbitadienol_synth.hmm	Cucurbitadienol synthases	Cucurbitadienol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	dammarenyl_GroupI.hmm	OSCs from dicots usually producing dammarenyl-dervied scaffolds	dammarenyl
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	dicot_CAS_GroupB.hmm	Cycloartenol synthases from dicots	Cycloartenol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	dicot_CAS_GroupC.hmm	Cycloartenol synthases from dicots	Cycloartenol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	dicot_core_BAS_other.hmm	OSCs from dicots (not including brassicas) which produce beta-amyrin and other triterpene scaffolds	beta-amyrin, triterpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	dicot_diverse_OSC.hmm	OSCs from dicots (not including brassicas) which produce diverse triterpene scaffolds not likely to be beta-amyrin	triterpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	kalanchoe_diverse_GroupL.hmm	OSCs from kalanchoe species, often with novel structures	novel_terpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	lanosterol_synth.hmm	Lanosterol synthases from dicots	Lanosterol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	lupeol_other_synth.hmm	OSCs from dicot usually producing lupeol, though other functions are known	lupeol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	monocot_GroupD.hmm	OSCs from monocots usually producing sterol scaffolds	sterol
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	monocot_GroupE.hmm	OSCs from monocots usually producing triterpene scaffolds	triterpene
+Y	Cycloartenol synthases Family	OSC	SQHop_cyclase_C/SQHop_cyclase_N	poaceatapetol_synth.hmm	Monocyclic, poaceatapetol-like synthases from monocots	Monocyclic, poaceatapetol-like
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT1G49670.1.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT4G20760.1.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT5G04070.1.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR17C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR22E.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR34C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR358U.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR35C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR368C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR40C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR42E.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR57C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR81U.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR84C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR98U.hmm	3,8-divinyl protochlorophyllide a 8-vinyl reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR31E.hmm	3β-hydroxysteroid-dehydrogenase/decarboxylase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR110C.hmm	ABA2 (xanthoxin oxidase), Tasselseed2, Secoisolariciresinol dehydrogenase, Momilactone A synthase, Isopiperitenol dehydrogenase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR103U.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR107C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR58C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR59C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR74C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR86C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR90C.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR369C.hmm	Arabidopsis thaliana Forever Young
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR83U.hmm	Chloroplast stem-loop binding protein
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT3G01980.1.hmm	Cucumis melo ADH2
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR108E.hmm	Dihydroflavonol 4-reductase, Anthocyanidin reductase, Cinnamoyl-CoA reductase, Phenylacetaldehyde reductase, Eutypine reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR87D.hmm	Enoyl-ACP reductase (ENR)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT4G33360.1_(farnesol_NAD_dehydrogenase).hmm	Farnesol NAD dehydrogenase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR152C.hmm	FAS-II- β-ketoacyl reductase (FabG)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR117E.hmm	fatty-acyl-CoA reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR4E.hmm	GDP-4-keto-6-deoxymannose-3,5-epimerase-4-reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR93E.hmm	GDP-D-mannose 3′,5′-epimerase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR3E.hmm	GDP-mannose 4,6-dehydratase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR115E.hmm	HC-toxin reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR119C.hmm	Hydroxysteroid Dehydrogenase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR2E.hmm	NDP-L-rhamnose synthase/epimerase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT4G13250.1_(NYC1).hmm	NYC1/NOL (chlorophyll b reductase)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR460A_(PLR-IFR).hmm	Pinoresinol reductase, Isoflavone reductase, Vestitone reductase, Phenylcoumaran benzylic ether reductase, Eugenol synthase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR7C.hmm	Pisum sativum Tic32 (chloroplast protein import translocon)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR73C.hmm	Protochlorophyllide Oxidoreductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR357C.hmm	Pterin aldehyde reductase (folate salvage)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR114C.hmm	Salutaridine reductase, Menthone reductase, Isopiperitenone reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR25C.hmm	SDRA-IBR1 (indole-3-butyric acid response 1)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR132C.hmm	Solanum tuberosum TDF511
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR65C.hmm	Tropinone Reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR67E.hmm	UDP-D-apiose/UDP-D-xylose synthase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR1E.hmm	UDP-D-glucose/UDP-D-galactose 4-epimerase, UDP-arabinose 4-epimerase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR50E.hmm	UDP-D-glucuronate 4-epimerase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR52E.hmm	UDP-sulfoquinovose synthase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR6E.hmm	UDP-xylose synthase, UDP-glucuronic acid decarboxylase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR75U.hmm	VEIN PATTERNING 1 (VEP1), progesterone 5β-reductase
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR12C.hmm	β-ketoacyl reductase (fatty acids elongation)
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	AT4G00560.1.hmm	-
+Y	short-chain dehydrogenases/reductases Family	SDR	Epimerase/adh_short/adh_short_C2/3Beta_HSD	SDR68C.hmm	-

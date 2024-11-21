@@ -61,3 +61,27 @@ Amino_oxidase	Amino_oxidase	-1	Amino_oxidase.hmm
 DAHP_synth_1	DAHP_synth_1	-1	DAHP_synth_1.hmm
 DAHP_synth_2	DAHP_synth_2	-1	DAHP_synth_2.hmm
 BURP	BURP	-1	BURP.hmm
+Orn_DAP_Arg_deC	Pyridoxal-dependent decarboxylase, C-terminal sheet domain	-1	Orn_DAP_Arg_deC.hmm
+Pyridoxal_deC	Pyridoxal-dependent decarboxylase conserved domain	-1	Pyridoxal_deC.hmm
+BBE	Berberine and berberine like	-1	BBE.hmm
+FA_hydroxylase	Fatty acid hydroxylase	-1	FA_hydroxylase.hmm
+CER1-like_C	CER1-like, C-terminal domain	-1	CER1-like_C.hmm
+ECH_2	Enoyl-CoA hydratase/isomerase	-1	ECH_2.hmm
+Oxidored_FMN	NADH:flavin oxidoreductase / NADH oxidase family	-1	Oxidored_FMN.hmm
+3Beta_HSD	3β-hydroxysteroid-dehydrogenase/decarboxylase	-1	3Beta_HSD.hmm
+Glyco_hydro_1	Glycosyl hydrolase family 1	-1	Glyco_hydro_1.hmm
+ADH_zinc_N	Zinc-binding dehydrogenase	-1	ADH_zinc_N.hmm
+Abhydrolase_3	alpha/beta hydrolase fold	-1	Abhydrolase_3.hmm
+Aldo_ket_red	Aldo/keto reductase family	-1	Aldo_ket_red.hmm
+ADH_N	Alcohol dehydrogenase GroES-like domain	-1	ADH_N.hmm
+ADH_N_2	N-terminal domain of oxidoreductase	-1	ADH_N_2.hmm
+MatE	Multi Antimicrobial Extrusion	-1	MatE.hmm
+Thr_dehydrat_C	C-terminal regulatory domain of Threonine dehydratase	-1	Thr_dehydrat_C.hmm
+PALP	Pyridoxal-phosphate dependent enzyme	-1	PALP.hmm
+E1_dh	Dehydrogenase E1 component	-1	E1_dh.hmm
+Dimerisation	Dimerisation domain	-1	Dimerisation.hmm
+FAD_binding_4	FAD binding domain	-1	FAD_binding_4.hmm
+YjeF_N	YjeF-related protein N-terminus	-1	YjeF_N.hmm
+Putative_PNPOx	Pyridoxamine 5'-phosphate oxidase	-1	Putative_PNPOx.hmm
+PNP_phzG_C	Pyridoxine 5'-phosphate oxidase C-terminal dimerisation region	-1	PNP_phzG_C.hmm
+Orn_Arg_deC_N	Pyridoxal-dependent decarboxylase, pyridoxal binding domain	-1	Orn_Arg_deC_N.hmm

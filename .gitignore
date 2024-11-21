@@ -6,3 +6,4 @@ tags
 *.h3?
 .DS_Store
 .idea/
+/antismash/generic_modules/fullhmmer/Pfam-A.hmm

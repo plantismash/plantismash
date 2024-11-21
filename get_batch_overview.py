@@ -112,7 +112,7 @@ def main():
             overlaps = utils.get_overlaps_table(seq_record)
             rulesdict = hmm_detection.create_rules_dict(options.enabled_cluster_types)
             # find total cdhit numbers in the chromosome
-            total_cdhit = len(utils.get_cdhit_table(utils.get_cds_features(seq_record))[0])
+            total_cdhit = len(utils.get_cdhit_table(utils.get_cds_features(seq_record), options)[0])
             res_object[fpath][seq_record.id] = {"total_clusters" : 0, "total_genes" : len(overlaps[0]), "total_cdhit" : total_cdhit, "genes_with_hits" : 0, "largest_cdhit" : 0, "largest_domain_variations" : 0, "per_hits" : {}, "cluster_types" : {}}
 
             # filter overlap hits
@@ -211,7 +211,7 @@ def main():
                 if cluster_type not in res_object[fpath][seq_record.id]["cluster_types"]:
                     res_object[fpath][seq_record.id]["cluster_types"][cluster_type] = 0
                 res_object[fpath][seq_record.id]["cluster_types"][cluster_type] += 1
-                num_cdhit = len(utils.get_cluster_cdhit_table(cluster, seq_record))
+                num_cdhit = len(utils.get_cluster_cdhit_table(cluster, seq_record,options))
                 num_domain = len(utils.get_cluster_domains(cluster, seq_record))
                 cdhit_numbers.append(num_cdhit)
                 domain_numbers.append(num_domain)
