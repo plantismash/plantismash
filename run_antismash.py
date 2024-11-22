@@ -938,41 +938,39 @@ def main():
         logging.info("subgroup identification is disabled")
 
     if options.update_clusterblast:
-        logging.info("Updating ClusterBlast database use this time results")
+        # Updated function to generate unique output files using the input sequence name.
+        logging.info("Updating ClusterBlast database for input: {options.sequences}")
 
         # make sure the clusterblastdir and files exists
         if options.clusterblastdir == "":
             options.clusterblastdir = clusterblast.where_is_clusterblast()
         if not os.path.exists(options.clusterblastdir):
             os.makedirs(options.clusterblastdir)
-        clusteblast_txt = path.join(options.clusterblastdir, "plantgeneclusters.txt")
-        clusteblast_fasta = path.join(options.clusterblastdir, "plantgeneclusterprots.fasta")
-        if not path.exists(clusteblast_fasta) or not path.exists(clusteblast_txt):
-            with open(clusteblast_fasta, "w") as clusteblast_file:
-                pass
-            with open(clusteblast_txt, "w") as clusteblast_file:
-                pass
+        
+        # Derive a unique identifier from the first input sequence
+        input_basename = path.splitext(path.basename(options.sequences[0]))[0]
+        clusteblast_txt = path.join(options.clusterblastdir, f"plantgeneclusters_{input_basename}.txt")
+        clusteblast_fasta = path.join(options.clusterblastdir, f"plantgeneclusterprots_{input_basename}.fasta")
 
-        # write the plantgeneclusterprots.fasta
+         # Write the plantgeneclusterprots.fasta
         clusterblast.make_geneclusterprots(seq_records, options)
-        outputname =path.join(path.abspath(options.outputfoldername), "plantgeneclusterprots.fasta")
-        with open(clusteblast_fasta, "a") as clusteblast_file:
+        outputname = path.join(path.abspath(options.outputfoldername), f"plantgeneclusterprots_{input_basename}.fasta")
+
+        with open(clusteblast_fasta, "w") as clusteblast_file:  # Use "w" to ensure fresh files
             with open(outputname, "r") as fastafile:
                 clusteblast_file.write(fastafile.read())
 
-        # write the plantgeneclusters.txt
+        # Write the plantgeneclusters.txt
         xls.write(seq_records, options)
-        with open(clusteblast_txt, "a") as clusteblast_file:
-            with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
+        with open(clusteblast_txt, "w") as clusteblast_file:
+            with open(path.join(options.full_outputfolder_path, f"plantgeneclusters_{input_basename}.txt"), "r") as txtfile:
                 clusteblast_file.write(txtfile.read())
-        with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
-            non_empty_line_count = 0
-            for line in txtfile:
-                # Strip leading and trailing whitespace characters
-                if line.strip():
-                    non_empty_line_count += 1
 
-        logging.info("Numbers of clusters\t{}\t{}".format(options.sequences, non_empty_line_count) )
+        # Count non-empty lines
+        with open(path.join(options.full_outputfolder_path, f"plantgeneclusters_{input_basename}.txt"), "r") as txtfile:
+            non_empty_line_count = sum(1 for line in txtfile if line.strip())
+
+        logging.info(f"Numbers of clusters for {input_basename}: {options.sequences}, {non_empty_line_count}")
 
 
     #Write results
