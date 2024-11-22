@@ -163,7 +163,7 @@ def main():
                         dest='taxon',
                         default='bacteria',
                         choices=['bacteria', 'fungi', 'plants'],
-                        help="Determine the taxon from which the sequence(s) came from. (default: bacteria)")
+                        help="Determine the taxon from which the sequence(s) came from. (default: plants)")
     group.add_argument('--hmmsearch-chunk',
                        dest='hmmsearch_chunk',
                        default=10000,
