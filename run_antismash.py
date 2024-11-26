@@ -939,22 +939,22 @@ def main():
 
     if options.update_clusterblast:
         # Updated function to generate unique output files using the input sequence name.
-        logging.info("Updating ClusterBlast database for input: {options.sequences}")
+        logging.info("Updating ClusterBlast database for input: {0}".format(options.sequences))
 
-        # make sure the clusterblastdir and files exists
+        # Make sure the clusterblastdir and files exist
         if options.clusterblastdir == "":
             options.clusterblastdir = clusterblast.where_is_clusterblast()
         if not os.path.exists(options.clusterblastdir):
             os.makedirs(options.clusterblastdir)
-        
+
         # Derive a unique identifier from the first input sequence
         input_basename = path.splitext(path.basename(options.sequences[0]))[0]
-        clusteblast_txt = path.join(options.clusterblastdir, f"plantgeneclusters_{input_basename}.txt")
-        clusteblast_fasta = path.join(options.clusterblastdir, f"plantgeneclusterprots_{input_basename}.fasta")
+        clusteblast_txt = path.join(options.clusterblastdir, "plantgeneclusters_{0}.txt".format(input_basename))
+        clusteblast_fasta = path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(input_basename))
 
-         # Write the plantgeneclusterprots.fasta
+        # Write the plantgeneclusterprots.fasta
         clusterblast.make_geneclusterprots(seq_records, options)
-        outputname = path.join(path.abspath(options.outputfoldername), f"plantgeneclusterprots_{input_basename}.fasta")
+        outputname = path.join(path.abspath(options.outputfoldername), "plantgeneclusterprots_{0}.fasta".format(input_basename))
 
         with open(clusteblast_fasta, "w") as clusteblast_file:  # Use "w" to ensure fresh files
             with open(outputname, "r") as fastafile:
@@ -963,27 +963,27 @@ def main():
         # Write the plantgeneclusters.txt
         xls.write(seq_records, options)
         with open(clusteblast_txt, "w") as clusteblast_file:
-            with open(path.join(options.full_outputfolder_path, f"plantgeneclusters_{input_basename}.txt"), "r") as txtfile:
+            with open(path.join(options.full_outputfolder_path, "plantgeneclusters_{0}.txt".format(input_basename)), "r") as txtfile:
                 clusteblast_file.write(txtfile.read())
 
         # Count non-empty lines
-        with open(path.join(options.full_outputfolder_path, f"plantgeneclusters_{input_basename}.txt"), "r") as txtfile:
+        with open(path.join(options.full_outputfolder_path, "plantgeneclusters_{0}.txt".format(input_basename)), "r") as txtfile:
             non_empty_line_count = sum(1 for line in txtfile if line.strip())
 
-        logging.info(f"Numbers of clusters for {input_basename}: {options.sequences}, {non_empty_line_count}")
+        logging.info("Numbers of clusters for {0}: {1}, {2}".format(input_basename, options.sequences, non_empty_line_count))
 
-
-    #Write results
+    # Write results
     options.plugins = plugins
     utils.log_status("Writing the output files")
-    logging.debug("Writing output for %s sequence records", len(seq_records))
+    logging.debug("Writing output for {0} sequence records".format(len(seq_records)))
     write_results(output_plugins, seq_records, options)
     zip_results(seq_records, options)
     end_time = datetime.now()
-    running_time = end_time-start_time
-    logging.debug("antiSMASH calculation finished at %s; runtime: %s", str(end_time), str(running_time))
+    running_time = end_time - start_time
+    logging.debug("antiSMASH calculation finished at {0}; runtime: {1}".format(str(end_time), str(running_time)))
     utils.log_status("antiSMASH status: SUCCESS")
     logging.debug("antiSMASH status: SUCCESS")
+
 
 def strip_record(seq_record):
     features = utils.get_cds_features(seq_record)
