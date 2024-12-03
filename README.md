@@ -40,7 +40,7 @@ which conda
 ## 1.3. Install PlantiSMASH
 Create virtual conda enviroment. 
 ```bash 
-mamba create -n plantismash python=2.7.15
+mamba env create -f environment.yml
 conda activate plantismash
 ```
 Install plantiSMASH. 
@@ -51,7 +51,6 @@ cd plantismash
 ```
 Install dependencies and download databases.  
 ```bash
-python install_dependencies.py   # Takes about 10 minutes
 python download_databases.py   # Only need PFAM for fullhmmer
 ```
 For usage instructions of plantismash, use the command: 
