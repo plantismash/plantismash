@@ -26,12 +26,24 @@ name = "xls"
 short_description = "xls_txt_output"
 priority = 1
 
-def write(seq_records, options):
+def write(seq_records, options, filename="plantgeneclusters.txt", directory=None):
+    """
+    Write gene cluster data to TXT and XLS files.
+
+    Parameters:
+    - seq_records: List of SeqRecord objects to process.
+    - options: The options object containing configuration settings.
+    - filename: (Optional) Name of the output TXT file. Defaults to 'plantgeneclusters.txt'.
+    - directory: (Optional) Directory to write the output files. Defaults to 'options.full_outputfolder_path'.
+    """
+    # Determine output file name and directory
+    outfolder = options.full_outputfolder_path
+    directory = directory or outfolder
+    
     if options.input_type == 'prot':
         return
     #Open up TXT file and XLS record
-    outfolder = options.full_outputfolder_path
-    txtfile = open(path.join(outfolder, "plantgeneclusters.txt"),"w")
+    txtfile = open(path.join(directory, filename),"w")
     wb = Workbook()
     font1 = Font()
     style1 = XFStyle()

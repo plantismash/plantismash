@@ -10,6 +10,10 @@
 # Interfaculty Institute of Microbiology and Infection Medicine
 # Div. of Microbiology/Biotechnology
 #
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences 
+#
 # License: GNU Affero General Public License v3 or later
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 """Run the antiSMASH pipeline"""
@@ -75,6 +79,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 from datetime import datetime
+import re
 
 
 def ValidateDetectionTypes(detection_models):
@@ -941,48 +946,124 @@ def main():
         # Updated function to generate unique output files using the input sequence name.
         logging.info("Updating ClusterBlast database for input: {0}".format(options.sequences))
 
-        # Make sure the clusterblastdir and files exist
+        # Make sure the clusterblastdir directory exists
         if options.clusterblastdir == "":
             options.clusterblastdir = clusterblast.where_is_clusterblast()
         if not os.path.exists(options.clusterblastdir):
             os.makedirs(options.clusterblastdir)
 
-        # Derive a unique identifier from the first input sequence
-        input_basename = path.splitext(path.basename(options.sequences[0]))[0]
-        clusteblast_txt = path.join(options.clusterblastdir, "plantgeneclusters_{0}.txt".format(input_basename))
-        clusteblast_fasta = path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(input_basename))
+        # Generate unique identifiers based on the input sequence
+        try:
+            # Split the input path into parts
+            input_basename = os.path.normpath(options.sequences[0]).split(os.sep)
+            # Get the last two elements of the filepath name 
+            last_two_parts = "_".join(input_basename[-2:])  # Join with an underscore
+            # Sanitize the combined parts to ensure filename safety
+            sanitized_path = re.sub(r'[^\w\-_\.]', '_', last_two_parts)
+            # Add more unique identifiers like timestamp if needed
+            unique_name = sanitized_path
+        except IndexError:
+            raise ValueError("No sequences provided in options.sequences!")
 
-        # Write the plantgeneclusterprots.fasta
-        clusterblast.make_geneclusterprots(seq_records, options)
-        outputname = path.join(path.abspath(options.outputfoldername), "plantgeneclusterprots_{0}.fasta".format(input_basename))
+        # File paths
+        clusteblast_txt = os.path.join(options.clusterblastdir, "plantgeneclusters_{0}.txt".format(unique_name))
+        clusteblast_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
 
-        with open(clusteblast_fasta, "w") as clusteblast_file:  # Use "w" to ensure fresh files
-            with open(outputname, "r") as fastafile:
-                clusteblast_file.write(fastafile.read())
+         # Generate and write the plantgeneclusterprots.fasta file
+        try:
+            logging.debug("Calling make_geneclusterprots to generate FASTA file...")
+            clusterblast.make_geneclusterprots(seq_records, options, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            generated_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            logging.debug("Expected generated FASTA file path: {0}".format(generated_fasta))
 
-        # Write the plantgeneclusters.txt
-        xls.write(seq_records, options)
-        with open(clusteblast_txt, "w") as clusteblast_file:
-            with open(path.join(options.full_outputfolder_path, "plantgeneclusters_{0}.txt".format(input_basename)), "r") as txtfile:
-                clusteblast_file.write(txtfile.read())
+            if os.path.exists(generated_fasta):
+                logging.debug("FASTA file successfully generated: {0}".format(generated_fasta))
+                with open(clusteblast_fasta, "w") as clusteblast_file:
+                    with open(generated_fasta, "r") as fastafile:
+                        clusteblast_file.write(fastafile.read())
+            else:
+                logging.error("Expected FASTA file not found: {0}".format(generated_fasta))
+                logging.debug("ClusterBlast directory: {0}".format(options.clusterblastdir))
+                raise IOError("FASTA file generation failed.")
+        except Exception as e:
+            logging.error("Error generating ClusterBlast FASTA file: {0}".format(e))
+            raise
 
-        # Count non-empty lines
-        with open(path.join(options.full_outputfolder_path, "plantgeneclusters_{0}.txt".format(input_basename)), "r") as txtfile:
-            non_empty_line_count = sum(1 for line in txtfile if line.strip())
+        # Generate and write the plantgeneclusters.txt file
+        try:
+            # generate the file in the result directory 
+            xls.write(seq_records, options)
+            print("plantgeneclusters.txt saved in the results directory")
 
-        logging.info("Numbers of clusters for {0}: {1}, {2}".format(input_basename, options.sequences, non_empty_line_count))
+             # Write the TXT file explicitly for the clusterblast directory
+            with open(clusteblast_txt, "w") as clusteblast_file:
+                for seq_record in seq_records:
+                    clusters = utils.get_sorted_cluster_features(seq_record)
+                    for cluster in clusters:
+                        clustertype = utils.get_cluster_type(cluster)
+                        clusternr = utils.get_cluster_number(cluster)
+                        clustergenes = [utils.get_gene_id(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        accessions = [utils.get_gene_acc(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        # Write cluster data to TXT
+                        clusteblast_file.write(
+                            "\t".join(
+                                [
+                                    seq_record.id,
+                                    seq_record.description,
+                                    "c{0}".format(clusternr),
+                                    clustertype,
+                                    ";".join(clustergenes),
+                                    ";".join(accessions),
+                                ]
+                            )
+                            + "\n"
+                        )
+            print("plantgeneclusters_{0}.txt saved in the clusterblast directory".format(unique_name))
+            
+            # Validation: Ensure the file was created
+            if not os.path.exists(clusteblast_txt):
+                raise IOError("TXT file generation failed for clusterblast directory.")
+            logging.info("TXT file successfully created at {0}".format(clusteblast_txt))
 
-    # Write results
-    options.plugins = plugins
-    utils.log_status("Writing the output files")
-    logging.debug("Writing output for {0} sequence records".format(len(seq_records)))
-    write_results(output_plugins, seq_records, options)
-    zip_results(seq_records, options)
-    end_time = datetime.now()
-    running_time = end_time - start_time
-    logging.debug("antiSMASH calculation finished at {0}; runtime: {1}".format(str(end_time), str(running_time)))
-    utils.log_status("antiSMASH status: SUCCESS")
-    logging.debug("antiSMASH status: SUCCESS")
+            # Count non-empty lines in the generated TXT file
+            try:
+                non_empty_line_count = 0
+                with open(clusteblast_txt, "r") as txtfile:
+                    non_empty_line_count = sum(1 for line in txtfile if line.strip())
+                logging.info(
+                    "Number of clusters for {0}: {1}, {2}".format(
+                        unique_name, options.sequences, non_empty_line_count
+                    )
+                )
+            except Exception as e:
+                logging.error("Error counting non-empty lines in TXT file: {0}".format(e))
+                raise
+
+        except Exception as e:
+            logging.error("Error generating ClusterBlast TXT file: {0}".format(e))
+            raise
+
+    # Write results and complete the process
+    try:
+        options.plugins = plugins
+        utils.log_status("Writing the output files")
+        logging.debug("Writing output for {0} sequence records".format(len(seq_records)))
+        write_results(output_plugins, seq_records, options)
+        zip_results(seq_records, options)
+
+        # Log runtime
+        end_time = datetime.now()
+        running_time = end_time - start_time
+        logging.debug(
+            "antiSMASH calculation finished at {0}; runtime: {1}".format(
+                str(end_time), str(running_time)
+            )
+        )
+        utils.log_status("antiSMASH status: SUCCESS")
+        logging.debug("antiSMASH status: SUCCESS")
+    except Exception as e:
+        logging.error("Error during results writing or finalizing: {0}".format(e))
+        raise
 
 
 def strip_record(seq_record):
@@ -1018,6 +1099,10 @@ def apply_taxon_preset(options):
     if options.taxon == "fungi":
         logging.debug("Applying preset for %s", options.taxon)
         options.eukaryotic = True
+
+    # force the default preset for plants
+    if not options.taxon:
+        options.taxon = "plants"
 
     if options.taxon == "plants":
         logging.debug("Applying preset for %s", options.taxon)
