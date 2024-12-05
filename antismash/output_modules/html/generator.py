@@ -20,6 +20,8 @@ import os
 from antismash import utils
 from antismash.config import get_config
 from antismash.output_modules.html import js
+import cgi
+import unicodedata
 
 def set_title(d, seq_id, num_clusters):
     d('title').text('%s - %s clusters - antiSMASH results' % (seq_id, num_clusters))
@@ -208,7 +210,17 @@ def add_overview_entry(d, cluster, odd):
     tr.append(td)
     # closest cluster match BGCid description
     td = pq('<td>')
-    td.text(cluster['knowncluster'])
+
+    print("Raw value for cluster['knowncluster']:", cluster['knowncluster'])
+
+    # Sanitize the knowncluster value for XML compatibility
+    try:
+        sanitized_knowncluster = sanitize_for_xml(cluster['knowncluster'])
+        td.text(sanitized_knowncluster)
+    except ValueError as e:
+        logging.error("Error assigning text to XML: {}".format(e))
+        td.text("Invalid text")
+        
     tr.append(td)
 
     td = pq('<td>')
@@ -603,3 +615,35 @@ def generate_searchgtr_htmls(seq_records, options):
                     formfile.write("%s\n%s" % (gene_id, utils.get_aa_sequence(feature)))
                     formfile.write(searchgtrformtemplateparts[1])
                     formfile.close()
+
+
+def sanitize_for_xml(input_str):
+    """
+    Sanitize a string for XML compatibility by ensuring it is Unicode,
+    replacing non-ASCII characters with HTML entities, and escaping XML special characters.
+
+    Args:
+        input_str (str or unicode): The input string to sanitize.
+
+    Returns:
+        str: A sanitized, XML-compatible string.
+    """
+    if not isinstance(input_str, unicode):  # Ensure input is Unicode
+        try:
+            input_str = input_str.decode('utf-8')  # Decode from UTF-8
+        except UnicodeDecodeError:
+            input_str = input_str.decode('utf-8', 'replace')  # Replace invalid bytes with "?"
+
+    # Replace non-ASCII characters with HTML entities
+    sanitized = ''.join(
+        '&#{};'.format(ord(char)) if ord(char) > 127 else char
+        for char in input_str
+    )
+    
+    # Normalize to NFC or NFKC to remove control characters
+    sanitized = unicodedata.normalize("NFKC", sanitized)
+
+    # Escape special XML characters: <, >, &, ', "
+    sanitized = cgi.escape(sanitized)  # Escapes &, <, >, ' and "
+
+    return sanitized
