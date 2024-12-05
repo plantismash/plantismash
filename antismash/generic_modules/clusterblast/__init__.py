@@ -27,7 +27,7 @@ from os import path
 from antismash import utils
 from clusterblast import load_clusterblast_database, internal_homology_blast, perform_clusterblast, filter_overlap
 from data_loading import prepare_data, generate_Storage_for_cb
-
+import os 
 name = "clusterblast"
 short_description = name.capitalize()
 priority = 10000
