@@ -1,0 +1,12 @@
+argparse
+straight.plugin==1.4.0-post-1
+cssselect
+pyquery==1.2.9
+numpy
+helperlibs
+pysvg
+pyExcelerator
+networkx==1.11
+python-louvain==0.5
+bcbio-gff==0.6.4
+ete3
