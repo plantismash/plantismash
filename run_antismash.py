@@ -44,14 +44,12 @@ from antismash.generic_modules import (
     hmm_detection,
     genefinding,
     fullhmmer,
-    clusterfinder,
     smcogs,
     clusterblast,
     subclusterblast,
     knownclusterblast,
     active_site_finder,
     coexpress,
-    ecpredictor,
     gff_parser,
     subgroup
 )
