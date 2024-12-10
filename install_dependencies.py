@@ -50,7 +50,6 @@ if __name__ == "__main__":
         'xz=5.2.2',
         'libxml2=2.9.3',
         "pplacer",
-        'biopython == 1.76',
         'backports.lzma',
         "ncbi-datasets-cli",
         "unzip"
