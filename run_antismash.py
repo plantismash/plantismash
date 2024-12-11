@@ -974,13 +974,10 @@ def main():
             generated_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
             logging.debug("Expected generated FASTA file path: {0}".format(generated_fasta))
 
-            if os.path.exists(generated_fasta):
-                logging.debug("FASTA file successfully generated: {0}".format(generated_fasta))
-                with open(clusteblast_fasta, "w") as clusteblast_file:
-                    with open(generated_fasta, "r") as fastafile:
-                        clusteblast_file.write(fastafile.read())
+            if os.path.exists(generated_fasta) and os.path.getsize(generated_fasta) > 0:
+                logging.debug("FASTA file {} exists and is non-empty.".format(generated_fasta))
             else:
-                logging.error("Expected FASTA file not found: {0}".format(generated_fasta))
+                logging.error("FASTA file {} is missing or empty!".format(generated_fasta))
                 logging.debug("ClusterBlast directory: {0}".format(options.clusterblastdir))
                 raise IOError("FASTA file generation failed.")
         except Exception as e:

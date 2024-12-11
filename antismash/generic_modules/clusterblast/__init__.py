@@ -158,20 +158,38 @@ def run_clusterblast(seq_record, options):
     generate_Storage_for_cb(options, seq_record)
 
 
+
 def make_geneclusterprots(seq_records, options, output_filename="plantgeneclusterprots.fasta"):
     """make gene cluster proteins fasta file for clusterblast"""
+    # Check if seq_records is empty
+    if not seq_records:
+        logging.warning("No sequence records provided to make_geneclusterprots.")
+        return
+    
     names = []
     seqs = []
+    logging.info("Received {} sequence records for processing.".format(len(seq_records)))
+
     for seq_record in seq_records:
         geneclusters = utils.get_sorted_cluster_features(seq_record)
+        if not geneclusters:
+            logging.warning("No gene clusters found for sequence record {}.".format(seq_record.id))
+            continue
+
         for genecluster in geneclusters:
             queryclusternames = []
             queryclusterseqs = []
             strand_start_ends = []
             queryclusterprots = filter_overlap(utils.get_cluster_cds_features(genecluster, seq_record))
-            # only completely overlapping filtered
+
+            if not queryclusterprots:
+                logging.warning("No CDS features found for cluster {} in {}".format(genecluster, seq_record.id))
+                continue
+
+            logging.info("Total CDS features for cluster {} in {}: {}".format(genecluster, seq_record.id, len(queryclusterprots)))
 
             for cds in queryclusterprots:
+                logging.debug("Processing CDS: {}".format(cds))
                 if cds.strand == 1:
                     strand = "+"
                 else:
@@ -179,6 +197,9 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
                 start = str(cds.location.start).replace(">", "").replace("<", "")
                 end = str(cds.location.end).replace(">", "").replace("<", "")
                 strand_start_end = (strand, start, end)
+                
+                logging.debug("Strand-start-end for CDS: {}".format(strand_start_end))
+                logging.debug("Current strand_start_ends: {}".format(strand_start_ends))
 
                 if strand_start_end not in strand_start_ends:
                     # todo: Incompletely overlapping splicing should be treated as one gene if their sequences are 50% similar？
@@ -199,12 +220,28 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
     # Check if no sequences were collected
     if not names or not seqs:
         logging.warning("No sequences found in make_geneclusterprots!")
+        return
 
-    # put the fasta file in output folder
+    if not path.exists(options.clusterblastdir):
+        try:
+            os.makedirs(options.clusterblastdir)
+            logging.info("Created directory for clusterblast output: {}".format(options.clusterblastdir))
+        except Exception as e:
+            logging.error("Failed to create directory {}: {}".format(options.clusterblastdir, e))
+            return
+
     outputname = path.join(options.clusterblastdir, output_filename)
-    utils.writefasta(names, seqs, outputname)
-    logging.info("FASTA file {} written to {}".format(output_filename, outputname))
+    
+    logging.info("Writing the following sequences to FASTA: ")
+    for i in range(len(names)):
+        logging.info("> {}\n{}".format(names[i], seqs[i]))
+        # how many sequences are written to the file
+
+    try:
+        utils.writefasta(names, seqs, outputname)
+        logging.info("FASTA file {} with {} sequences written to {}".format(output_filename, len(names), outputname))
+    except Exception as e:
+        logging.error("Failed to write FASTA file {}: {}".format(outputname, e))
 
 def where_is_clusterblast():
     return utils.get_full_path(__file__, '')
-
