@@ -1142,7 +1142,7 @@ def run_analyses(seq_record, options, plugins):
         cyclopeptide_cluster_has_repeats(seq_record)
 
         # Renumber the clusters to maintain contiguous numbering
-        renumber_clusters(seq_record)
+        renumber_clusters(seq_record, options)
 
         # Run general analyses
         run_general_analyses(seq_record, options)
@@ -1203,12 +1203,10 @@ def cyclopeptide_cluster_has_repeats(seq_record):
 
     clusters_to_keep = []  # List to keep clusters that meet the criteria
 
-    # Loop over each cluster (which is a SeqFeature) within the seq_record
-    for cluster in utils.get_cluster_features(seq_record):  # This works as expected (1 argument only)
+    for cluster in utils.get_cluster_features(seq_record):
         
-        # Check if the cluster is a cyclopeptide (look in the cluster's own qualifiers)
-        cluster_notes = [note.lower() for note in cluster.qualifiers.get('note', [])]  # normalize to lowercase
-        product_names = [name.lower() for name in cluster.qualifiers.get('product', [])]  # normalize all product names
+        cluster_notes = [note.lower() for note in cluster.qualifiers.get('note', [])]  
+        product_names = [name.lower() for name in cluster.qualifiers.get('product', [])]  
         
         is_cyclopeptide = any('plants/cyclopeptide' in note for note in cluster_notes) or \
                           any('cyclopeptide' in product_name for product_name in product_names)
@@ -1216,28 +1214,23 @@ def cyclopeptide_cluster_has_repeats(seq_record):
         if is_cyclopeptide:
             logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
 
-            # Get all CDS features inside the cluster (this is the correct usage of get_cluster_cds_features)
             cds_features = utils.get_cluster_cds_features(cluster, seq_record)
             
             for cds in cds_features:
-                # Check if the CDS has a 'BURP' domain in the note qualifier
                 note_qualifier = cds.qualifiers.get('note', [])
                 if any('BURP' in note for note in note_qualifier):
-                    
                     has_repeat_qualifier = cds.qualifiers.get('has_repeat')
-                    if has_repeat_qualifier in [True, 'True', 'true', '1']:  # Handles multiple ways of encoding "True"
+                    if has_repeat_qualifier in [True, 'True', 'true', '1']:
                         logging.info("Cyclopeptide cluster {} contains a BURP domain with repeats. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
                         clusters_to_keep.append(cluster)
-                        break  # No need to check further CDS for this cluster
+                        break
 
             if cluster not in clusters_to_keep:
                 logging.info("Cyclopeptide cluster {} does not contain any BURP domain with repeats. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
         else:
-            # Keep non-cyclopeptide clusters
             logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
             clusters_to_keep.append(cluster)
     
-    # Retain all non-cyclopeptide clusters and cyclopeptide clusters with BURP repeats
     seq_record.features = [feature for feature in seq_record.features if feature in clusters_to_keep or feature.type != 'cluster']
     
     if clusters_to_keep:
@@ -1245,15 +1238,18 @@ def cyclopeptide_cluster_has_repeats(seq_record):
         return True
     
     logging.info("No cyclopeptide clusters with BURP domains containing repeats were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
-    return False  # No cyclopeptide cluster with repeats was found
+    return False
 
 
-def renumber_clusters(seq_record):
-    """Renumber clusters in the SeqRecord to be contiguous"""
-    cluster_number = 1
+def renumber_clusters(seq_record, options):
+    """Renumber clusters in the SeqRecord to be contiguous, restarting for each chromosome."""
+    if 'global_cluster_counter' not in options:
+        options.global_cluster_counter = 1  
+    cluster_number = 1  
     for cluster in utils.get_cluster_features(seq_record):
-        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: {}".format(cluster_number) for note in cluster.qualifiers.get('note', [])]
+        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: %d" % cluster_number for note in cluster.qualifiers.get('note', [])]
         cluster_number += 1
+    options.global_cluster_counter = cluster_number
 
 
 def list_available_plugins(plugins, output_plugins):
