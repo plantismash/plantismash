@@ -186,10 +186,10 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
                 logging.warning("No CDS features found for cluster {} in {}".format(genecluster, seq_record.id))
                 continue
 
-            logging.info("Total CDS features for cluster {} in {}: {}".format(genecluster, seq_record.id, len(queryclusterprots)))
+            # logging.info("Total CDS features for cluster {} in {}: {}".format(genecluster, seq_record.id, len(queryclusterprots)))
 
             for cds in queryclusterprots:
-                logging.debug("Processing CDS: {}".format(cds))
+                # logging.debug("Processing CDS: {}".format(cds))
                 if cds.strand == 1:
                     strand = "+"
                 else:

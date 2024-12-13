@@ -965,7 +965,7 @@ def writefasta(names, seqs, filename):
             logging.info("Writing to FASTA file {} with {} sequences.".format(filename, len(names)))
             for i in range(len(names)):
                 out_file.write(">{}\n{}\n".format(names[i], seqs[i]))
-        logging.info("FASTA file {} successfully written and closed.".format(filename))
+        #logging.info("FASTA file {} successfully written and closed.".format(filename))
     except Exception as e:
         logging.error("Failed to write to FASTA file {}. Error: {}".format(filename, e))
 
