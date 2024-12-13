@@ -13,8 +13,8 @@
     <div id="header">
       <div class="top-header">
         <img class="antismash-logo" src="images/plantismash.png" alt="plantiSMASH">
-        <span class="antismash-title"><a href="http://plantismash.secondarymetabolites.org">Plant Secondary Metabolite Analysis</a><br>
-            <span class="white">Version 1.0.0-beta<span id="antismash-version" style="display: none;"></span></span>
+        <span class="antismash-title"><a href="http://plantismash.secondarymetabolites.org">Plant Specialized Metabolite Analysis</a><br>
+            <span class="white">Version 2.0.0-beta<span id="antismash-version" style="display: none;"></span></span>
         </span>
         <div id="icons">
           <a href="http://plantismash.secondarymetabolites.org/"><img src="images/home.png" alt="home" title="Go to start page"></a>
