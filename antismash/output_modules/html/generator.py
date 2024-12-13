@@ -20,8 +20,9 @@ import os
 from antismash import utils
 from antismash.config import get_config
 from antismash.output_modules.html import js
-import cgi
 import unicodedata
+import re
+import xml.sax.saxutils as saxutils
 
 def set_title(d, seq_id, num_clusters):
     d('title').text('%s - %s clusters - antiSMASH results' % (seq_id, num_clusters))
@@ -620,7 +621,7 @@ def generate_searchgtr_htmls(seq_records, options):
 def sanitize_for_xml(input_str):
     """
     Sanitize a string for XML compatibility by ensuring it is Unicode,
-    replacing non-ASCII characters with HTML entities, and escaping XML special characters.
+    removing control characters, and escaping XML special characters.
 
     Args:
         input_str (str or unicode): The input string to sanitize.
@@ -628,22 +629,26 @@ def sanitize_for_xml(input_str):
     Returns:
         str: A sanitized, XML-compatible string.
     """
-    if not isinstance(input_str, unicode):  # Ensure input is Unicode
-        try:
-            input_str = input_str.decode('utf-8')  # Decode from UTF-8
-        except UnicodeDecodeError:
-            input_str = input_str.decode('utf-8', 'replace')  # Replace invalid bytes with "?"
+    if not input_str:  # Handle None, empty, or null values
+        return ""
 
-    # Replace non-ASCII characters with HTML entities
-    sanitized = ''.join(
-        '&#{};'.format(ord(char)) if ord(char) > 127 else char
-        for char in input_str
-    )
-    
-    # Normalize to NFC or NFKC to remove control characters
-    sanitized = unicodedata.normalize("NFKC", sanitized)
+    try:
+        # Convert to Unicode (if not already)
+        if not isinstance(input_str, unicode):
+            input_str = input_str.decode('utf-8', 'ignore')  # Ignore bad bytes
 
-    # Escape special XML characters: <, >, &, ', "
-    sanitized = cgi.escape(sanitized)  # Escapes &, <, >, ' and "
+        # Normalize Unicode (NFKC form)
+        input_str = unicodedata.normalize("NFKC", input_str)
 
-    return sanitized
+        # Remove control characters except for tab, newline, and carriage return
+        input_str = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', input_str)
+        
+        # Escape special XML characters using saxutils
+        sanitized = saxutils.escape(input_str)
+        
+        # Return the final sanitized string
+        return sanitized
+
+    except Exception as e:
+        logging.error("Failed to sanitize XML string: {}. Error: {}".format(repr(input_str), e))
+        return ""
