@@ -1242,14 +1242,12 @@ def cyclopeptide_cluster_has_repeats(seq_record):
 
 
 def renumber_clusters(seq_record, options):
-    """Renumber clusters in the SeqRecord to be contiguous, restarting for each chromosome."""
+    """Renumber clusters in the SeqRecord to be contiguous across all chromosomes."""
     if 'global_cluster_counter' not in options:
         options.global_cluster_counter = 1  
-    cluster_number = 1  
     for cluster in utils.get_cluster_features(seq_record):
-        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: %d" % cluster_number for note in cluster.qualifiers.get('note', [])]
-        cluster_number += 1
-    options.global_cluster_counter = cluster_number
+        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: %d" % options.global_cluster_counter for note in cluster.qualifiers.get('note', [])]
+        options.global_cluster_counter += 1
 
 
 def list_available_plugins(plugins, output_plugins):
