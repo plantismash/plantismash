@@ -844,18 +844,16 @@ def main():
 
             # There must be a nicer solution...
             else:
-                run_analyses(seq_record, options, plugins)
-                utils.sort_features(seq_record)
                 options.from_database = False
-                if cyclopeptide_cluster_has_repeats(seq_record):
-                    temp_seq_records.append(seq_record)
+                run_analyses(seq_record, options, plugins)
 
         else:
-            run_analyses(seq_record, options, plugins)
-            utils.sort_features(seq_record)
             options.from_database = False
-            if cyclopeptide_cluster_has_repeats(seq_record):
-                    temp_seq_records.append(seq_record)
+            run_analyses(seq_record, options, plugins)
+            
+        # Add seq_record to temp_seq_records 
+        temp_seq_records.append(seq_record)
+
         options.record_idx += 1
         options.orig_record_idx += 1
         logging.debug("The record %s is originating from db %s", seq_record.name, options.from_database)
@@ -1122,76 +1120,78 @@ def apply_taxon_preset(options):
             if not "plants" in options.enabled_detection_models:
                 options.enabled_detection_models.append("plants")
 
-
 def run_analyses(seq_record, options, plugins):
-    "Run antiSMASH analyses for a single SeqRecord"
+    """Run antiSMASH analyses for a single SeqRecord"""
 
     if 'next_clusternr' not in options:
         options.next_clusternr = 1
 
     options.clusternr_offset = options.next_clusternr
 
-    #Detect gene clusters
+    # Detect gene clusters
     detect_geneclusters(seq_record, options)
 
     for f in utils.get_cluster_features(seq_record):
         logging.debug(f)
 
-    #Do specific analyses
-    # TODO: Run this in parallel, perhaps?
     if len(utils.get_cluster_features(seq_record)) > 0:
-        cluster_specific_analysis(plugins, seq_record, options)
-    unspecific_analysis(seq_record, options)
+        # Run specific analyses first
+        run_specific_analyses(seq_record, options, plugins)
 
-    if len(utils.get_cluster_features(seq_record)) > 0:
-        #Run smCOG analysis
-        if options.smcogs:
-            utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
-            smcogs.run_smcog_analysis(seq_record, options)
+        # Filter cyclopeptide clusters if needed
+        cyclopeptide_cluster_has_repeats(seq_record)
 
-        #Run ClusterBlast
-        if options.clusterblast:
-            utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
-            clusterblast.run_clusterblast(seq_record, options)
-            #clusterblastvars info could also be pickled are transferred some other way if we want it to be possible to reconstruct complete output from files
+        # Renumber the clusters to maintain contiguous numbering
+        renumber_clusters(seq_record)
 
-        #Run SubClusterBlast
-        if options.subclusterblast:
-            utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
-            subclusterblast.run_subclusterblast(seq_record, options)
+        # Run general analyses
+        run_general_analyses(seq_record, options)
 
-        #Run KnownClusterBlast
-        if options.knownclusterblast:
-            utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
-            knownclusterblast.run_knownclusterblast(seq_record, options)
 
-        #Run CoExpress
-        if options.coexpress:
-            utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
-            for i in xrange(0, len(options.geo_dataset)):
-                coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+def run_specific_analyses(seq_record, options, plugins):
+    """Run specific cluster-related analyses"""
+    # Run analyses for specific cluster types (e.g., cyclopeptide clusters)
+    cluster_specific_analysis(plugins, seq_record, options)
 
-        # run active site finder
-        if options.run_asf:
-            ASFObj = active_site_finder.active_site_finder(seq_record, options)
-            status = ASFObj.execute()
-            if status:
-                logging.debug("Active site finder execution successful")
-            else:
-                logging.error("Error in active site finder module!")
 
-    # run modeling pipeline
-#     if not options.modeling == "none":
-#         options.modeling_successful = False
-# #        try:
-#         modeling_result = metabolicmodel.run_modeling_pipeline(seq_record, options)
-#         if modeling_result == True:
-#             options.modeling_successful = True
-#             logging.debug('Metabolic model sucessfully generated')
-#         else:
-#             logging.error("Error generating metabolic model")
-# #        except :
-# #            logging.error("Modeling pipeline crashed! Continuing without...")
+def run_general_analyses(seq_record, options):
+    """Run general analyses that are independent of specific cluster types"""
+    
+    # Run smCOG analysis
+    if options.smcogs:
+        utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
+        smcogs.run_smcog_analysis(seq_record, options)
+
+    # Run ClusterBlast
+    if options.clusterblast:
+        utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
+        clusterblast.run_clusterblast(seq_record, options)
+    
+    # Run SubClusterBlast
+    if options.subclusterblast:
+        utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
+        subclusterblast.run_subclusterblast(seq_record, options)
+    
+    # Run KnownClusterBlast
+    if options.knownclusterblast:
+        utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
+        knownclusterblast.run_knownclusterblast(seq_record, options)
+    
+    # Run CoExpress
+    if options.coexpress:
+        utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
+        for i in xrange(0, len(options.geo_dataset)):
+            coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+    
+    # Run Active Site Finder
+    if options.run_asf:
+        ASFObj = active_site_finder.active_site_finder(seq_record, options)
+        status = ASFObj.execute()
+        if status:
+            logging.debug("Active site finder execution successful")
+        else:
+            logging.error("Error in active site finder module!")
+
 
 def cyclopeptide_cluster_has_repeats(seq_record):
     """Check if any cyclopeptide clusters within the seq_record contain repeats in BURP domains. 
@@ -1199,7 +1199,7 @@ def cyclopeptide_cluster_has_repeats(seq_record):
     Non-cyclopeptide clusters are always retained.
     """
     
-    # logging.info("Analyzing SeqRecord (Seq ID: {})".format(seq_record.id))
+    logging.info("Analyzing SeqRecord (Seq ID: {})".format(seq_record.id))
 
     clusters_to_keep = []  # List to keep clusters that meet the criteria
 
@@ -1214,7 +1214,7 @@ def cyclopeptide_cluster_has_repeats(seq_record):
                           any('cyclopeptide' in product_name for product_name in product_names)
         
         if is_cyclopeptide:
-            logging.info("Detecting repeats in cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+            logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
 
             # Get all CDS features inside the cluster (this is the correct usage of get_cluster_cds_features)
             cds_features = utils.get_cluster_cds_features(cluster, seq_record)
@@ -1234,13 +1234,11 @@ def cyclopeptide_cluster_has_repeats(seq_record):
                 logging.info("Cyclopeptide cluster {} does not contain any BURP domain with repeats. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
         else:
             # Keep non-cyclopeptide clusters
-            logging.info("Non-cyclopeptide cluster {} is retaubed.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+            logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
             clusters_to_keep.append(cluster)
     
     # Retain all non-cyclopeptide clusters and cyclopeptide clusters with BURP repeats
     seq_record.features = [feature for feature in seq_record.features if feature in clusters_to_keep or feature.type != 'cluster']
-
-    print("Clusters to keep: ", clusters_to_keep)
     
     if clusters_to_keep:
         logging.info("At least one cyclopeptide cluster with a BURP domain containing repeats or non-cyclopeptide cluster was retained in SeqRecord (Seq ID: {}).".format(seq_record.id))
@@ -1249,6 +1247,13 @@ def cyclopeptide_cluster_has_repeats(seq_record):
     logging.info("No cyclopeptide clusters with BURP domains containing repeats were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
     return False  # No cyclopeptide cluster with repeats was found
 
+
+def renumber_clusters(seq_record):
+    """Renumber clusters in the SeqRecord to be contiguous"""
+    cluster_number = 1
+    for cluster in utils.get_cluster_features(seq_record):
+        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: {}".format(cluster_number) for note in cluster.qualifiers.get('note', [])]
+        cluster_number += 1
 
 
 def list_available_plugins(plugins, output_plugins):
