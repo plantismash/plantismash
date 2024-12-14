@@ -960,17 +960,15 @@ def get_aa_sequence(feature, to_stop=False):
 
 def writefasta(names, seqs, filename):
     "Write sequence to a file"
-    e = 0
-    f = len(names) - 1
-    out_file = open(filename,"w")
-    while e <= f:
-        out_file.write(">")
-        out_file.write(names[e])
-        out_file.write("\n")
-        out_file.write(seqs[e])
-        out_file.write("\n")
-        e += 1
-    out_file.close()
+    try:
+        with open(filename, "w") as out_file:
+            logging.info("Writing to FASTA file {} with {} sequences.".format(filename, len(names)))
+            for i in range(len(names)):
+                out_file.write(">{}\n{}\n".format(names[i], seqs[i]))
+        #logging.info("FASTA file {} successfully written and closed.".format(filename))
+    except Exception as e:
+        logging.error("Failed to write to FASTA file {}. Error: {}".format(filename, e))
+
 
 def sortdictkeysbyvaluesrev(indict):
     items = [(value, key) for key, value in indict.items()]

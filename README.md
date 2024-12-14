@@ -51,7 +51,7 @@ cd plantismash
 ```
 Install dependencies and download databases.  
 ```bash
-python install_dependencies.py   # Takes about 10 minutes
+python install_dependencies.py
 python download_databases.py   # Only need PFAM for fullhmmer
 ```
 For usage instructions of plantismash, use the command: 

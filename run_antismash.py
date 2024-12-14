@@ -10,6 +10,10 @@
 # Interfaculty Institute of Microbiology and Infection Medicine
 # Div. of Microbiology/Biotechnology
 #
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences 
+#
 # License: GNU Affero General Public License v3 or later
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 """Run the antiSMASH pipeline"""
@@ -40,14 +44,12 @@ from antismash.generic_modules import (
     hmm_detection,
     genefinding,
     fullhmmer,
-    clusterfinder,
     smcogs,
     clusterblast,
     subclusterblast,
     knownclusterblast,
     active_site_finder,
     coexpress,
-    ecpredictor,
     gff_parser,
     subgroup
 )
@@ -75,6 +77,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 from datetime import datetime
+import re
 
 
 def ValidateDetectionTypes(detection_models):
@@ -163,7 +166,7 @@ def main():
                         dest='taxon',
                         default='bacteria',
                         choices=['bacteria', 'fungi', 'plants'],
-                        help="Determine the taxon from which the sequence(s) came from. (default: bacteria)")
+                        help="Determine the taxon from which the sequence(s) came from. (default: plants)")
     group.add_argument('--hmmsearch-chunk',
                        dest='hmmsearch_chunk',
                        default=10000,
@@ -841,15 +844,16 @@ def main():
 
             # There must be a nicer solution...
             else:
-                run_analyses(seq_record, options, plugins)
-                utils.sort_features(seq_record)
                 options.from_database = False
-                temp_seq_records.append(seq_record)
+                run_analyses(seq_record, options, plugins)
+
         else:
-            run_analyses(seq_record, options, plugins)
-            utils.sort_features(seq_record)
             options.from_database = False
-            temp_seq_records.append(seq_record)
+            run_analyses(seq_record, options, plugins)
+            
+        # Add seq_record to temp_seq_records 
+        temp_seq_records.append(seq_record)
+
         options.record_idx += 1
         options.orig_record_idx += 1
         logging.debug("The record %s is originating from db %s", seq_record.name, options.from_database)
@@ -938,54 +942,125 @@ def main():
         logging.info("subgroup identification is disabled")
 
     if options.update_clusterblast:
-        logging.info("Updating ClusterBlast database use this time results")
+        # Updated function to generate unique output files using the input sequence name.
+        logging.info("Updating ClusterBlast database for input: {0}".format(options.sequences))
 
-        # make sure the clusterblastdir and files exists
+        # Make sure the clusterblastdir directory exists
         if options.clusterblastdir == "":
             options.clusterblastdir = clusterblast.where_is_clusterblast()
         if not os.path.exists(options.clusterblastdir):
             os.makedirs(options.clusterblastdir)
-        clusteblast_txt = path.join(options.clusterblastdir, "plantgeneclusters.txt")
-        clusteblast_fasta = path.join(options.clusterblastdir, "plantgeneclusterprots.fasta")
-        if not path.exists(clusteblast_fasta) or not path.exists(clusteblast_txt):
-            with open(clusteblast_fasta, "w") as clusteblast_file:
-                pass
+
+        # Generate unique identifiers based on the input sequence
+        try:
+            # Split the input path into parts
+            input_basename = os.path.normpath(options.sequences[0]).split(os.sep)
+            # Get the last two elements of the filepath name 
+            last_two_parts = "_".join(input_basename[-2:])  # Join with an underscore
+            # Sanitize the combined parts to ensure filename safety
+            sanitized_path = re.sub(r'[^\w\-_\.]', '_', last_two_parts)
+            # Add more unique identifiers like timestamp if needed
+            unique_name = sanitized_path
+        except IndexError:
+            raise ValueError("No sequences provided in options.sequences!")
+
+        # File paths
+        clusteblast_txt = os.path.join(options.clusterblastdir, "plantgeneclusters_{0}.txt".format(unique_name))
+        clusteblast_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+
+         # Generate and write the plantgeneclusterprots.fasta file
+        try:
+            logging.debug("Calling make_geneclusterprots to generate FASTA file...")
+            clusterblast.make_geneclusterprots(seq_records, options, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            generated_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            logging.debug("Expected generated FASTA file path: {0}".format(generated_fasta))
+
+            if os.path.exists(generated_fasta) and os.path.getsize(generated_fasta) > 0:
+                logging.debug("FASTA file {} exists and is non-empty.".format(generated_fasta))
+            else:
+                logging.error("FASTA file {} is missing or empty!".format(generated_fasta))
+                logging.debug("ClusterBlast directory: {0}".format(options.clusterblastdir))
+                raise IOError("FASTA file generation failed.")
+        except Exception as e:
+            logging.error("Error generating ClusterBlast FASTA file: {0}".format(e))
+            raise
+
+        # Generate and write the plantgeneclusters.txt file
+        try:
+            # generate the file in the result directory 
+            xls.write(seq_records, options)
+            print("plantgeneclusters.txt saved in the results directory")
+
+             # Write the TXT file explicitly for the clusterblast directory
             with open(clusteblast_txt, "w") as clusteblast_file:
-                pass
+                for seq_record in seq_records:
+                    clusters = utils.get_sorted_cluster_features(seq_record)
+                    for cluster in clusters:
+                        clustertype = utils.get_cluster_type(cluster)
+                        clusternr = utils.get_cluster_number(cluster)
+                        clustergenes = [utils.get_gene_id(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        accessions = [utils.get_gene_acc(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        # Write cluster data to TXT
+                        clusteblast_file.write(
+                            "\t".join(
+                                [
+                                    seq_record.id,
+                                    seq_record.description,
+                                    "c{0}".format(clusternr),
+                                    clustertype,
+                                    ";".join(clustergenes),
+                                    ";".join(accessions),
+                                ]
+                            )
+                            + "\n"
+                        )
+            print("plantgeneclusters_{0}.txt saved in the clusterblast directory".format(unique_name))
+            
+            # Validation: Ensure the file was created
+            if not os.path.exists(clusteblast_txt):
+                raise IOError("TXT file generation failed for clusterblast directory.")
+            logging.info("TXT file successfully created at {0}".format(clusteblast_txt))
 
-        # write the plantgeneclusterprots.fasta
-        clusterblast.make_geneclusterprots(seq_records, options)
-        outputname =path.join(path.abspath(options.outputfoldername), "plantgeneclusterprots.fasta")
-        with open(clusteblast_fasta, "a") as clusteblast_file:
-            with open(outputname, "r") as fastafile:
-                clusteblast_file.write(fastafile.read())
+            # Count non-empty lines in the generated TXT file
+            try:
+                non_empty_line_count = 0
+                with open(clusteblast_txt, "r") as txtfile:
+                    non_empty_line_count = sum(1 for line in txtfile if line.strip())
+                logging.info(
+                    "Number of clusters for {0}: {1}, {2}".format(
+                        unique_name, options.sequences, non_empty_line_count
+                    )
+                )
+            except Exception as e:
+                logging.error("Error counting non-empty lines in TXT file: {0}".format(e))
+                raise
 
-        # write the plantgeneclusters.txt
-        xls.write(seq_records, options)
-        with open(clusteblast_txt, "a") as clusteblast_file:
-            with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
-                clusteblast_file.write(txtfile.read())
-        with open(path.join(options.full_outputfolder_path, "plantgeneclusters.txt"), "r") as txtfile:
-            non_empty_line_count = 0
-            for line in txtfile:
-                # Strip leading and trailing whitespace characters
-                if line.strip():
-                    non_empty_line_count += 1
+        except Exception as e:
+            logging.error("Error generating ClusterBlast TXT file: {0}".format(e))
+            raise
 
-        logging.info("Numbers of clusters\t{}\t{}".format(options.sequences, non_empty_line_count) )
+    # Write results and complete the process
+    try:
+        options.plugins = plugins
+        utils.log_status("Writing the output files")
+        logging.debug("Writing output for {0} sequence records".format(len(seq_records)))
+        write_results(output_plugins, seq_records, options)
+        zip_results(seq_records, options)
 
+        # Log runtime
+        end_time = datetime.now()
+        running_time = end_time - start_time
+        logging.debug(
+            "antiSMASH calculation finished at {0}; runtime: {1}".format(
+                str(end_time), str(running_time)
+            )
+        )
+        utils.log_status("antiSMASH status: SUCCESS")
+        logging.debug("antiSMASH status: SUCCESS")
+    except Exception as e:
+        logging.error("Error during results writing or finalizing: {0}".format(e))
+        raise
 
-    #Write results
-    options.plugins = plugins
-    utils.log_status("Writing the output files")
-    logging.debug("Writing output for %s sequence records", len(seq_records))
-    write_results(output_plugins, seq_records, options)
-    zip_results(seq_records, options)
-    end_time = datetime.now()
-    running_time = end_time-start_time
-    logging.debug("antiSMASH calculation finished at %s; runtime: %s", str(end_time), str(running_time))
-    utils.log_status("antiSMASH status: SUCCESS")
-    logging.debug("antiSMASH status: SUCCESS")
 
 def strip_record(seq_record):
     features = utils.get_cds_features(seq_record)
@@ -1021,6 +1096,10 @@ def apply_taxon_preset(options):
         logging.debug("Applying preset for %s", options.taxon)
         options.eukaryotic = True
 
+    # force the default preset for plants
+    if not options.taxon:
+        options.taxon = "plants"
+
     if options.taxon == "plants":
         logging.debug("Applying preset for %s", options.taxon)
         options.eukaryotic = True
@@ -1041,76 +1120,147 @@ def apply_taxon_preset(options):
             if not "plants" in options.enabled_detection_models:
                 options.enabled_detection_models.append("plants")
 
-
 def run_analyses(seq_record, options, plugins):
-    "Run antiSMASH analyses for a single SeqRecord"
+    """Run antiSMASH analyses for a single SeqRecord"""
 
     if 'next_clusternr' not in options:
         options.next_clusternr = 1
 
     options.clusternr_offset = options.next_clusternr
 
-    #Detect gene clusters
+    # Detect gene clusters
     detect_geneclusters(seq_record, options)
 
     for f in utils.get_cluster_features(seq_record):
         logging.debug(f)
 
-    #Do specific analyses
-    # TODO: Run this in parallel, perhaps?
     if len(utils.get_cluster_features(seq_record)) > 0:
-        cluster_specific_analysis(plugins, seq_record, options)
-    unspecific_analysis(seq_record, options)
+        # Run specific analyses first
+        run_specific_analyses(seq_record, options, plugins)
 
-    if len(utils.get_cluster_features(seq_record)) > 0:
-        #Run smCOG analysis
-        if options.smcogs:
-            utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
-            smcogs.run_smcog_analysis(seq_record, options)
+        # Filter cyclopeptide clusters if needed
+        cyclopeptide_cluster_has_repeats(seq_record)
 
-        #Run ClusterBlast
-        if options.clusterblast:
-            utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
-            clusterblast.run_clusterblast(seq_record, options)
-            #clusterblastvars info could also be pickled are transferred some other way if we want it to be possible to reconstruct complete output from files
+        # Renumber the clusters to maintain contiguous numbering
+        renumber_clusters(seq_record, options)
 
-        #Run SubClusterBlast
-        if options.subclusterblast:
-            utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
-            subclusterblast.run_subclusterblast(seq_record, options)
+        # Run general analyses
+        run_general_analyses(seq_record, options)
 
-        #Run KnownClusterBlast
-        if options.knownclusterblast:
-            utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
-            knownclusterblast.run_knownclusterblast(seq_record, options)
 
-        #Run CoExpress
-        if options.coexpress:
-            utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
-            for i in xrange(0, len(options.geo_dataset)):
-                coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+def run_specific_analyses(seq_record, options, plugins):
+    """Run specific cluster-related analyses"""
+    # Run analyses for specific cluster types (e.g., cyclopeptide clusters)
+    cluster_specific_analysis(plugins, seq_record, options)
 
-        # run active site finder
-        if options.run_asf:
-            ASFObj = active_site_finder.active_site_finder(seq_record, options)
-            status = ASFObj.execute()
-            if status:
-                logging.debug("Active site finder execution successful")
+
+def run_general_analyses(seq_record, options):
+    """Run general analyses that are independent of specific cluster types"""
+    
+    # Run smCOG analysis
+    if options.smcogs:
+        utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
+        smcogs.run_smcog_analysis(seq_record, options)
+
+    # Run ClusterBlast
+    if options.clusterblast:
+        utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
+        clusterblast.run_clusterblast(seq_record, options)
+    
+    # Run SubClusterBlast
+    if options.subclusterblast:
+        utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
+        subclusterblast.run_subclusterblast(seq_record, options)
+    
+    # Run KnownClusterBlast
+    if options.knownclusterblast:
+        utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
+        knownclusterblast.run_knownclusterblast(seq_record, options)
+    
+    # Run CoExpress
+    if options.coexpress:
+        utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
+        for i in xrange(0, len(options.geo_dataset)):
+            coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+    
+    # Run Active Site Finder
+    if options.run_asf:
+        ASFObj = active_site_finder.active_site_finder(seq_record, options)
+        status = ASFObj.execute()
+        if status:
+            logging.debug("Active site finder execution successful")
+        else:
+            logging.error("Error in active site finder module!")
+
+
+def cyclopeptide_cluster_has_repeats(seq_record):
+    """Check if any cyclopeptide clusters within the seq_record contain repeats in BURP domains. 
+    If no BURP domain with repeats is found in cyclopeptide clusters, the cluster is deleted.
+    Non-cyclopeptide clusters are always retained.
+    """
+    
+    logging.info("Analyzing SeqRecord (Seq ID: {})".format(seq_record.id))
+
+    clusters_to_keep = []  
+
+    for cluster in utils.get_cluster_features(seq_record):
+        
+        cluster_notes = cluster.qualifiers.get('note', [])  # Changed to list to properly iterate over notes
+        
+        # Check if cluster is a cyclopeptide cluster
+        is_cyclopeptide = any('plants/cyclopeptide' in note for note in cluster_notes)
+                          
+        logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+        #logging.info("Cluster notes: {}".format(cluster_notes))
+        
+        if is_cyclopeptide:
+            cds_features = utils.get_cluster_cds_features(cluster, seq_record)
+            burp_with_repeats_found = False
+
+            for cds in cds_features:
+                # for key, value in cds.qualifiers.items():
+                #     logging.info("CDS Feature key: {}, value: {}".format(key, value))
+                
+                domain_record = cds.qualifiers.get('domain_record', '')
+                #logging.info("CDS domain record: {}".format(domain_record))
+                
+                # Check if domain_record contains 'plants/BURP'
+                if 'plants/BURP' in domain_record:
+                    has_repeat_qualifier = cds.qualifiers.get('has_repeat')
+                    if has_repeat_qualifier is True: 
+                        logging.info("Cluster {} contains a BURP domain with has_repeat=True. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+                        burp_with_repeats_found = True
+                        break  # No need to check other CDSs for this cluster
+
+            if burp_with_repeats_found:
+                clusters_to_keep.append(cluster)
             else:
-                logging.error("Error in active site finder module!")
+                logging.info("Cyclopeptide cluster {} does not contain any BURP domain with has_repeat=True. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+        else:
+            # Always keep non-cyclopeptide clusters
+            logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+            clusters_to_keep.append(cluster)
+    
+    logging.info("Clusters to keep for SeqRecord ({}): {}".format(seq_record.id, [cluster.qualifiers.get('locus_tag', 'unknown') for cluster in clusters_to_keep]))
+    
+    seq_record.features = [feature for feature in seq_record.features if feature in clusters_to_keep or feature.type != 'cluster']
+    
+    if clusters_to_keep:
+        logging.info("At least one cluster with a BURP domain containing has_repeat=True or a non-cyclopeptide cluster was retained in SeqRecord (Seq ID: {}).".format(seq_record.id))
+        return True
+    
+    logging.info("No clusters with BURP domains containing has_repeat=True were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
+    return False
 
-    # run modeling pipeline
-#     if not options.modeling == "none":
-#         options.modeling_successful = False
-# #        try:
-#         modeling_result = metabolicmodel.run_modeling_pipeline(seq_record, options)
-#         if modeling_result == True:
-#             options.modeling_successful = True
-#             logging.debug('Metabolic model sucessfully generated')
-#         else:
-#             logging.error("Error generating metabolic model")
-# #        except :
-# #            logging.error("Modeling pipeline crashed! Continuing without...")
+
+def renumber_clusters(seq_record, options):
+    """Renumber clusters in the SeqRecord to be contiguous across all chromosomes."""
+    if 'global_cluster_counter' not in options:
+        options.global_cluster_counter = 1  
+    for cluster in utils.get_cluster_features(seq_record):
+        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: %d" % options.global_cluster_counter for note in cluster.qualifiers.get('note', [])]
+        options.global_cluster_counter += 1
+
 
 
 def list_available_plugins(plugins, output_plugins):

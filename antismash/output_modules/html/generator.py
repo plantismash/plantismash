@@ -20,6 +20,9 @@ import os
 from antismash import utils
 from antismash.config import get_config
 from antismash.output_modules.html import js
+import unicodedata
+import re
+import xml.sax.saxutils as saxutils
 
 def set_title(d, seq_id, num_clusters):
     d('title').text('%s - %s clusters - antiSMASH results' % (seq_id, num_clusters))
@@ -208,7 +211,17 @@ def add_overview_entry(d, cluster, odd):
     tr.append(td)
     # closest cluster match BGCid description
     td = pq('<td>')
-    td.text(cluster['knowncluster'])
+
+    print("Raw value for cluster['knowncluster']:", cluster['knowncluster'])
+
+    # Sanitize the knowncluster value for XML compatibility
+    try:
+        sanitized_knowncluster = sanitize_for_xml(cluster['knowncluster'])
+        td.text(sanitized_knowncluster)
+    except ValueError as e:
+        logging.error("Error assigning text to XML: {}".format(e))
+        td.text("Invalid text")
+        
     tr.append(td)
 
     td = pq('<td>')
@@ -603,3 +616,39 @@ def generate_searchgtr_htmls(seq_records, options):
                     formfile.write("%s\n%s" % (gene_id, utils.get_aa_sequence(feature)))
                     formfile.write(searchgtrformtemplateparts[1])
                     formfile.close()
+
+
+def sanitize_for_xml(input_str):
+    """
+    Sanitize a string for XML compatibility by ensuring it is Unicode,
+    removing control characters, and escaping XML special characters.
+
+    Args:
+        input_str (str or unicode): The input string to sanitize.
+
+    Returns:
+        str: A sanitized, XML-compatible string.
+    """
+    if not input_str:  # Handle None, empty, or null values
+        return ""
+
+    try:
+        # Convert to Unicode (if not already)
+        if not isinstance(input_str, unicode):
+            input_str = input_str.decode('utf-8', 'ignore')  # Ignore bad bytes
+
+        # Normalize Unicode (NFKC form)
+        input_str = unicodedata.normalize("NFKC", input_str)
+
+        # Remove control characters except for tab, newline, and carriage return
+        input_str = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', input_str)
+        
+        # Escape special XML characters using saxutils
+        sanitized = saxutils.escape(input_str)
+        
+        # Return the final sanitized string
+        return sanitized
+
+    except Exception as e:
+        logging.error("Failed to sanitize XML string: {}. Error: {}".format(repr(input_str), e))
+        return ""

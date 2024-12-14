@@ -96,6 +96,7 @@ def check_prereqs():
 
 
 def get_supported_detection_models():
+    # TODO: This function might be removed, as plants is the only supported model
     "Get a list of all supported detection types"
     detection_types = ["default"]
     for fname in listdir(path.dirname(path.abspath(__file__))):
@@ -317,6 +318,7 @@ def create_rules_dict(enabled_clustertypes):
     rulesdict = {}
     first = True
     cfg = config.get_config()
+    
     for hmm_model in cfg.enabled_detection_models:
         dir_path = path.dirname(path.abspath(__file__))
         prefix = ""

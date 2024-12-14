@@ -1,3 +1,23 @@
+#!/usr/bin/env python
+# vim: set fileencoding=utf-8 :
+#
+# Copyright (C) 2010-2012 Marnix H. Medema
+# University of Groningen
+# Department of Microbial Physiology / Groningen Bioinformatics Centre
+#
+# Copyright (C) 2011,2012 Kai Blin
+# University of Tuebingen
+# Interfaculty Institute of Microbiology and Infection Medicine
+# Div. of Microbiology/Biotechnology
+#
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences 
+#
+# License: GNU Affero General Public License v3 or later
+# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
+"""Install dependencies for plantiSMASH"""
+
 import subprocess
 import os
 
@@ -13,31 +33,7 @@ def install_packages(packages):
         except subprocess.CalledProcessError as e:
             print("Failed to install {}: {}".format(package, e))
 
-def merge_plantgeneclusterprots_fasta():
-    input_dir = 'antismash/generic_modules/clusterblast'
-    input_prefix = 'plantgeneclusterprots_part_'
-    output_file = 'plantgeneclusterprots.fasta'
-
-    if os.path.exists(os.path.join(input_dir, output_file)):
-        print("plantgeneclusterprots.fasta already exists")
-        return
-
-    input_files = sorted(f for f in os.listdir(input_dir) if f.startswith(input_prefix))
-
-    with open(os.path.join(input_dir, output_file), 'w') as outfile:
-        for fname in input_files:
-            file_path = os.path.join(input_dir, fname)
-            with open(file_path) as infile:
-                outfile.write(infile.read())
-
-    print("merged plantgeneclusterprots.fasta")
-
-    for fname in input_files:
-        file_path = os.path.join(input_dir, fname)
-        os.remove(file_path)
-
 if __name__ == "__main__":
-    merge_plantgeneclusterprots_fasta()
 
     # List of packages to be installed
     packages_to_install = [
@@ -54,7 +50,6 @@ if __name__ == "__main__":
         'xz=5.2.2',
         'libxml2=2.9.3',
         "pplacer",
-        'biopython == 1.76',
         'backports.lzma',
         "ncbi-datasets-cli",
         "unzip"

@@ -103,9 +103,8 @@ class Result:
         #    self.evidence = None
 
 def find_repeats(seq_record):
-    result = None 
 
     # put here your repeat-finding procedure
     repeatfinder.run_fbk(seq_record)
     fbk_output_to_result(seq_record) 
-    return result
+

@@ -10,3 +10,4 @@ networkx==1.11
 python-louvain==0.5
 bcbio-gff==0.6.4
 ete3
+biopython == 1.76

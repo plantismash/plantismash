@@ -67,15 +67,55 @@ def blosum62():
 
 BLOSUM62_ORDER, BLOSUM62_MATRIX = blosum62()
 
+def compute_ambiguous_scores(BLOSUM62_ORDER, BLOSUM62_MATRIX):
+    """Precompute scores for ambiguous amino acids."""
+    ambiguous_scores = {}
+    # Average scores for ambiguous amino acids
+    # J: Leucine (L) or Isoleucine (I)
+    ambiguous_scores['J'] = {
+        res: (BLOSUM62_MATRIX[BLOSUM62_ORDER['L']][BLOSUM62_ORDER[res]] +
+              BLOSUM62_MATRIX[BLOSUM62_ORDER['I']][BLOSUM62_ORDER[res]]) / 2
+        for res in BLOSUM62_ORDER
+    }
+    # B: Aspartic acid (D) or Asparagine (N)
+    ambiguous_scores['B'] = {
+        res: (BLOSUM62_MATRIX[BLOSUM62_ORDER['D']][BLOSUM62_ORDER[res]] +
+              BLOSUM62_MATRIX[BLOSUM62_ORDER['N']][BLOSUM62_ORDER[res]]) / 2
+        for res in BLOSUM62_ORDER
+    }
+    # Z: Glutamic acid (E) or Glutamine (Q)
+    ambiguous_scores['Z'] = {
+        res: (BLOSUM62_MATRIX[BLOSUM62_ORDER['E']][BLOSUM62_ORDER[res]] +
+              BLOSUM62_MATRIX[BLOSUM62_ORDER['Q']][BLOSUM62_ORDER[res]]) / 2
+        for res in BLOSUM62_ORDER
+    }
+    # X: Any amino acid (average over all)
+    ambiguous_scores['X'] = {
+        res: sum(BLOSUM62_MATRIX[BLOSUM62_ORDER[aa]][BLOSUM62_ORDER[res]] for aa in BLOSUM62_ORDER) /
+              len(BLOSUM62_ORDER)
+        for res in BLOSUM62_ORDER
+    }
+    return ambiguous_scores
+
+AMBIGUOUS_SCORES = compute_ambiguous_scores(BLOSUM62_ORDER, BLOSUM62_MATRIX)
+
 def score(res1, res2, BLOSUM62_ORDER, BLOSUM62_MATRIX):
-    """Return similarity score from BLOSUM62 matrix for two residues
-    
-    res1: string, amino acid
-    res2: string, amino acid
-    """
-    lookup1 = BLOSUM62_ORDER[res1]
-    lookup2 = BLOSUM62_ORDER[res2]
-    return BLOSUM62_MATRIX[lookup1][lookup2]
+    """Return similarity score from BLOSUM62 matrix for two residues, with ambiguous handling."""
+    # Check if either residue is ambiguous
+    if res1 in AMBIGUOUS_SCORES:
+        # Average ambiguous scores against res2
+        return AMBIGUOUS_SCORES[res1].get(res2, -4)  # Use -4 for gaps or unknown residues
+    if res2 in AMBIGUOUS_SCORES:
+        # Average ambiguous scores against res1
+        return AMBIGUOUS_SCORES[res2].get(res1, -4)
+    # Standard lookup
+    try:
+        lookup1 = BLOSUM62_ORDER[res1]
+        lookup2 = BLOSUM62_ORDER[res2]
+        return BLOSUM62_MATRIX[lookup1][lookup2]
+    except KeyError:
+        # Return a low score for invalid residues
+        return -4
 
 # write your own functions below here
 
