@@ -49,9 +49,12 @@ def run_fbk(seq_record):
                         if len(set(list(t))) <=2:
                             should_delete = True
                     if should_delete:
-                        feat.qualifiers["table"] = None
-                        feat.qualifiers["has_repeat"] = False
-                        del(feat.qualifiers["pattern"]) 
+                        if should_delete:
+                            feat.qualifiers["table"] = None
+                            if "has_repeat" in feat.qualifiers:
+                                feat.qualifiers["has_repeat"] = False
+                            if "pattern" in feat.qualifiers:
+                                del feat.qualifiers["pattern"]
 
                     #output.add_html_output(seq_record)
 

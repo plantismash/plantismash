@@ -1207,36 +1207,38 @@ def cyclopeptide_cluster_has_repeats(seq_record):
         
         cluster_notes = cluster.qualifiers.get('note', [])  # Changed to list to properly iterate over notes
         
-        # More robust check for cyclopeptide status
+        # Check if cluster is a cyclopeptide cluster
         is_cyclopeptide = any('plants/cyclopeptide' in note for note in cluster_notes)
                           
-        logging.info("Analyzing cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-        logging.info("Cluster notes: {}".format(cluster_notes))
+        logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+        #logging.info("Cluster notes: {}".format(cluster_notes))
         
         if is_cyclopeptide:
             cds_features = utils.get_cluster_cds_features(cluster, seq_record)
             burp_with_repeats_found = False
 
             for cds in cds_features:
-                for key, value in cds.qualifiers.items():
-                    logging.info("CDS Feature key: {}, value: {}".format(key, value))
+                # for key, value in cds.qualifiers.items():
+                #     logging.info("CDS Feature key: {}, value: {}".format(key, value))
                 
                 domain_record = cds.qualifiers.get('domain_record', '')
-                logging.info("CDS domain record: {}".format(domain_record))
+                #logging.info("CDS domain record: {}".format(domain_record))
                 
-                # Check if domain_record contains 'plants/BURP' and 'has_repeat=True'
-                if 'plants/BURP' in domain_record and 'has_repeat=True' in domain_record:
-                    logging.info("Cluster {} contains a BURP domain with has_repeat=True. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-                    burp_with_repeats_found = True
-                    break  # No need to check other CDSs for this cluster
+                # Check if domain_record contains 'plants/BURP'
+                if 'plants/BURP' in domain_record:
+                    has_repeat_qualifier = cds.qualifiers.get('has_repeat')
+                    if has_repeat_qualifier is True: 
+                        logging.info("Cluster {} contains a BURP domain with has_repeat=True. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+                        burp_with_repeats_found = True
+                        break  # No need to check other CDSs for this cluster
 
             if burp_with_repeats_found:
                 clusters_to_keep.append(cluster)
             else:
                 logging.info("Cyclopeptide cluster {} does not contain any BURP domain with has_repeat=True. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
         else:
-            # Keep non-cyclopeptide clusters
-            # logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
+            # Always keep non-cyclopeptide clusters
+            logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
             clusters_to_keep.append(cluster)
     
     logging.info("Clusters to keep for SeqRecord ({}): {}".format(seq_record.id, [cluster.qualifiers.get('locus_tag', 'unknown') for cluster in clusters_to_keep]))
@@ -1249,8 +1251,6 @@ def cyclopeptide_cluster_has_repeats(seq_record):
     
     logging.info("No clusters with BURP domains containing has_repeat=True were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
     return False
-
-
 
 
 def renumber_clusters(seq_record, options):
