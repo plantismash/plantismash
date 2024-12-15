@@ -1,7 +1,7 @@
 How to contribute
 =================
 
-We gladly accept contributions to antiSMASH. To help us keep track of things
+We gladly accept contributions to plantiSMASH. To help us keep track of things
 and ensure your contributions can be supported by us in the long term, there
 are a couple of guidelines that we need contributors to follow.
 
@@ -47,6 +47,6 @@ Submitting changes
 ------------------
 
 - Push your changes to a topic branch in your fork of the repository
-- Submit a pull request to the antiSMASH team repository
+- Submit a pull request to the plantiSMASH team repository
 - Update your ticket to include a link to your pull request if the automatic linking did not work.
 - The antiSMASH team tries to at least provide initial comments on your pull request within three business days.
