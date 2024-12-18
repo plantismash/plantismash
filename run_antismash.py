@@ -186,7 +186,7 @@ def main():
     group.add_argument('--clusterblast',
                        dest='clusterblast',
                        action='store_true',
-                       default=False,
+                       default=True,
                        help="Compare identified clusters against a database of antiSMASH-predicted clusters.")
     group.add_argument('--update_clusterblast',
                        dest='update_clusterblast',
@@ -206,7 +206,7 @@ def main():
     group.add_argument('--knownclusterblast',
                        dest='knownclusterblast',
                        action='store_true',
-                       default=False,
+                       default=True,
                        help="Compare identified clusters against known gene clusters from the MIBiG database.")
     group.add_argument('--coexpress',
                        dest='coexpress',
