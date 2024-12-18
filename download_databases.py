@@ -188,6 +188,45 @@ def download_if_not_present(url, filename, sha256sum):
         sys.exit(1)
 
 
+def download_clusterblast():
+    """Download and extract the ClusterBlast database"""
+    
+    CLUSTERBLAST_URL = "https://plantismash.bioinformatics.nl/clusterblast/clusterblast.tar.gz"
+    CLUSTERBLAST_CHECKSUM = "1e032f1f3b297e8e924a328ef26912d324cb01deae25332933f2ba50ff7af2fd"
+    
+    # Check for sufficient disk space before download
+    check_diskspace(CLUSTERBLAST_URL)
+    
+    # Define the filename for the downloaded file
+    filename = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast_dmnd07.tar.gz")
+    
+    # Download the file if not present or if the checksum does not match
+    download_if_not_present(CLUSTERBLAST_URL, filename, CLUSTERBLAST_CHECKSUM)
+    
+    # Extract the .gz file to its contents
+    extracted_filename = unzip_file(filename, gzip, gzip.zlib.error)
+    
+    # Extract the contents of the tar file into the generic_modules/clusterblast directory
+    clusterblast_dir = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast")
+    try:
+        with tarfile.open(extracted_filename, 'r') as tar:
+            for member in tar.getmembers():
+                # Remove any leading directories from the member's path to avoid subdirectory creation
+                member.name = path.relpath(member.name, start=member.name.split('/')[0])
+                tar.extract(member, path=clusterblast_dir)  # Extract directly into clusterblast directory
+    except tarfile.ReadError:
+        print("ERROR: Error extracting %s. Please try to extract it manually." % extracted_filename)
+        return
+    
+    print("Extraction of %s finished successfully." % extracted_filename)
+    
+    # Clean up by deleting the original compressed files
+    delete_file(filename)  # delete the .tar.gz file
+    delete_file(extracted_filename)  # delete the .tar file
+
+
+
+
 def main():
     #Download and compile PFAM database
     check_diskspace(PFAM_URL)
@@ -197,6 +236,9 @@ def main():
     filename = unzip_file(filename, gzip, gzip.zlib.error)
     compile_pfam(filename)
     delete_file(filename + ".gz")
+
+    # download the clusterblast database 
+    download_clusterblast()
 
     #Download and compile ClusterBlast database
     # check_diskspace(CLUSTERBLAST_URL)
