@@ -57,7 +57,7 @@ def scan_orfs(seq, direction):
     last_orf = [None, None, None]
     # cache the sequence length
     seq_len = len(seq)
-    for i in xrange(0, seq_len - 2 ):
+    for i in range(0, seq_len - 2 ):
         if seq[i:i+3] in START_CODONS or i == 0:
             # If the last stop codon found is in the frame of this start codon
             # and the start codon is upstream of the stop codon, we have
@@ -66,7 +66,7 @@ def scan_orfs(seq, direction):
                 continue
             # Look for the next stop codon in this frame
             do_continue = False
-            for j in xrange(i, seq_len - 2, 3):
+            for j in range(i, seq_len - 2, 3):
                 if seq[j:j+3] in STOP_CODONS:
                     # Skip Orfs that are shorter than 20 AA / 60 bases
                     if j - i > 60:
@@ -101,7 +101,7 @@ def get_reverse_complement(seq):
     seq = seq.upper()
     """generate the reverse strand of a given sequence"""
     reverse_seq = ""
-    for i in xrange(len(seq) - 1, -1, -1):
+    for i in range(len(seq) - 1, -1, -1):
         if seq[i] == 'G':
             reverse_seq += 'C'
         elif seq[i] == 'C':
@@ -118,9 +118,9 @@ def sort_orfs(orfs):
     if len(orfs) == 0:
         return orfs
     startpositions = [min([orf.start, orf.stop]) for orf in orfs]
-    positions_and_orfs = zip(startpositions, orfs)
+    positions_and_orfs = list(zip(startpositions, orfs))
     positions_and_orfs.sort()
-    startpositions, orfs = zip(*positions_and_orfs)
+    startpositions, orfs = list(zip(*positions_and_orfs))
     return orfs
 
 def find_all_orfs(seq_record, options):

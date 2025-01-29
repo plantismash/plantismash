@@ -1,6 +1,6 @@
 #! encoding:utf-8
 
-import specific_analysis
-import html_output
+from . import specific_analysis
+from . import html_output
 
-print "cool beans"
+print("cool beans")

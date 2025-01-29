@@ -19,9 +19,9 @@ from os import path
 import subprocess
 import string
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 from argparse import Namespace
 import warnings
 # Don't display the SearchIO experimental warning, we know this.
@@ -41,6 +41,7 @@ try:
 except ImportError:
     USE_BIOSQL = False
 import argparse
+import functools 
 
 class Storage(dict):
     """Simple storage class"""
@@ -242,7 +243,7 @@ def sort_substrates(substrates, type):
             count_dict[substrate] = 1
 
     # Sort by count (descending) then alphabetically
-    sorted_substrates = sorted(count_dict.items(), key=lambda x: (-x[1], x[0]))
+    sorted_substrates = sorted(list(count_dict.items()), key=lambda x: (-x[1], x[0]))
 
     # Prioritize elements based on conditions
     prioritized = []
@@ -431,7 +432,7 @@ def get_sorted_cluster_features(seq_record):
     numberdict = {}
     for cluster in clusters:
         numberdict[get_cluster_number(cluster)] = cluster
-    return [numberdict[clusternr] for clusternr in numberdict.keys()]
+    return [numberdict[clusternr] for clusternr in list(numberdict.keys())]
 
 def get_structure_pred(cluster):
     "Return all structure prediction for a cluster feature"
@@ -504,6 +505,9 @@ def execute(commands, input=None):
 
     if input is not None:
         stdin_redir = subprocess.PIPE
+        # Ensure input is encoded to bytes
+        if isinstance(input, str):
+            input = input.encode("utf-8")
     else:
         stdin_redir = None
 
@@ -513,10 +517,16 @@ def execute(commands, input=None):
                                 stderr=subprocess.PIPE)
         out, err = proc.communicate(input=input)
         retcode = proc.returncode
+
+        # Decode stdout and stderr to strings for consistent return
+        out = out.decode("utf-8") if out else ""
+        err = err.decode("utf-8") if err else ""
+
         return out, err, retcode
-    except OSError, e:
+    except OSError as e:
         logging.debug("%r %r returned %r", commands, input[:40] if input is not None else None, e)
         raise
+
 # pylint: enable=redefined-builtin
 
 
@@ -635,15 +645,17 @@ def hmmlengths(hmmfile):
     return hmmlengthsdict
 
 def cmp_feature_location(a, b):
-    "Compare two features by their start/end locations"
-    ret = cmp(a.location.start, b.location.start)
-    if ret != 0:
-        return ret
-    return cmp(a.location.end, b.location.end)
+    # Example comparison
+    if a.location.start < b.location.start:
+        return -1
+    elif a.location.start > b.location.start:
+        return 1
+    else:
+        return 0
 
 def sort_features(seq_record):
     "Sort features in a seq_record by their position"
-    #Check if all features have a proper location assigned
+    # Check if all features have a proper location assigned
     for feature in seq_record.features:
         if feature.location is None:
             if feature.id != "<unknown id>":
@@ -652,9 +664,11 @@ def sort_features(seq_record):
                 logging.error("Feature '%s' has no proper location assigned", feature.qualifiers["locus_tag"][0])
             else:
                 logging.error("File contains feature without proper location assignment")
-            sys.exit(0) #FIXME: is sys.exit(0) really what we want to do here?
-    #Sort features by location
-    seq_record.features.sort(cmp=cmp_feature_location)
+            sys.exit(1)  # Changed to sys.exit(1) to indicate an error occurred
+
+    # Sort features by location
+    seq_record.features.sort(key=functools.cmp_to_key(cmp_feature_location))
+
 
 def fix_locus_tags(seq_record, config):
     "Fix CDS feature that don't have a locus_tag, gene name or protein id"
@@ -971,13 +985,13 @@ def writefasta(names, seqs, filename):
 
 
 def sortdictkeysbyvaluesrev(indict):
-    items = [(value, key) for key, value in indict.items()]
+    items = [(value, key) for key, value in list(indict.items())]
     items.sort()
     items.reverse()
     return [key for value, key in items]
 
 def sortdictkeysbyvaluesrevv(indict):
-    values = indict.values()
+    values = list(indict.values())
     values.sort()
     values.reverse()
     return values
@@ -1084,7 +1098,7 @@ def get_geotable_json(features):
                             return samples_order.index(a) - samples_order.index(b)
                         return -1
                     return 0
-                for sample_id in sorted([s_id for s_id in go["data"]], cmp = cmp_samples):
+                for sample_id in sorted([s_id for s_id in go["data"]], key=functools.cmp_to_key(cmp_samples)):
                     if sample_id not in result[go["rec_id"]]["data"]["feature_names"]:
                         result[go["rec_id"]]["data"]["feature_names"].append(sample_id)
                     data_buffer.append((go["rec_id"], sample_id, gene_id, go["data"][sample_id][0], go["data"][sample_id][1], go["evalue"]))
@@ -1099,7 +1113,7 @@ def get_geotable_json(features):
 
     for data in data_buffer:
         if len(result[data[0]]["data"]["nodes"][data[2]]["features"]) == 0:
-            for i in xrange(0, len(result[data[0]]["data"]["feature_names"])):
+            for i in range(0, len(result[data[0]]["data"]["feature_names"])):
                 result[data[0]]["data"]["nodes"][data[2]]["features"].append(None)
         result[data[0]]["data"]["nodes"][data[2]]["features"][result[data[0]]["data"]["feature_names"].index(data[1])] = data[3]
 
@@ -1414,13 +1428,13 @@ def get_pct_identity_table(features):
     pct_values = {}
     for cds in features:
         cur_gene = get_gene_id(cds)
-        if not cur_gene in pct_values.keys():
+        if not cur_gene in list(pct_values.keys()):
             pct_values[cur_gene] = {}
         for othercds in [feature for feature in features if feature != cds]:
             other_gene = get_gene_id(othercds)
-            if not other_gene in pct_values[cur_gene].keys():
-                if other_gene in pct_values.keys():
-                    if cur_gene in pct_values[other_gene].keys():
+            if not other_gene in list(pct_values[cur_gene].keys()):
+                if other_gene in list(pct_values.keys()):
+                    if cur_gene in list(pct_values[other_gene].keys()):
                         pct_values[cur_gene][other_gene] = pct_values[other_gene][cur_gene]
                         continue
                 pct_values[cur_gene][other_gene] = get_percentage_identity(cds, othercds)
@@ -1440,7 +1454,7 @@ if USE_BIOSQL:
         # connect to namespace for full genomes (dbgenomesnamespace)
         try:
             myDB.connect(namespace=options.BioSQLconfig.dbgenomenamespace)
-        except Exception, e:
+        except Exception as e:
             logging.exception("Could not connect to database %s, namespace %s : %s",
                               options.BioSQLconfig.dbdb, options.BioSQLconfig.dbgenomenamespace, e)
             return False

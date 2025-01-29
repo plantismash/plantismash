@@ -28,11 +28,11 @@ def convert_record(record, annotations, options):
     js_rec = {}
     js_rec['seq_id'] = record.id
     if "extrarecord" in options:
-        if options.extrarecord.has_key(record.id):
+        if record.id in options.extrarecord:
             if "extradata" in options.extrarecord[record.id]:
-                if options.extrarecord[record.id].extradata.has_key("orig_id"):
+                if "orig_id" in options.extrarecord[record.id].extradata:
                     js_rec['orig_id'] = options.extrarecord[record.id].extradata["orig_id"]
-    if not js_rec.has_key('orig_id'):
+    if 'orig_id' not in js_rec:
         js_rec['orig_id'] = ""
     js_rec['clusters'] = convert_clusters(record, annotations, options)
 
@@ -200,7 +200,7 @@ def get_description(record, feature, type_, options):
         transport_blast_line = '<a href="%s" target="_new">TransportDB BLAST on this gene<br>' % url
         replacements['transport_blast_line'] = transport_blast_line
 
-    if options.searchgtr_links.has_key(record.id + "_" + utils.get_gene_id(feature)):
+    if record.id + "_" + utils.get_gene_id(feature) in options.searchgtr_links:
         url = options.searchgtr_links[record.id + "_" + utils.get_gene_id(feature)]
         searchgtr_line = '<a href="%s" target="_new">SEARCHGTr on this gene<br>' % url
         replacements['searchgtr_line'] = searchgtr_line

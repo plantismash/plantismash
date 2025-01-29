@@ -31,9 +31,9 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 # Ignore Biopython experimental warning
 import warnings

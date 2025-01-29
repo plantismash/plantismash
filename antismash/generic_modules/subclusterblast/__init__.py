@@ -19,7 +19,7 @@ from os import path
 from antismash import utils
 from antismash.generic_modules.clusterblast.clusterblast import internal_homology_blast, load_clusterblast_database
 from antismash.generic_modules.clusterblast.data_loading import prepare_data, generate_Storage_for_cb
-from subclusterblast import perform_subclusterblast
+from .subclusterblast import perform_subclusterblast
 
 name = "subclusterblast"
 short_description = name.capitalize()

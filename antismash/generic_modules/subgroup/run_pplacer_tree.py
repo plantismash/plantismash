@@ -127,7 +127,7 @@ def get_subtree_subgroup(trees_file, prefix_list, ref_group_dict):
                 subgroup_likelihood[subgroup] = subgroup_likelihood.get(subgroup, 0) + likelihood
             # if the query sequence only has one subgroups result on the tree, set the likelihood to 1
             if len(subgroup_likelihood) == 1:
-                subgroup_likelihood[subgroup_likelihood.keys()[0]] = 1
+                subgroup_likelihood[list(subgroup_likelihood.keys())[0]] = 1
             for ID in prefix:
                 # remove plantismash_ prefix in the query_id
                 query_subgroups[ID[12:]] = subgroup_likelihood

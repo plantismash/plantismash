@@ -4,8 +4,8 @@
 (C) 2008, 2009 Kerim Mansour
 For licensing information please refer to license.txt
 '''
-from attributes import *
-from core import BaseElement, BaseShape, PointAttrib, DimensionAttrib, PointToAttrib
+from .attributes import *
+from .core import BaseElement, BaseShape, PointAttrib, DimensionAttrib, PointToAttrib
 
         
 class rect(BaseShape, PointAttrib, DimensionAttrib):
@@ -88,10 +88,11 @@ class rect(BaseShape, PointAttrib, DimensionAttrib):
         """
         return (float(self.get_x()) + float(self.get_width()), float(self.get_y()) + float(self.get_height()))
     
-    def moveToPoint(self, (x,y)):
+    def moveToPoint(self, xxx_todo_changeme):
         """
         Moves the rect to the point x,y
         """
+        (x,y) = xxx_todo_changeme
         self.set_x(float(self.get_x()) + float(x))
         self.set_y(float(self.get_y()) + float(y))
 
@@ -169,10 +170,11 @@ class circle(BaseShape):
         """
         return (float(self.get_cx()) + float(self.get_r()), float(self.get_cy()) + float(self.get_r()))
     
-    def moveToPoint(self, (x,y)):
+    def moveToPoint(self, xxx_todo_changeme1):
         """
         Moves the circle to the point x,y
         """
+        (x,y) = xxx_todo_changeme1
         self.set_cx(float(self.get_cx()) + float(x))
         self.set_cy(float(self.get_cy()) + float(y))
 
@@ -383,10 +385,11 @@ class line(BaseShape, PointToAttrib):
             else:
                 return (x2, y1)
     
-    def moveToPoint(self, (x,y)):
+    def moveToPoint(self, xxx_todo_changeme2):
         """
         Moves the line to the point x,y
         """
+        (x,y) = xxx_todo_changeme2
         self.set_x1(float(self.get_x1()) + float(x))
         self.set_x2(float(self.get_x2()) + float(x))
         self.set_y1(float(self.get_y1()) + float(y))

@@ -26,12 +26,12 @@ def install_packages(packages):
         try:
             # Construct the mamba install command
             command = ['mamba', 'install', '-y', package]
-            print("Installing {}...".format(package))
+            print(("Installing {}...".format(package)))
             # Execute the command
             subprocess.check_call(command)
-            print("{} installed successfully.".format(package))
+            print(("{} installed successfully.".format(package)))
         except subprocess.CalledProcessError as e:
-            print("Failed to install {}: {}".format(package, e))
+            print(("Failed to install {}: {}".format(package, e)))
 
 if __name__ == "__main__":
 

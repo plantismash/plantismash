@@ -20,8 +20,8 @@ import os
 from os import path
 import shutil
 from antismash import utils
-from data_loading import prepare_visualization
-from svg_drawer import create_svgs
+from .data_loading import prepare_visualization
+from .svg_drawer import create_svgs
 
 name = "svg"
 short_description = "SVG output"

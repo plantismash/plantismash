@@ -33,7 +33,6 @@ def run_diamond(query, target, tempdir, options):
         "--db", target,
         "--threads", str(options.cpus),
         "--query", query,
-        "--compress", "0",
         "--max-target-seqs", "10000",
         "--evalue", "1e-05",
         "--daa", "matches.daa",
@@ -43,12 +42,20 @@ def run_diamond(query, target, tempdir, options):
 
 
 def convert_to_tabular(tempdir):
+    daa_path = path.join(tempdir, "matches.daa")
+    output_path = path.join(tempdir, "input.out")
+
+    if not path.exists(daa_path) or os.stat(daa_path).st_size == 0:
+        logging.error("Error: DIAMOND did not generate a valid .daa file. Skipping conversion.")
+        return None, None, 1  # Simulate a failed process return code
+
     command = [
         "diamond", "view",
-        "-a", path.join(tempdir, "matches.daa"),
-        "-o", path.join(tempdir, "input.out")
+        "-a", daa_path,
+        "-o", output_path
     ]
     return utils.execute(command)
+
 
 
 def make_blastdb(inputfile, dbname):
@@ -133,7 +140,7 @@ def load_geneclusterproteins(accessiondict, searchtype):
             tabs = i.split("|")
             protein = tabs[6]
             locustag = tabs[4]
-            if accessiondict.has_key(locustag):
+            if locustag in accessiondict:
                 locustag = "h_" + locustag
             proteintags[protein] = locustag
             location = tabs[2]
@@ -244,7 +251,7 @@ def tresholdblasthitfilter(blastlines, minseqcoverage, minpercidentity, seqlengt
         query = tabs[0]
         perc_ident = int(float(tabs[2]) + 0.5)
         alignmentlength = float(tabs[3])
-        if seqlengths.has_key(query.split("|")[4]):
+        if query.split("|")[4] in seqlengths:
             perc_coverage = (float(tabs[3]) / seqlengths[query.split("|")[4]]) * 100
         else:
             feature_by_id = utils.get_feature_dict_protein_id(seq_record)
@@ -286,7 +293,7 @@ def blastparse(blasttext, minseqcoverage, minpercidentity, seqlengths, seq_recor
         perc_ident = int(float(tabs[2]) + 0.5)
         evalue = str(tabs[10])
         blastscore = int(float(tabs[11])+0.5)
-        if seqlengths.has_key(query.split("|")[4]):
+        if query.split("|")[4] in seqlengths:
             perc_coverage = (float(tabs[3]) / seqlengths[query.split("|")[4]]) * 100
         else:
             feature_by_id = utils.get_feature_dict_protein_id(seq_record)
@@ -374,7 +381,7 @@ def find_internal_orthologous_groups(internalhomologygroupsdict, iblastdict, iqu
     #find and store internal homologs
     groups = []
     for j in iqueryclusternames:
-        if iblastdict.has_key(j):
+        if j in iblastdict:
             hits = iblastdict[j][0]
             group = []
             for k in hits:
@@ -486,7 +493,7 @@ def remove_queries_without_hits(querylist, blastdict):
     #Remove queries without hits
     querylist2 = []
     for i in querylist:
-        if blastdict.has_key(i):
+        if i in blastdict:
             querylist2.append(i)
         else:
             pass
@@ -530,7 +537,7 @@ def find_clusterblast_hitsgroups(hitpositions):
     #Find groups of hits
     hitgroupsdict = {}
     for p in hitpositions:
-        if not hitgroupsdict.has_key(p[0]):
+        if p[0] not in hitgroupsdict:
             hitgroupsdict[p[0]] = [p[1]]
         else:
             hitgroupsdict[p[0]].append(p[1])
@@ -549,7 +556,7 @@ def calculate_synteny_score(hitgroupsdict, hitpositions, hitposcorelist, nrhits)
             if p[1] in hitgroupsdict[hitpositions[z][0]]:
                 tandem = "y"
             #Score entry
-            if ((not query_givenscores_querydict.has_key(p[0])) or query_givenscores_querydict[p[0]] == 0) and ((not query_givenscores_hitdict.has_key(p[1])) or query_givenscores_hitdict[p[1]] == 0) and tandem == "n":
+            if ((p[0] not in query_givenscores_querydict) or query_givenscores_querydict[p[0]] == 0) and ((p[1] not in query_givenscores_hitdict) or query_givenscores_hitdict[p[1]] == 0) and tandem == "n":
                 q = hitpositions[z]
                 if (abs(p[0] - q[0]) < 2) and abs(p[0]-q[0]) == abs(p[1]-q[1]):
                     synteny_score += 1
@@ -647,14 +654,14 @@ def write_clusterblast_output(options, seq_record,clusterblastStorage, searchtyp
             out_file.write("\n".join([str(z+1) + ". " + i, "Source: " + clusters[i][1], "Type: " + clusters[i][2], "Number of proteins with BLAST hits to this cluster: " + nrhits,"Cumulative BLAST score: " + cumblastscore + "\n", "Table of genes, locations, strands and annotations of subject cluster:\n"]))
             clusterproteins = clusters[i][0]
             for j in clusterproteins:
-                if proteinlocations.has_key(j) and proteinannotations.has_key(j) and proteinstrands.has_key(j):
+                if j in proteinlocations and j in proteinannotations and j in proteinstrands:
                     if proteintags[j] == "no_locus_tag":
                         out_file.write(j + "\t")
                     else:
                         out_file.write(proteintags[j] + "\t")
                     out_file.write("\t".join([j, proteinlocations[j].split("-")[0], proteinlocations[j].split("-")[1], proteinstrands[j], proteinannotations[j]]) + "\n")
             out_file.write("\nTable of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):\n")
-            if i in hitclusterdata.keys():
+            if i in list(hitclusterdata.keys()):
                 tabledata = hitclusterdata[i]
                 for x in tabledata:
                     w = 0

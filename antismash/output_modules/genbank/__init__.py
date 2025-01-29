@@ -38,7 +38,7 @@ def seq_record_convert_nucl_to_prot(seq_records, options):
     for cdsfeature in cdsfeatures:
         for cdsmotif in cdsmotifs:
             if cdsfeature.location.start <= cdsmotif.location.start <= cdsfeature.location.end:
-                if not cdsmotifdict.has_key(cdsfeature.qualifiers['product'][0]):
+                if cdsfeature.qualifiers['product'][0] not in cdsmotifdict:
                     cdsmotifdict[cdsfeature.qualifiers['product'][0]] = [cdsmotif]
                 else:
                     cdsmotifdict[cdsfeature.qualifiers['product'][0]].append(cdsmotif)
@@ -69,7 +69,7 @@ def seq_record_convert_nucl_to_prot(seq_records, options):
             domain_feature.qualifiers['note'] = [cds_domain]
             cdsmotif_features.append(domain_feature)
         #Add CDS_motif features based on NRPS/PKS abMotifs
-        if cdsmotifdict.has_key(cdsfeature.qualifiers['product'][0]):
+        if cdsfeature.qualifiers['product'][0] in cdsmotifdict:
             for cdsmotif in cdsmotifdict[cdsfeature.qualifiers['product'][0]]:
                 oldstart, oldend = cdsmotif.location.start, cdsmotif.location.end
                 newstart = (oldstart - cdsfeature.location.start) / 3

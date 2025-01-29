@@ -1,5 +1,6 @@
 *.swp
 *.pyc
+*.bak
 cover/
 .coverage
 tags
@@ -8,3 +9,7 @@ tags
 .idea/
 /antismash/generic_modules/fullhmmer/Pfam-A.hmm
 test_datasets/
+__pycache__/
+plantgeneclusters.txt
+plantgeneclusterprots.fasta
+plantgeneclusterprots.dmnd

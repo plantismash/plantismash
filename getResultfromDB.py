@@ -41,9 +41,9 @@ from antismash.db.biosql import get_records
 from antismash.db.extradata import getExtradata
 from antismash.generic_modules import hmm_detection
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 
 
@@ -172,19 +172,19 @@ def main():
         
         logging.debug("DB retrieval: trying to find extra data for %s" % seq_record.id)
         extradataHash = getExtradata(options, seq_record.id)
-        logging.debug("Keys of extradataHash: %s" % ", ".join(extradataHash.keys()))
+        logging.debug("Keys of extradataHash: %s" % ", ".join(list(extradataHash.keys())))
         options.extrarecord[seq_record.id].extradata = extradataHash
         
-        if options.extrarecord[seq_record.id].extradata.has_key('ClusterBlastData'):
+        if 'ClusterBlastData' in options.extrarecord[seq_record.id].extradata:
             logging.debug("DB retrieval: Found extra data for ClusterBlast")
             options.clusterblast = True
-        if options.extrarecord[seq_record.id].extradata.has_key('SubClusterBlastData'):
+        if 'SubClusterBlastData' in options.extrarecord[seq_record.id].extradata:
             logging.debug("DB retrieval: Found extra data for SubClusterBlast")
             options.subclusterblast = True
-        if options.extrarecord[seq_record.id].extradata.has_key('KnownClusterBlastData'):
+        if 'KnownClusterBlastData' in options.extrarecord[seq_record.id].extradata:
             logging.debug("DB retrieval: Found extra data for KnownClusterBlast")
             options.knownclusterblast = True
-        if options.extrarecord[seq_record.id].extradata.has_key('MetabolicModel'):
+        if 'MetabolicModel' in options.extrarecord[seq_record.id].extradata:
             logging.debug("DB retrieval: Found extra data for Modeling")
             options.modeling = "db"
 
@@ -199,7 +199,7 @@ def main():
 def list_available_plugins(output_plugins):
     print("Support for the following output formats:")
     for plugin in output_plugins:
-        print(" * %s" % plugin.short_description)
+        print((" * %s" % plugin.short_description))
 
 def filter_plugins(plugins, options, clustertypes):
     if options.enabled_cluster_types is None or options.enabled_cluster_types == clustertypes:
@@ -238,8 +238,8 @@ def ValidateClusterTypes(clustertypes):
                     if value not in clustertypes:
                         raise ValueError('invalid clustertype {s!r}'.format(s = value))
             except ValueError as e:
-                print "\nInput error:", e, "\n"
-                print "Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other"
+                print("\nInput error:", e, "\n")
+                print("Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other")
                 sys.exit(1)
             setattr(args, self.dest, values)
     return Validator

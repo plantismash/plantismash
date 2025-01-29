@@ -212,7 +212,7 @@ def add_overview_entry(d, cluster, odd):
     # closest cluster match BGCid description
     td = pq('<td>')
 
-    print("Raw value for cluster['knowncluster']:", cluster['knowncluster'])
+    print(("Raw value for cluster['knowncluster']:", cluster['knowncluster']))
 
     # Sanitize the knowncluster value for XML compatibility
     try:
@@ -601,7 +601,7 @@ def generate_searchgtr_htmls(seq_records, options):
         smcogdict, smcogdescriptions = utils.get_smcog_annotations(seq_record)
         for feature in utils.get_cds_features(seq_record):
             gene_id = utils.get_gene_id(feature)
-            if smcogdict.has_key(gene_id):
+            if gene_id in smcogdict:
                 smcog = smcogdict[gene_id]
                 if smcog in gtrcoglist:
 
@@ -634,7 +634,7 @@ def sanitize_for_xml(input_str):
 
     try:
         # Convert to Unicode (if not already)
-        if not isinstance(input_str, unicode):
+        if not isinstance(input_str, str):
             input_str = input_str.decode('utf-8', 'ignore')  # Ignore bad bytes
 
         # Normalize Unicode (NFKC form)

@@ -65,7 +65,7 @@ def main():
     i = 1
     for fpath in files:
         res_object[fpath] = {}
-        print "Processing %s... (%d/%d)" % (fpath, i, len(files));
+        print("Processing %s... (%d/%d)" % (fpath, i, len(files)));
         i += 1
         options = get_mockup_config()
         options.sequences = [fpath]
@@ -105,7 +105,7 @@ def main():
             min_length_aa = 100
             short_cds_buffer = []
             for f in seq_record.features: # temporarily remove short aa
-                if f.type == "CDS" and len(f.qualifiers['translation'][0]) < min_length_aa and not results_by_id.has_key(utils.get_gene_id(f)):
+                if f.type == "CDS" and len(f.qualifiers['translation'][0]) < min_length_aa and utils.get_gene_id(f) not in results_by_id:
                     short_cds_buffer.append(f)
                     seq_record.features.remove(f)
 
@@ -133,7 +133,7 @@ def main():
             typedict = hmm_detection.apply_cluster_rules(results_by_id, feature_by_id, options.enabled_cluster_types, rulesdict, overlaps)
             hmm_detection.fix_hybrid_clusters_typedict(typedict)
             nseqdict = hmm_detection.get_nseq()
-            for cds in results_by_id.keys():
+            for cds in list(results_by_id.keys()):
                 feature = feature_by_id[cds]
                 if typedict[cds] != "none":
                     hmm_detection._update_sec_met_entry(feature, results_by_id[cds], typedict[cds], nseqdict)

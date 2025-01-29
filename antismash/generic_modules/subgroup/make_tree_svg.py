@@ -63,7 +63,7 @@ def make_group_color(ref_group_file, neighbor_leave_set):
             groups[group_name].append(leaf_name)
 
     make_color = {}
-    for group_name, leaves in groups.items():
+    for group_name, leaves in list(groups.items()):
         if neighbor_leave_set & set(leaves):
             make_color[group_name] = leaves
 
@@ -93,7 +93,7 @@ def write_annotation_file(annotations, prefix, ann_file, query_id, fam_name, gro
         f.write('{}\tclade_marker_size\t30\n'.format(query))
         f.write('{}\tclade_marker_font_size\t20\n'.format(query))
         f.write('{}\tclade_marker_shape\t*\n'.format(query))
-        for group_name, color in group_colors.items():
+        for group_name, color in list(group_colors.items()):
             f.write('{}\tclade_marker_color\t{}\n'.format(group_name, color))
             f.write('{}\tclade_marker_size\t30\n'.format(group_name))
             f.write('{}\tclade_marker_font_size\t20\n'.format(group_name))
@@ -101,7 +101,7 @@ def write_annotation_file(annotations, prefix, ann_file, query_id, fam_name, gro
             for leaf_name in make_color[group_name]:
                 f.write('{}\tannotation_background_color\t{}\n'.format(leaf_name, color))
 
-        for modified_name, original_name in annotations.items():
+        for modified_name, original_name in list(annotations.items()):
             f.write('{}\tannotation_rotation\t90\n'.format(modified_name))
             f.write("{}\tannotation_font_size\t4\n".format(modified_name))
             if original_name.startswith(prefix[0]):

@@ -15,7 +15,7 @@
 
 """Script to download and install Pfam and ClusterBlast databases"""
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import tarfile
 import gzip
 import backports.lzma as lzma
@@ -57,11 +57,11 @@ def execute(commands, input=None):
 
 def get_remote_filesize(url):
     try:
-        usock = urllib2.urlopen(url)
+        usock = urllib.request.urlopen(url)
         dbfilesize = usock.info().get('Content-Length')
         if dbfilesize is None:
             dbfilesize = 0
-    except urllib2.URLError:
+    except urllib.error.URLError:
         dbfilesize = 0
     dbfilesize = float(int(dbfilesize))  # db file size in bytes
     return dbfilesize
@@ -82,17 +82,17 @@ def check_diskspace(file_url):
     dbfilesize = int(get_remote_filesize(file_url))
     free_space = int(get_free_space("."))
     if free_space < dbfilesize:
-        print 'ERROR: Insufficient disk space available (required: %d, free: %d).' % (dbfilesize, free_space)
+        print('ERROR: Insufficient disk space available (required: %d, free: %d).' % (dbfilesize, free_space))
         sys.exit()
 
 
 def download_file(url, filename):
     """ Download a file"""
-    print "Downloading large file %s. Please be patient..." % (path.basename(filename))
+    print("Downloading large file %s. Please be patient..." % (path.basename(filename)))
     try:
-        req = urllib2.urlopen(url)
-    except urllib2.URLError:
-        print 'ERROR: File not found on server.\nPlease check your internet connection.'
+        req = urllib.request.urlopen(url)
+    except urllib.error.URLError:
+        print('ERROR: File not found on server.\nPlease check your internet connection.')
         sys.exit()
     CHUNK = 128 * 1024
     with open(filename, 'wb') as fp:
@@ -103,10 +103,10 @@ def download_file(url, filename):
                     break
                 fp.write(chunk)
             except IOError:
-                print 'ERROR: Download interrupted.'
+                print('ERROR: Download interrupted.')
                 sys.exit()
     #Report download success
-    print "Downloading %s finished successfully." % (path.basename(filename))
+    print("Downloading %s finished successfully." % (path.basename(filename)))
     return filename
 
 
@@ -134,12 +134,12 @@ def unzip_file(filename, decompressor, error_type):
                         break
                     fp.write(chunk)
                 except IOError:
-                    print 'ERROR: Unzipping interrupted.'
+                    print('ERROR: Unzipping interrupted.')
                     sys.exit()
     except error_type:
-        print "ERROR: Error extracting %s. Please try to extract it manually." % (path.basename(filename))
+        print("ERROR: Error extracting %s. Please try to extract it manually." % (path.basename(filename)))
         return
-    print "Extraction of %s finished successfully." % (path.basename(filename))
+    print("Extraction of %s finished successfully." % (path.basename(filename)))
     return newfilename
 
 
@@ -150,9 +150,9 @@ def untar_file(filename):
         tar.extractall(path=filename.rpartition(os.sep)[0])
         tar.close()
     except tarfile.ReadError:
-        print "ERROR: Error extracting %s. Please try to extract it manually." % (filename.rpartition(os.sep)[2])
+        print("ERROR: Error extracting %s. Please try to extract it manually." % (filename.rpartition(os.sep)[2]))
         return
-    print "Extraction of %s finished successfully." % (filename.rpartition(os.sep)[2])
+    print("Extraction of %s finished successfully." % (filename.rpartition(os.sep)[2]))
 
 
 def compile_pfam(filename):
@@ -171,20 +171,20 @@ def delete_file(filename):
 def download_if_not_present(url, filename, sha256sum):
     """Download a file if it's not present or checksum doesn't match"""
     if path.exists(filename):
-        print "Creating checksum of %s" % path.basename(filename)
+        print("Creating checksum of %s" % path.basename(filename))
         csum = checksum(filename)
         if csum == sha256sum:
             return
         else:
-            print "checksum mismatch: expected %s, got %s" % (sha256sum, csum)
+            print("checksum mismatch: expected %s, got %s" % (sha256sum, csum))
 
     download_file(url, filename)
 
-    print "Creating checksum of %s" % path.basename(filename)
+    print("Creating checksum of %s" % path.basename(filename))
     csum = checksum(filename)
     if csum != sha256sum:
-        print "Error downloading %s, sha256sum mismatch. Expected %s, got %s." % \
-              (filename, sha256sum, csum)
+        print("Error downloading %s, sha256sum mismatch. Expected %s, got %s." % \
+              (filename, sha256sum, csum))
         sys.exit(1)
 
 
@@ -215,10 +215,10 @@ def download_clusterblast():
                 member.name = path.relpath(member.name, start=member.name.split('/')[0])
                 tar.extract(member, path=clusterblast_dir)  # Extract directly into clusterblast directory
     except tarfile.ReadError:
-        print("ERROR: Error extracting %s. Please try to extract it manually." % extracted_filename)
+        print(("ERROR: Error extracting %s. Please try to extract it manually." % extracted_filename))
         return
     
-    print("Extraction of %s finished successfully." % extracted_filename)
+    print(("Extraction of %s finished successfully." % extracted_filename))
     
     # Clean up by deleting the original compressed files
     delete_file(filename)  # delete the .tar.gz file

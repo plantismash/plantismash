@@ -15,7 +15,7 @@
 from pyquery import PyQuery as pq
 from antismash import utils
 from .specific_analysis import Result
-import output_repeatfinder as output
+from . import output_repeatfinder as output
 import logging
 
 def will_handle(product):

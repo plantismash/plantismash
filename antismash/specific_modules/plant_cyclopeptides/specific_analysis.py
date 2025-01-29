@@ -5,7 +5,7 @@
 '''
 '''
 from antismash import utils
-import repeatfinder
+from . import repeatfinder
 
 def specific_analysis(seq_record, options):
     clusters = utils.get_cluster_features(seq_record)
@@ -69,8 +69,8 @@ class Result:
         qualifier += "//" + self.feature_type
         qualifier += "//" + str(self.position[0]) + "|" + str(self.position[1])
         qualifier += "//" + self.cds_id
-        qualifier += "//" + "|".join(self.evidence.keys())
-        qualifier += "//" + "|".join([str(x) for x in self.evidence.values()])
+        qualifier += "//" + "|".join(list(self.evidence.keys()))
+        qualifier += "//" + "|".join([str(x) for x in list(self.evidence.values())])
         
 
         return qualifier
@@ -91,7 +91,7 @@ class Result:
         vallist = []
         for v in values_strings:
             vallist.append(list(v[2:-2].split(",")))
-        self.evidence = dict(zip(keys,vallist))
+        self.evidence = dict(list(zip(keys,vallist)))
         has_evidence = True#TODO CHANGE BACK OR REMOVE THIS PIECE OF CODE 
 
         #for vallist in vallist_list:

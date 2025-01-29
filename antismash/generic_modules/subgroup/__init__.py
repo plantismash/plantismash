@@ -15,8 +15,8 @@ import subprocess
 import shutil
 from helperlibs.wrappers.io import TemporaryDirectory
 from antismash import utils
-from run_pplacer_tree import run_subtree_subgroup
-from make_tree_svg import run_graphlan
+from .run_pplacer_tree import run_subtree_subgroup
+from .make_tree_svg import run_graphlan
 
 default_folder = os.path.dirname(os.path.abspath(__file__))
 
@@ -181,7 +181,7 @@ def _update_feature(seq_records, hmmscan_result_dicts, tree_query_subgroups, out
 
                 if tree_query_subgroup and query in tree_query_subgroup:
                     subgroup_likelihood = tree_query_subgroup[query]
-                    subgroup_max = max(subgroup_likelihood.items(), key=lambda item: item[1])[0]  # get a tuple
+                    subgroup_max = max(list(subgroup_likelihood.items()), key=lambda item: item[1])[0]  # get a tuple
                     len_likelihood = len(subgroup_likelihood)
                     len_subgroup_max = len(subgroup_max)
                     likelihood_max = subgroup_likelihood[subgroup_max]
@@ -227,7 +227,7 @@ def write_unsure_subgroup(unsure_subgroups, output_dir):
             query, subgroup_likelihood, result_hmm, fam_name = unsure_subgroup
             file.write(query + " for " + fam_name + '\n')
             if subgroup_likelihood:
-                subgroup_likelihood_list = sorted(subgroup_likelihood.items(), key=lambda x: x[1], reverse=True)
+                subgroup_likelihood_list = sorted(list(subgroup_likelihood.items()), key=lambda x: x[1], reverse=True)
                 file.write("subgroup_likelihood \t" + str(subgroup_likelihood_list) + '\n')
             file.write("result_hmm \t" + result_hmm + '\n') if result_hmm else None
 

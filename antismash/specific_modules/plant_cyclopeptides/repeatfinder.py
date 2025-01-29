@@ -2,9 +2,9 @@ import os
 import Bio
 #import seqparse as sp
 #import IO.utils as ut
-import scorer as sc
+from . import scorer as sc
 #import IO.output_repeatfinder as output
-import Classifier
+from . import Classifier
 
 def get_qualifier_translation(feat):
 
@@ -12,12 +12,12 @@ def get_qualifier_translation(feat):
 
 def print_gbk_file(gbk_file):
 
-    print repr(gbk_file)
-    print gbk_file.seq
-    print len(gbk_file.seq)
-    print gbk_file.features[0]
-    print ut.get_aa_translation(gbk_file,gbk_file.features[0])
-    print len(ut.get_aa_translation(gbk_file,gbk_file.features[0]))
+    print(repr(gbk_file))
+    print(gbk_file.seq)
+    print(len(gbk_file.seq))
+    print(gbk_file.features[0])
+    print(ut.get_aa_translation(gbk_file,gbk_file.features[0]))
+    print(len(ut.get_aa_translation(gbk_file,gbk_file.features[0])))
 
     print_features(gbk_file)
 
@@ -64,14 +64,14 @@ def assess_cluster(seq_record):
     """""this will run the assessment of the cluster, looking at coverage, spacing, classification,
     identity inter repeat regions and complexity/compressibility"""
     
-    print "placeholder"
+    print("placeholder")
     #TODO: write the actual function
 
 def print_features(seq_record):
 
     for feat in seq_record.features:
 
-        print feat
+        print(feat)
 
 
 def scan_seqfeature_translation(seq_record,feature, k = 3):
