@@ -8,7 +8,7 @@ are a couple of guidelines that we need contributors to follow.
 Getting started
 ---------------
 
-- Submit an issue
+- Submit an issue [here](https://github.com/plantismash/plantismash/issues)
 - Clearly describe the issue including ways to reproduce if it is a bug
 - Give some description of what the feature should achieve if it a new feature
 - Fork the repository on GitHub 
