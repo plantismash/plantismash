@@ -37,3 +37,4 @@ dependencies:
       - bcbio-gff==0.6.7
       - ete3
       - ./graphlan
+      - MOODS-python
