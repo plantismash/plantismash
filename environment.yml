@@ -1,4 +1,4 @@
-name: plantiSMASHpy3env_test2
+name: plantiSMASHpy3env_test3
 channels:
   - conda-forge
   - bioconda
@@ -18,6 +18,8 @@ dependencies:
   - pplacer
   - ncbi-datasets-cli
   - unzip
+  - helperlibs 
+  - biopython==1.76
   # Pip dependencies
   - pip
   - pip:
@@ -33,5 +35,4 @@ dependencies:
       - python-louvain==0.16
       - bcbio-gff==0.6.7
       - ete3
-      - biopython==1.76
       - ./graphlan
