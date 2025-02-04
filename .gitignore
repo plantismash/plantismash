@@ -13,3 +13,4 @@ __pycache__/
 plantgeneclusters.txt
 plantgeneclusterprots.fasta
 plantgeneclusterprots.dmnd
+*.vscode
