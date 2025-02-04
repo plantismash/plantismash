@@ -137,6 +137,8 @@ def check_prereqs(options):
     if not path.exists("{}.dmnd".format(dmnd_file)):
         logging.info("Diamond database not found. Generating it from the FASTA file.")
         generate_diamond_database(merged_fasta, dmnd_file)
+    else :
+        logging.info(f"Diamond database found in clusterblast module directory: {dmnd_file}")
 
     # Check required files explicitly
     for file_name, optional in _required_files:
