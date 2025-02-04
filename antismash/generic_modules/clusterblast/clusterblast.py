@@ -648,7 +648,7 @@ def write_clusterblast_output(options, seq_record,clusterblastStorage, searchtyp
     for i in rankedclusters[:100]:
         value = "%.8f" % rankedclustervalues[z]
         nrhits = value.split(".")[0]
-        if nrhits > 0:
+        if nrhits and int(nrhits) > 0:
             out_file.write("\n\n>>\n")
             cumblastscore = str(int(float(value.split(".")[1][2:])))
             out_file.write("\n".join([str(z+1) + ". " + i, "Source: " + clusters[i][1], "Type: " + clusters[i][2], "Number of proteins with BLAST hits to this cluster: " + nrhits,"Cumulative BLAST score: " + cumblastscore + "\n", "Table of genes, locations, strands and annotations of subject cluster:\n"]))
