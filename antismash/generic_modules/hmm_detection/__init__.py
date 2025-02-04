@@ -88,10 +88,17 @@ def check_prereqs():
                                         (model_name, lineno, line))
             lineno += 1
 
+    profiles_found = False  # Track if any profiles exist
+
     for sig in get_sig_profiles():
         if not path.exists(sig.path):
-            failure_messages.append("Failed to find HMM profile %r" %
-                                    sig.path)
+            failure_messages.append("Failed to find HMM profile %r" % sig.path)
+        else:
+            profiles_found = True  # At least one profile was found
+
+    if not profiles_found:
+        logging.error("No HMM profiles found in any module directory!")
+
     return failure_messages
 
 
@@ -100,6 +107,9 @@ def get_supported_detection_models():
     "Get a list of all supported detection types"
     detection_types = ["default"]
     for fname in listdir(path.dirname(path.abspath(__file__))):
+        if fname == "__pycache__":
+            continue  # Skip the __pycache__ directory
+
         if path.isdir(path.join(path.dirname(path.abspath(__file__)), fname)):
             detection_types.append(fname)
     return detection_types
@@ -110,9 +120,10 @@ def get_supported_cluster_types():
     clustertypes = [line.split("\t")[0] for line in open(utils.get_full_path(__file__, 'cluster_rules.txt'), "r")][1:]
     # TODO: Iterating across all directories is not needed, as plants is the only supported type 
     for fname in listdir(path.dirname(path.abspath(__file__))):
-        # a way to avoid the pycache directory to be checked 
+       # Skip the __pycache__ directory
         if fname == "__pycache__":
             continue
+
         dir_path = path.join(path.dirname(path.abspath(__file__)), fname)
         if path.isdir(dir_path):
             clustertypes.extend([(fname + "/" + line.split("\t")[0]) for line in open(path.join(dir_path, "cluster_rules.txt"), "r")][1:])
@@ -128,6 +139,16 @@ def get_sig_profiles():
         if hmm_model != "default":
             dir_path = path.join(dir_path, hmm_model)
             prefix = hmm_model + "/"
+
+        # Skip __pycache__
+        if "__pycache__" in dir_path:
+            continue
+
+        # Check if HMM profiles exist
+        hmm_details_path = path.join(dir_path, "hmmdetails.txt")
+        if not path.exists(hmm_details_path):
+            logging.error(f"No HMM profiles found in module directory: {dir_path}")
+
         hmmdetails = [line.split("\t") for line in open(path.join(dir_path, "hmmdetails.txt"),"r").read().split("\n") if line.count("\t") == 3]
         _signature_profiles.extend([HmmSignature(prefix + details[0], details[1], int(details[2]), path.join(dir_path, details[3])) for details in hmmdetails])
     return _signature_profiles
@@ -536,6 +557,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     results = []
     sig_by_name = {}
     results_by_id = {}
+
     for sig in get_sig_profiles():
         sig_by_name[sig.name] = sig
 
