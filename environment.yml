@@ -1,4 +1,4 @@
-name: plantiSMASHpy3env_test3
+name: plantismash
 channels:
   - conda-forge
   - bioconda

@@ -38,23 +38,24 @@ which conda
 ```
 
 ## 1.3. Install PlantiSMASH
-Create virtual conda enviroment. 
-```bash 
-mamba create -n plantismash python=2.7.15
-conda activate plantismash
-```
-Install plantiSMASH. 
-```bash
-cd /your/work/folder/path    # Replace with your actual path
-git clone https://github.com/plantismash/plantismash.git
-cd plantismash
-```
-Install dependencies and download databases.  
-```bash
-python install_dependencies.py
-python download_databases.py   # Only need PFAM for fullhmmer
-```
-For usage instructions of plantismash, use the command: 
+1. Clone the repostory 
+  ```bash
+  git clone https://github.com/plantismash/plantismash.git
+  cd plantismash
+  ```
+2. Set up the plantismash conda environment 
+  ```bash 
+  conda env create -f environment.yml
+  ```
+3. Activate the conda environment 
+  ```bash 
+   conda activate plantismash 
+   ```
+5. Download databases  
+  ```bash
+  python download_databases.py   
+  ```
+Verify the installation 
 ```bash
 python run_antismash.py -h
 ```
