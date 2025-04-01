@@ -11,7 +11,7 @@ dependencies:
   - fasttree=2.1.8
   - diamond=2.0.15
   - muscle=3.8.31
-  - prodigal 
+  - prodigal
   - blast=2.12.0
   - cd-hit=4.8.1
   - libxml2=2.10.3
