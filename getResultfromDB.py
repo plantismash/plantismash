@@ -34,7 +34,7 @@ import random
 import logging
 import argparse
 from os import path
-import straight.plugin
+from straight.plugin import load 
 from antismash.config import load_config, set_config
 from antismash import utils
 from antismash.db.biosql import get_records
@@ -216,7 +216,7 @@ def filter_plugins(plugins, options, clustertypes):
 def load_detection_plugins():
     "Load available secondary metabolite detection modules"
     logging.info('Loading detection modules')
-    return straight.plugin.load('antismash.specific_modules')
+    return load('antismash.specific_modules')
 
 
 def filter_outputs(plugins, options):
@@ -278,7 +278,7 @@ def setup_logging(options):
 
 def load_output_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.output_modules'))
+    plugins = list(load('antismash.output_modules'))
     plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
     
     # We have to remove the BioSQL exporter from the output plugins-List

@@ -18,7 +18,6 @@
 import urllib.request, urllib.error, urllib.parse
 import tarfile
 import gzip
-import backports.lzma as lzma
 import hashlib
 import os
 import sys
@@ -223,7 +222,6 @@ def download_clusterblast():
     # Clean up by deleting the original compressed files
     delete_file(filename)  # delete the .tar.gz file
     delete_file(extracted_filename)  # delete the .tar file
-
 
 
 

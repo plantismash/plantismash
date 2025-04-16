@@ -8,6 +8,7 @@ dependencies:
   - glimmer
   - glimmerhmm
   - hmmer=3.3.2
+  - bioconda/label/cf201901::hmmer2
   - fasttree=2.1.8
   - diamond=2.0.15
   - muscle=3.8.31

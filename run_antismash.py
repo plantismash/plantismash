@@ -33,7 +33,7 @@ import logging
 import argparse
 from os import path
 import multiprocessing
-import straight.plugin
+from straight.plugin import load
 from helperlibs.bio import seqio
 from antismash.config import load_config, set_config
 from antismash import utils
@@ -1334,7 +1334,7 @@ def setup_logging(options):
 def load_specific_modules():
     "Load available secondary metabolite detection modules"
     logging.info('Loading specific modules')
-    detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
+    detection_plugins = list(load('antismash.specific_modules'))
 
     logging.info("The following modules were loaded:%s "%(detection_plugins))
     #TODO remove this logging block
@@ -1347,13 +1347,13 @@ def load_specific_modules():
 
 def load_output_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.output_modules'))
+    plugins = list(load('antismash.output_modules'))
     plugins.sort(key=lambda x: x.priority)
     return plugins
 
 def load_generic_genome_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.generic_genome_modules'))
+    plugins = list(load('antismash.generic_genome_modules'))
     plugins.sort(key=lambda x: x.priority)
 
     return plugins
