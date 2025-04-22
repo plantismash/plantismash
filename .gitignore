@@ -8,3 +8,7 @@ tags
 .idea/
 /antismash/generic_modules/fullhmmer/Pfam-A.hmm
 test_datasets/
+# Ignore all .hmm downloaded files in hmm_detection and subdirs
+antismash/generic_modules/hmm_detection/**/*.hmm
+# But don't ignore any in the plants subdirectory
+!antismash/generic_modules/hmm_detection/plants/*.hmm
