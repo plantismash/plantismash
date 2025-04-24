@@ -209,7 +209,7 @@ def filter_plugins(plugins, options, clustertypes):
         if plugin.name in clustertypes and plugin.name not in options.enabled_cluster_types:
             plugins.remove(plugin)
 
-    if plugins == []:
+    if not options.disable_specific_modules and plugins == []:
         print("No plugins enabled, use --list-plugins to show available plugins")
         sys.exit(1)
         
