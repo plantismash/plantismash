@@ -22,6 +22,14 @@ def print_gbk_file(gbk_file):
     print_features(gbk_file)
 
 
+def check_has_burp_repeat(feat):
+    """Returns True if the feature has both a repeat and a BURP domain annotation."""
+    if feat.qualifiers.get("has_repeat", False):
+        domain_info = feat.qualifiers.get("domain_record", [""])[0]  # domain_record is usually a list
+        if "plants/BURP" in domain_info:
+            return True
+    return False
+
 
 def run_fbk(seq_record):
     repeat_regions = []
@@ -44,6 +52,8 @@ def run_fbk(seq_record):
                     make_pattern(feat)
                     feat.qualifiers["has_repeat"] = True
                     seq_record.annotations["repeat_regions"] = repeat_regions
+                    if check_has_burp_repeat(feat):
+                        feat.qualifiers["has_burp_repeat"] = True
                     should_delete = False
                     for t in feat.qualifiers["table"]:
                         if len(set(list(t))) <=2:

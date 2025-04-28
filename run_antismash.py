@@ -339,7 +339,11 @@ def main():
                        action='store_true',
                        default=True,
                        help="In hmm detection, ignore short AA without significant pfam hits (affect dynamic cutoffs).")
-
+    group.add_argument('--require-internal-cyclopeptide-repeats',
+                        dest='require_internal_cyclopeptide_repeats',
+                        action='store_true',
+                        default=False,
+                        help="Only accept cyclopeptide clusters where repeats occur inside BURP features (default: repeats can be anywhere if BURP is present)")
     group = parser.add_argument_group('Gene finding options (ignored when ORFs are annotated)')
     group.add_argument('--genefinding',
                        dest='genefinding',
@@ -1138,9 +1142,6 @@ def run_analyses(seq_record, options, plugins):
         # Run specific analyses first
         run_specific_analyses(seq_record, options, plugins)
 
-        # Filter cyclopeptide clusters if needed
-        cyclopeptide_cluster_has_repeats(seq_record)
-
         # Renumber the clusters to maintain contiguous numbering
         renumber_clusters(seq_record, options)
 
@@ -1192,65 +1193,6 @@ def run_general_analyses(seq_record, options):
         else:
             logging.error("Error in active site finder module!")
 
-
-def cyclopeptide_cluster_has_repeats(seq_record):
-    """Check if any cyclopeptide clusters within the seq_record contain repeats in BURP domains. 
-    If no BURP domain with repeats is found in cyclopeptide clusters, the cluster is deleted.
-    Non-cyclopeptide clusters are always retained.
-    """
-    
-    logging.info("Analyzing SeqRecord (Seq ID: {})".format(seq_record.id))
-
-    clusters_to_keep = []  
-
-    for cluster in utils.get_cluster_features(seq_record):
-        
-        cluster_notes = cluster.qualifiers.get('note', [])  # Changed to list to properly iterate over notes
-        
-        # Check if cluster is a cyclopeptide cluster
-        is_cyclopeptide = any('plants/cyclopeptide' in note for note in cluster_notes)
-                          
-        logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-        #logging.info("Cluster notes: {}".format(cluster_notes))
-        
-        if is_cyclopeptide:
-            cds_features = utils.get_cluster_cds_features(cluster, seq_record)
-            burp_with_repeats_found = False
-
-            for cds in cds_features:
-                # for key, value in cds.qualifiers.items():
-                #     logging.info("CDS Feature key: {}, value: {}".format(key, value))
-                
-                domain_record = cds.qualifiers.get('domain_record', '')
-                #logging.info("CDS domain record: {}".format(domain_record))
-                
-                # Check if domain_record contains 'plants/BURP'
-                if 'plants/BURP' in domain_record:
-                    has_repeat_qualifier = cds.qualifiers.get('has_repeat')
-                    if has_repeat_qualifier is True: 
-                        logging.info("Cluster {} contains a BURP domain with has_repeat=True. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-                        burp_with_repeats_found = True
-                        break  # No need to check other CDSs for this cluster
-
-            if burp_with_repeats_found:
-                clusters_to_keep.append(cluster)
-            else:
-                logging.info("Cyclopeptide cluster {} does not contain any BURP domain with has_repeat=True. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-        else:
-            # Always keep non-cyclopeptide clusters
-            logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-            clusters_to_keep.append(cluster)
-    
-    logging.info("Clusters to keep for SeqRecord ({}): {}".format(seq_record.id, [cluster.qualifiers.get('locus_tag', 'unknown') for cluster in clusters_to_keep]))
-    
-    seq_record.features = [feature for feature in seq_record.features if feature in clusters_to_keep or feature.type != 'cluster']
-    
-    if clusters_to_keep:
-        logging.info("At least one cluster with a BURP domain containing has_repeat=True or a non-cyclopeptide cluster was retained in SeqRecord (Seq ID: {}).".format(seq_record.id))
-        return True
-    
-    logging.info("No clusters with BURP domains containing has_repeat=True were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
-    return False
 
 
 def renumber_clusters(seq_record, options):

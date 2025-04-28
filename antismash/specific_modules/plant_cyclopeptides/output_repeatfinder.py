@@ -365,5 +365,5 @@ def add_html_output(seqrecord):
             print((feat.qualifiers["ripp_evidence"]))
             if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0: 
                 create_output(feat)
-                print("condition reached")
-                exit(0)
+                print("Annotated repeat feature.")
+                # exit(0)
