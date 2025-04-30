@@ -81,7 +81,7 @@ def write_annotation_file(annotations, prefix, ann_file, query_id, fam_name, gro
         f.write('# all special characters changed to underscore in leaf names for Graphlan compatibility\n')
         f.write("clade_marker_size\t0\n")
         f.write(f"{fam_name} family tree\tclade_marker_font_size\t20\n")
-        f.write("shown leaves under queries` parent_nodes\tclade_marker_font_size\t20\n")
+        f.write("neighboring sequences under the query's parent node\tclade_marker_font_size\t20\n")
 
         query = f"{query_id}_query_node"
         f.write(f"{query}\tclade_marker_color\tk\n")
