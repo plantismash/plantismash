@@ -51,7 +51,8 @@ from antismash.generic_modules import (
     active_site_finder,
     coexpress,
     gff_parser,
-    subgroup
+    subgroup, 
+    tfbs_finder,
 )
 try:
     from antismash.db.biosql import get_record
@@ -213,6 +214,11 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a prepared Expression data.")
+    group.add_argument('--tfbs',
+                   dest='tfbs',
+                   action='store_true',
+                   default=False,
+                   help="Run transcription factor binding site (TFBS) prediction.")
     group.add_argument('--disable_subgroup',
                        dest='disable_subgroup',
                        action='store_true',
