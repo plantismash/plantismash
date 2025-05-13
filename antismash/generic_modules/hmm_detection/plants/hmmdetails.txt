@@ -85,3 +85,21 @@ YjeF_N	YjeF-related protein N-terminus	-1	YjeF_N.hmm
 Putative_PNPOx	Pyridoxamine 5'-phosphate oxidase	-1	Putative_PNPOx.hmm
 PNP_phzG_C	Pyridoxine 5'-phosphate oxidase C-terminal dimerisation region	-1	PNP_phzG_C.hmm
 Orn_Arg_deC_N	Pyridoxal-dependent decarboxylase, pyridoxal binding domain	-1	Orn_Arg_deC_N.hmm
+ABC2_membrane	ABC-2 type transporter	-1	ABC2_membrane.hmm
+ABC_tran	ABC transporter	-1	ABC_tran.hmm
+COesterase	Carboxylesterase family	-1	COesterase.hmm
+Chal_sti_synt_C	Chalcone and stilbene synthases, C-terminal domain	-1	Chal_sti_synt_C.hmm
+Chal_sti_synt_N	Chalcone and stilbene synthases, N-terminal domain	-1	Chal_sti_synt_N.hmm
+FAE1_CUT1_RppA	FAE1/Type III polyketide synthase-like protein	-1	FAE1_CUT1_RppA.hmm
+Glyco_transf_28	Glycosyltransferase family 28 N-terminal domain	-1	Glyco_transf_28.hmm
+Glycos_transf_1	Glycosyl transferases group 1	-1	Glycos_transf_1.hmm
+Glycos_transf_2	Glycosyl transferase family 2	-1	Glycos_transf_2.hmm
+HAD_RAM2_N	Glycerol-3-phosphate acyltransferase RAM2-like, HAD-like domain	-1	HAD_RAM2_N.hmm
+LTP_2	Probable lipid transfer	-1	LTP_2.hmm
+Lycopene_cycl	Lycopene cyclase protein	-1	Lycopene_cycl.hmm
+NAD_binding_1	Oxidoreductase NAD-binding domain	-1	NAD_binding_1.hmm
+NAD_binding_4	Male sterility protein	-1	NAD_binding_4.hmm
+Prenyltrans	Prenyltransferase and squalene oxidase repeat	-1	Prenyltrans.hmm
+Terpene_synth	Terpene synthase, N-terminal domain	-1	Terpene_synth.hmm
+Terpene_synth_C	Terpene synthase family, metal binding domain	-1	Terpene_synth_C.hmm
+adh_short	short chain dehydrogenase	-1	adh_short.hmm

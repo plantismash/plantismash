@@ -133,6 +133,7 @@ def get_supported_cluster_types():
 def get_sig_profiles():
     cfg = config.get_config()
     _signature_profiles = []
+
     for hmm_model in cfg.enabled_detection_models:
         dir_path = path.dirname(path.abspath(__file__))
         prefix = ""
@@ -140,17 +141,55 @@ def get_sig_profiles():
             dir_path = path.join(dir_path, hmm_model)
             prefix = hmm_model + "/"
 
-        # Skip __pycache__
-        if "__pycache__" in dir_path:
-            continue
-
-        # Check if HMM profiles exist
         hmm_details_path = path.join(dir_path, "hmmdetails.txt")
-        if not path.exists(hmm_details_path):
-            logging.error(f"No HMM profiles found in module directory: {dir_path}")
+        existing_entries = {}
+        new_entries = []
 
-        hmmdetails = [line.split("\t") for line in open(path.join(dir_path, "hmmdetails.txt"),"r").read().split("\n") if line.count("\t") == 3]
-        _signature_profiles.extend([HmmSignature(prefix + details[0], details[1], int(details[2]), path.join(dir_path, details[3])) for details in hmmdetails])
+        # Load current entries
+        if path.exists(hmm_details_path):
+            with open(hmm_details_path, "r") as f:
+                for line in f:
+                    if line.count("\t") == 3:
+                        parts = line.strip().split("\t")
+                        existing_entries[parts[0]] = parts
+
+        # Scan for .hmm files
+        for fname in sorted(listdir(dir_path)):
+            if not fname.endswith(".hmm"):
+                continue
+
+            domain_id = fname[:-4]
+            if domain_id in existing_entries:
+                continue
+
+            # Extract DESC from HMM file
+            hmm_path = path.join(dir_path, fname)
+            desc = domain_id  # fallback
+            try:
+                with open(hmm_path, "r") as hmmfile:
+                    for line in hmmfile:
+                        if line.startswith("DESC"):
+                            desc = line.strip().split("DESC", 1)[1].strip()
+                            break
+            except Exception as e:
+                logging.warning(f"Failed to read DESC from {fname}: {e}")
+
+            entry = [domain_id, desc, "-1", fname]
+            existing_entries[domain_id] = entry
+            new_entries.append("\t".join(entry) + "\n")
+            logging.info(f"Added new HMM entry: {entry}")
+
+        # Append only the new entries
+        if new_entries:
+            with open(hmm_details_path, "a") as f:
+                f.writelines(new_entries)
+
+        # Build HmmSignature objects
+        for entry in existing_entries.values():
+            _signature_profiles.append(
+                HmmSignature(prefix + entry[0], entry[1], int(entry[2]), path.join(dir_path, entry[3]))
+            )
+
     return _signature_profiles
 
 
