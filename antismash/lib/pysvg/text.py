@@ -4,8 +4,8 @@
 (C) 2008, 2009 Kerim Mansour
 For licensing information please refer to license.txt
 '''
-from attributes import *
-from core import BaseElement, PointAttrib, DeltaPointAttrib, RotateAttrib
+from .attributes import *
+from .core import BaseElement, PointAttrib, DeltaPointAttrib, RotateAttrib
 
 class altGlyphDef(BaseElement, CoreAttrib):
     """
@@ -141,7 +141,7 @@ class text(BaseElement, CoreAttrib, ConditionalAttrib, ExternalAttrib, StyleAttr
     """
     def __init__(self, content=None, x=None, y=None, dx=None, dy=None, rotate=None, textLength=None, lengthAdjust=None, **kwargs):
         BaseElement.__init__(self, 'text')
-        if content <> None:
+        if content != None:
             self.appendTextContent(content)
         self.set_x(x)
         self.set_y(y)

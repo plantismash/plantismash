@@ -64,7 +64,7 @@ class aSDB(object):
                                                       host=options.BioSQLconfig.dbhost,
                                                       port=options.BioSQLconfig.dbport,
                                                       db=options.BioSQLconfig.dbdb)
-        except Exception, e:
+        except Exception as e:
             logging.exception("Error setting up the database object; Check parameters in default.cfg")
             raise e
         self.db = {}
@@ -80,7 +80,7 @@ class aSDB(object):
         if namespace not in self.db:
             try:
                 self.db[namespace] = self.server[namespace]
-            except Exception, e:
+            except Exception as e:
                 logging.exception("Could not assign BioSQL namespace/database %s, probably namespace does not exist", namespace)
                 raise e
         self.namespace = namespace
@@ -113,7 +113,7 @@ class aSDB(object):
         try:
             del self.db[self.namespace][entryid]
             logging.debug("Delete record %s from database", entryid)
-        except Exception, e:
+        except Exception as e:
             logging.warn("Could not delete record %s from database/namespace %s", entryid, self.namespace)
             raise e
 
@@ -124,7 +124,7 @@ class aSDB(object):
         try:
             namespace_id = self.db[self.namespace].adaptor.fetch_dbid_by_dbname(self.namespace)
             dbid=self.db[self.namespace].adaptor.fetch_seqid_by_display_id(dbid=namespace_id, name=name)
-        except Exception, e:
+        except Exception as e:
             logging.warn("%s: Could not find database id by searching for %s",  e, name)
             dbid = None
         return dbid
@@ -136,7 +136,7 @@ class aSDB(object):
             self.namespace = namespace
             # self.commit()
             logging.debug("namespace %s generated for storing genome seq_records", namespace)
-        except Exception, e:
+        except Exception as e:
             logging.exception("Could not generate namespace/db %s", namespace)
             raise e
 
@@ -154,7 +154,7 @@ class aSDB(object):
 
         try:
             seq_record = self.db[self.namespace].lookup(name=name)
-        except Exception, e:
+        except Exception as e:
             logging.warn("%s: Database entry with name %s does not exist", e, name)
             seq_record = None
         return(seq_record)

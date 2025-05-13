@@ -273,10 +273,10 @@ def visualize_alignment(seq1,seq2,path):
 
             
     
-    print('\nAlignment:\n\n' + string_seq1 + '\n' + string_alignment + '\n' + string_seq2)
+    print(('\nAlignment:\n\n' + string_seq1 + '\n' + string_alignment + '\n' + string_seq2))
     #print(str(len(string_seq1)) + '\n' + str(len(string_seq2)) + '\n' + str(len(string_alignment)))
     permatch = percentage_match(string_alignment)
-    print("{0:.2f}%".format(percentage_match(string_alignment)) + ' Match')
+    print(("{0:.2f}%".format(percentage_match(string_alignment)) + ' Match'))
 
 def percentage_match(alignment):
     """Returns output percentage of alignment between sequences
@@ -303,12 +303,12 @@ def align_sequences(seq1,seq2,endgap_bool = False,penalty = -8, endpenalty = -8)
     penalty: int, penalty amount\n
     endpenalty: int, endgap penalty amount
     """
-    print('aligning sequences with gap: ' + str(endgap_bool) + '\nPenalty = ' + str(penalty))
-    print('sequence 1 = ' + seq1 + '\nsequence 2 = ' + seq2 )
+    print(('aligning sequences with gap: ' + str(endgap_bool) + '\nPenalty = ' + str(penalty)))
+    print(('sequence 1 = ' + seq1 + '\nsequence 2 = ' + seq2 ))
     score_matrix,direction_matrix = NW_matrix(seq1,seq2,endgap_bool,penalty,endpenalty)
     print('\nMatrix:\n')
     for line in score_matrix:
-        print(str(line))
+        print((str(line)))
     traceback_path = traceback(direction_matrix)
     
     visualize_alignment(seq1,seq2,traceback_path)

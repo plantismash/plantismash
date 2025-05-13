@@ -18,7 +18,7 @@
 Automodel core pipeline script
 """
 
-from prunPhase import (
+from .prunPhase import (
     get_targetGenomeInfo,
     make_blastDB,
     run_blastp,
@@ -31,7 +31,7 @@ from prunPhase import (
     swap_locusTag_tempModel
 )
 
-from augPhase import (
+from .augPhase import (
     get_targetGenome_locusTag_ec_nonBBH_dict,
     make_all_rxnInfo_fromRefSeq,
     get_mnxr_list_from_modelPrunedGPR,

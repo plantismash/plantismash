@@ -67,7 +67,7 @@ class IndigoObject(object):
             raise StopIteration
         return obj
 
-    def next (self):
+    def __next__ (self):
         return self.__next__()
 
     def grossFormula(self):
@@ -1148,7 +1148,7 @@ class Indigo(object):
             mac_ver = '.'.join(platform.mac_ver()[0].split('.')[:2])
             current_mac_ver = int(mac_ver.split('.')[1])
             using_mac_ver = None
-            for version in reversed(range(5, current_mac_ver + 1)):
+            for version in reversed(list(range(5, current_mac_ver + 1))):
                 if os.path.exists(path + '/10.' + str(version)):
                     using_mac_ver = str(version)
                     break

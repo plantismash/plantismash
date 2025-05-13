@@ -18,7 +18,7 @@ import logging
 from os import path
 import os
 from antismash import utils
-from smcogs import smcog_analysis
+from .smcogs import smcog_analysis
 from antismash.lib.hmmscanparser import parse_hmmscan_results
 from multiprocessing import Process
 import time
@@ -104,7 +104,7 @@ def run_smcog_analysis(seq_record, options):
     for feature in geneclustergenes:
         k = utils.get_gene_id(feature)
         if k not in pksnrpscoregenenames:
-            if smcogvars.smcogdict.has_key(k):
+            if k in smcogvars.smcogdict:
                 l = smcogvars.smcogdict[k]
                 smcogfile.write(">> " + k + "\n")
                 smcogfile.write("name\tstart\tend\te-value\tscore\n")
@@ -166,14 +166,14 @@ def _annotate(geneclustergenes, smcogvars, options):
     #Annotate smCOGS in CDS features
     for feature in geneclustergenes:
         gene_id = utils.get_gene_id(feature)
-        if smcogvars.smcogdict.has_key(gene_id):
+        if gene_id in smcogvars.smcogdict:
             detailslist = smcogvars.smcogdict[gene_id]
-            if not feature.qualifiers.has_key('note'):
+            if 'note' not in feature.qualifiers:
                 feature.qualifiers['note'] = []
             if len(detailslist) > 0:
                 feature.qualifiers['note'].append("smCOG: " + detailslist[0][0] + " (Score: " + str(detailslist[0][4]) + "; E-value: " + str(detailslist[0][3]) + ");")
-        if smcogvars.smcogtreedict.has_key(gene_id):
-            if not feature.qualifiers.has_key('note'):
+        if gene_id in smcogvars.smcogtreedict:
+            if 'note' not in feature.qualifiers:
                 feature.qualifiers['note'] = []
             feature.qualifiers['note'].append("smCOG tree PNG image: smcogs/%s"  % smcogvars.smcogtreedict[gene_id])
 

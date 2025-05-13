@@ -92,14 +92,14 @@ def parse_clusterblast_details(options, seq_record, clusternr, details, toptenhi
             for k in blasthitslines:
                 if k.split("\t")[0] not in querygeneswithhits:
                     querygeneswithhits.append(k.split("\t")[0])
-                if hits_accessions_dict.has_key(k.split("\t")[1]):
+                if k.split("\t")[1] in hits_accessions_dict:
                     hits_accessions_dict[k.split("\t")[1]].append(k.split("\t")[0])
                 else:
                     hits_accessions_dict[k.split("\t")[1]] = [k.split("\t")[0]]
                 if k.split("\t")[0] in allcoregenes and k.split("\t")[0] not in coregeneswithhits:
                     coregeneswithhits.append(k.split("\t")[0])
             if searchtype == "general":
-                for k in seq_record.known_compound_dict.keys():
+                for k in list(seq_record.known_compound_dict.keys()):
                     if k in i and compound_found == "n" and len(querygeneswithhits) > 2 and len(coregeneswithhits) > 0:
                         seq_record.closestcompounddict[clusternr] = seq_record.known_compound_dict[k]
             compound_found = "y"
@@ -141,10 +141,10 @@ def construct_colorgroups(colorgroupsdict, clusternr, blasthitdict, blastdetails
             additionalhits = []
             #For each hit, check if it was also hit by another gene; if so, only add it to the group if this hit had the lowest blast score
             queryscore = 0
-            if blasthitdict.has_key(j):
+            if j in blasthitdict:
                 for k in blasthitdict[j]:
                     otherscores = []
-                    for l in blastdetailsdict.keys():
+                    for l in list(blastdetailsdict.keys()):
                         if j == l.partition("_|_|_")[0] and k == l.rpartition("_|_|_")[2]:
                             queryscore = blastdetailsdict[l][1]
                         if k in l and j not in l:
@@ -171,11 +171,11 @@ def create_blastdicts(blasthitslines):
         tabs = i.split("\t")
         if len(tabs) <= 1:
             continue
-        if blasthitdict.has_key(tabs[0]):
+        if tabs[0] in blasthitdict:
             hits = blasthitdict[tabs[0]]
             hits.append(tabs[1])
             blasthitdict[tabs[0]] = hits
-            if revblasthitdict.has_key(tabs[1]):
+            if tabs[1] in revblasthitdict:
                 revhits = revblasthitdict[tabs[1]]
                 revhits.append(tabs[0])
                 revblasthitdict[tabs[1]] = revhits
@@ -187,7 +187,7 @@ def create_blastdicts(blasthitslines):
             hitgenes.append(tabs[1])
         else:
             blasthitdict[tabs[0]] = [tabs[1]]
-            if revblasthitdict.has_key(tabs[1]):
+            if tabs[1] in revblasthitdict:
                 revhits = revblasthitdict[tabs[1]]
                 revhits.append(tabs[0])
                 revblasthitdict[tabs[1]] = revhits
@@ -292,7 +292,7 @@ def generate_Storage_for_cb(options, seq_record, searchtype="ClusterBlastData"):
         
     if not 'extrarecord' in options:
         options.extrarecord = {}
-    if not options.extrarecord.has_key(seq_record.id):
+    if seq_record.id not in options.extrarecord:
         options.extrarecord[seq_record.id] = Namespace()
         
     if not 'extradata' in options.extrarecord[seq_record.id]:
@@ -303,7 +303,7 @@ def generate_Storage_for_cb(options, seq_record, searchtype="ClusterBlastData"):
 
 def test_accession(accession):
     #Test if accession number is probably real GenBank/RefSeq acc nr
-    numbers = range(0,10)
+    numbers = list(range(0,10))
     letters = [i for i in ascii_letters]
     nrletters = len([i for i in accession if i in ascii_letters])
     nrnumbers = len([i for i in accession if i.isdigit()])
@@ -530,7 +530,7 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
     transporters = []
     for j in clustergenes:
         cdsfeature = feature_by_id[j]
-        if cdsfeature.qualifiers.has_key('product'):
+        if 'product' in cdsfeature.qualifiers:
             annotations[j] = cdsfeature.qualifiers['product'][0]
         else:
             annotations[j] = 'Unannotated gene'
@@ -546,7 +546,7 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
             colors.append("grey")
         if j in pksnrpscoregenes:
             pksnrpsprots.append(j)
-        if smcogdict.has_key(j):
+        if j in smcogdict:
             if len(smcogdict[j]) > 0 and smcogdict[j][0] in gtrcoglist:
                 gtrs.append(j)
             if len(smcogdict[j]) > 0 and smcogdict[j][0] in transportercoglist:
@@ -556,11 +556,11 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
 
 def retrieve_clusterblast_info(seq_record, geneclusternr, searchtype="general"):
     if searchtype == "general":
-        hitgeneclusters = range(1,(seq_record.nrhitgeneclusters[geneclusternr] + 1))
+        hitgeneclusters = list(range(1,(seq_record.nrhitgeneclusters[geneclusternr] + 1)))
     elif searchtype =="subclusters":
-        hitgeneclusters = range(1,(seq_record.sc_nrhitgeneclusters[geneclusternr] + 1))
+        hitgeneclusters = list(range(1,(seq_record.sc_nrhitgeneclusters[geneclusternr] + 1)))
     elif searchtype == "knownclusters":
-        hitgeneclusters = range(1,(seq_record.kc_nrhitgeneclusters[geneclusternr] + 1))
+        hitgeneclusters = list(range(1,(seq_record.kc_nrhitgeneclusters[geneclusternr] + 1)))
     else:
         logging.exception("unknown searchtype in retrieve_clusterblast_info")
         sys.exit(1)

@@ -25,8 +25,8 @@ import logging
 import subprocess
 from os import path
 from antismash import utils
-from clusterblast import load_clusterblast_database, internal_homology_blast, perform_clusterblast, filter_overlap
-from data_loading import prepare_data, generate_Storage_for_cb
+from .clusterblast import load_clusterblast_database, internal_homology_blast, perform_clusterblast, filter_overlap
+from .data_loading import prepare_data, generate_Storage_for_cb
 import os 
 name = "clusterblast"
 short_description = name.capitalize()
@@ -79,6 +79,7 @@ def merge_files_in_directory(directory, merged_fasta, merged_txt):
 
 def generate_diamond_database(fasta_file, output_dmnd):
     """Generate a Diamond database from the given FASTA file."""
+    
     logging.info("Generating Diamond database from FASTA file")
     diamond_command = [
         "diamond", "makedb",
@@ -136,6 +137,8 @@ def check_prereqs(options):
     if not path.exists("{}.dmnd".format(dmnd_file)):
         logging.info("Diamond database not found. Generating it from the FASTA file.")
         generate_diamond_database(merged_fasta, dmnd_file)
+    else :
+        logging.info(f"Diamond database found in clusterblast module directory: {dmnd_file}")
 
     # Check required files explicitly
     for file_name, optional in _required_files:
@@ -160,7 +163,8 @@ def run_clusterblast(seq_record, options):
 
 
 def make_geneclusterprots(seq_records, options, output_filename="plantgeneclusterprots.fasta"):
-    """make gene cluster proteins fasta file for clusterblast"""
+    """Generate gene cluster proteins FASTA file for ClusterBlast"""
+    
     # Check if seq_records is empty
     if not seq_records:
         logging.warning("No sequence records provided to make_geneclusterprots.")
@@ -168,12 +172,14 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
     
     names = []
     seqs = []
-    logging.info("Received {} sequence records for processing.".format(len(seq_records)))
+    logging.info(f"Received {len(seq_records)} sequence records for processing.")
 
     for seq_record in seq_records:
         geneclusters = utils.get_sorted_cluster_features(seq_record)
+        logging.info(f"Processing sequence record {seq_record.id}, found {len(geneclusters)} gene clusters.")
+
         if not geneclusters:
-            logging.warning("No gene clusters found for sequence record {}.".format(seq_record.id))
+            logging.warning(f"No gene clusters found for sequence record {seq_record.id}.")
             continue
 
         for genecluster in geneclusters:
@@ -183,35 +189,35 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
             queryclusterprots = filter_overlap(utils.get_cluster_cds_features(genecluster, seq_record))
 
             if not queryclusterprots:
-                logging.warning("No CDS features found for cluster {} in {}".format(genecluster, seq_record.id))
+                logging.warning(f"No CDS features found for cluster {genecluster} in {seq_record.id}.")
                 continue
 
-            # logging.info("Total CDS features for cluster {} in {}: {}".format(genecluster, seq_record.id, len(queryclusterprots)))
+            logging.info(f"Cluster {genecluster}: {len(queryclusterprots)} CDS features found.")
 
             for cds in queryclusterprots:
-                # logging.debug("Processing CDS: {}".format(cds))
-                if cds.strand == 1:
-                    strand = "+"
-                else:
-                    strand = "-"
+                strand = "+" if cds.strand == 1 else "-"
                 start = str(cds.location.start).replace(">", "").replace("<", "")
                 end = str(cds.location.end).replace(">", "").replace("<", "")
                 strand_start_end = (strand, start, end)
-                
-                logging.debug("Strand-start-end for CDS: {}".format(strand_start_end))
-                logging.debug("Current strand_start_ends: {}".format(strand_start_ends))
 
                 if strand_start_end not in strand_start_ends:
-                    # todo: Incompletely overlapping splicing should be treated as one gene if their sequences are 50% similar？
                     strand_start_ends.append(strand_start_end)
                     annotation = utils.get_gene_annotation(cds)
+                    aa_sequence = str(utils.get_aa_sequence(cds))
 
-                    fullname = "|".join([seq_record.id, "c" + str(utils.get_cluster_number(genecluster)),
-                                         start + "-" + end,
-                                         strand, utils.get_gene_id(cds), annotation.replace(' ', '_') , utils.get_gene_acc(cds)])
-                    # scaffold|cluster number|location|strand|locustag|annotation|protein or accession
+                    if len(aa_sequence) < 10:  # If sequence is too short, log it
+                        logging.warning(f"Skipping short sequence {annotation} ({len(aa_sequence)} aa).")
+
+                    fullname = "|".join([
+                        seq_record.id, "c" + str(utils.get_cluster_number(genecluster)),
+                        start + "-" + end, strand,
+                        utils.get_gene_id(cds),
+                        annotation.replace(' ', '_'),
+                        utils.get_gene_acc(cds)
+                    ])
+                    
                     queryclusternames.append(fullname)
-                    queryclusterseqs.append(str(utils.get_aa_sequence(cds)))
+                    queryclusterseqs.append(aa_sequence)
 
             for i in range(len(queryclusternames)):
                 names.append(queryclusternames[i])
@@ -219,29 +225,27 @@ def make_geneclusterprots(seq_records, options, output_filename="plantgenecluste
     
     # Check if no sequences were collected
     if not names or not seqs:
-        logging.warning("No sequences found in make_geneclusterprots!")
+        logging.warning("No sequences found in make_geneclusterprots! FASTA will be empty.")
         return
+
+    logging.info(f"Writing {len(names)} sequences to FASTA file: {output_filename}")
 
     if not path.exists(options.clusterblastdir):
         try:
             os.makedirs(options.clusterblastdir)
-            logging.info("Created directory for clusterblast output: {}".format(options.clusterblastdir))
+            logging.info(f"Created directory for ClusterBlast output: {options.clusterblastdir}")
         except Exception as e:
-            logging.error("Failed to create directory {}: {}".format(options.clusterblastdir, e))
+            logging.error(f"Failed to create directory {options.clusterblastdir}: {e}")
             return
 
     outputname = path.join(options.clusterblastdir, output_filename)
-    
-    logging.info("Writing the following sequences to FASTA: ")
-    for i in range(len(names)):
-        logging.info("> {}\n{}".format(names[i], seqs[i]))
-        # how many sequences are written to the file
 
     try:
         utils.writefasta(names, seqs, outputname)
-        logging.info("FASTA file {} with {} sequences written to {}".format(output_filename, len(names), outputname))
+        logging.info(f"FASTA file {output_filename} with {len(names)} sequences written to {outputname}")
     except Exception as e:
-        logging.error("Failed to write FASTA file {}: {}".format(outputname, e))
+        logging.error(f"Failed to write FASTA file {outputname}: {e}")
+
 
 def where_is_clusterblast():
     return utils.get_full_path(__file__, '')

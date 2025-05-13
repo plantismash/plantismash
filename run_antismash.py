@@ -33,7 +33,7 @@ import logging
 import argparse
 from os import path
 import multiprocessing
-import straight.plugin
+from straight.plugin import load
 from helperlibs.bio import seqio
 from antismash.config import load_config, set_config
 from antismash import utils
@@ -60,9 +60,9 @@ try:
 except ImportError:
     USE_BIOSQL = False
 from numpy import array_split, array
-import urllib2
-from urllib2 import URLError
-import httplib
+import urllib.request, urllib.error, urllib.parse
+from urllib.error import URLError
+import http.client
 import time
 from collections import defaultdict
 from Bio import SeqIO
@@ -73,9 +73,9 @@ from Bio.Alphabet import NucleotideAlphabet
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 from datetime import datetime
 import re
 
@@ -92,8 +92,8 @@ def ValidateDetectionTypes(detection_models):
                         if value not in detection_models:
                             raise ValueError('invalid detection models {s!r}'.format(s = value))
                 except ValueError as e:
-                    print "\nInput error:", e, "\n"
-                    print "Please choose from the following list:\n", "\n".join(detection_models)
+                    print("\nInput error:", e, "\n")
+                    print("Please choose from the following list:\n", "\n".join(detection_models))
                     sys.exit(1)
             setattr(args, self.dest, values)
     return Validator
@@ -109,8 +109,8 @@ def ValidateClusterTypes(clustertypes):
                     if value not in clustertypes:
                         raise ValueError('invalid clustertype {s!r}'.format(s = value))
             except ValueError as e:
-                print "\nInput error:", e, "\n"
-                print "Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other"
+                print("\nInput error:", e, "\n")
+                print("Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other")
                 sys.exit(1)
             setattr(args, self.dest, values)
     return Validator
@@ -339,7 +339,11 @@ def main():
                        action='store_true',
                        default=True,
                        help="In hmm detection, ignore short AA without significant pfam hits (affect dynamic cutoffs).")
-
+    group.add_argument('--require-internal-cyclopeptide-repeats',
+                        dest='require_internal_cyclopeptide_repeats',
+                        action='store_true',
+                        default=False,
+                        help="Only accept cyclopeptide clusters where repeats occur inside BURP features (default: repeats can be anywhere if BURP is present)")
     group = parser.add_argument_group('Gene finding options (ignored when ORFs are annotated)')
     group.add_argument('--genefinding',
                        dest='genefinding',
@@ -542,7 +546,7 @@ def main():
 
     #if -V, show version texts and exit
     if options.version:
-        print "antiSMASH %s" % utils.get_version()
+        print("antiSMASH %s" % utils.get_version())
         sys.exit(0)
 
     logging.info("starting antiSMASH {version}, called with {cmdline}".format(version=utils.get_version(), cmdline=" ".join(sys.argv)))
@@ -732,7 +736,7 @@ def main():
         logging.info("Doing whole genome expression matching...")
         for seq_record in seq_records:
             features_to_match[seq_record.id] = utils.get_cds_features(seq_record)
-        for i in xrange(0, len(options.geo_dataset)):
+        for i in range(0, len(options.geo_dataset)):
             logging.debug("Matching expression for dataset (%d/%d).." % (i + 1, len(options.geo_dataset)))
             for seq_record in seq_records:
                 logging.debug("Seq_record %s.." % (seq_record.id))
@@ -747,7 +751,7 @@ def main():
                 for overlap in overlaps:
                     chosen_gene = -1
                     best_exp = 0
-                    for j in xrange(0, len(overlap)):
+                    for j in range(0, len(overlap)):
                         feature = overlap[j]
                         gene_id = utils.get_gene_id(feature)
                         if gene_id in all_gene_expressions:
@@ -796,7 +800,7 @@ def main():
                 new_hmm_results[new_id] = options.hmm_results[composite_id]
             options.hmm_results = new_hmm_results
             if options.coexpress:
-                for i in xrange(0, len(options.gene_expressions)):
+                for i in range(0, len(options.gene_expressions)):
                     if old_seq_id in options.gene_expressions[i]:
                         options.gene_expressions[i][seq_record.id] = options.gene_expressions[i][old_seq_id]
                         del options.gene_expressions[i][old_seq_id]
@@ -810,7 +814,7 @@ def main():
                     utils.log_status("retrieving record")
                     #TODO: This new association is not!!! Transferred to seq_records!!!
                     seq_record = get_record(seq_record.name, options)
-                except Exception, e:
+                except Exception as e:
                     logging.exception("Uncaptured error %s when reading entries from antiSMASH-DB. This should not have happened :-(", e)
                     sys.exit(1)
                 # set from_database flag to prevent updating the record in the output module
@@ -860,7 +864,7 @@ def main():
 
     # update coexpress data to calculate all possible high corelation betwen genes in clusters
     if options.coexpress:
-        for i in xrange(0, len(options.geo_dataset)):
+        for i in range(0, len(options.geo_dataset)):
             coexpress.update_dist_between_clusters(seq_records, options.gene_expressions[i], options.geo_dataset[i])
 
     #check CoExpressinter-cluster relation
@@ -1014,7 +1018,7 @@ def main():
                             )
                             + "\n"
                         )
-            print("plantgeneclusters_{0}.txt saved in the clusterblast directory".format(unique_name))
+            print(("plantgeneclusters_{0}.txt saved in the clusterblast directory".format(unique_name)))
             
             # Validation: Ensure the file was created
             if not os.path.exists(clusteblast_txt):
@@ -1138,9 +1142,6 @@ def run_analyses(seq_record, options, plugins):
         # Run specific analyses first
         run_specific_analyses(seq_record, options, plugins)
 
-        # Filter cyclopeptide clusters if needed
-        cyclopeptide_cluster_has_repeats(seq_record)
-
         # Renumber the clusters to maintain contiguous numbering
         renumber_clusters(seq_record, options)
 
@@ -1180,7 +1181,7 @@ def run_general_analyses(seq_record, options):
     # Run CoExpress
     if options.coexpress:
         utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
-        for i in xrange(0, len(options.geo_dataset)):
+        for i in range(0, len(options.geo_dataset)):
             coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
     
     # Run Active Site Finder
@@ -1192,65 +1193,6 @@ def run_general_analyses(seq_record, options):
         else:
             logging.error("Error in active site finder module!")
 
-
-def cyclopeptide_cluster_has_repeats(seq_record):
-    """Check if any cyclopeptide clusters within the seq_record contain repeats in BURP domains. 
-    If no BURP domain with repeats is found in cyclopeptide clusters, the cluster is deleted.
-    Non-cyclopeptide clusters are always retained.
-    """
-    
-    logging.info("Analyzing SeqRecord (Seq ID: {})".format(seq_record.id))
-
-    clusters_to_keep = []  
-
-    for cluster in utils.get_cluster_features(seq_record):
-        
-        cluster_notes = cluster.qualifiers.get('note', [])  # Changed to list to properly iterate over notes
-        
-        # Check if cluster is a cyclopeptide cluster
-        is_cyclopeptide = any('plants/cyclopeptide' in note for note in cluster_notes)
-                          
-        logging.info("Analyzing cyclopeptide cluster (Cluster ID: {})".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-        #logging.info("Cluster notes: {}".format(cluster_notes))
-        
-        if is_cyclopeptide:
-            cds_features = utils.get_cluster_cds_features(cluster, seq_record)
-            burp_with_repeats_found = False
-
-            for cds in cds_features:
-                # for key, value in cds.qualifiers.items():
-                #     logging.info("CDS Feature key: {}, value: {}".format(key, value))
-                
-                domain_record = cds.qualifiers.get('domain_record', '')
-                #logging.info("CDS domain record: {}".format(domain_record))
-                
-                # Check if domain_record contains 'plants/BURP'
-                if 'plants/BURP' in domain_record:
-                    has_repeat_qualifier = cds.qualifiers.get('has_repeat')
-                    if has_repeat_qualifier is True: 
-                        logging.info("Cluster {} contains a BURP domain with has_repeat=True. Keeping the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-                        burp_with_repeats_found = True
-                        break  # No need to check other CDSs for this cluster
-
-            if burp_with_repeats_found:
-                clusters_to_keep.append(cluster)
-            else:
-                logging.info("Cyclopeptide cluster {} does not contain any BURP domain with has_repeat=True. Deleting the cluster.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-        else:
-            # Always keep non-cyclopeptide clusters
-            logging.info("Non-cyclopeptide cluster {} is being kept by default.".format(cluster.qualifiers.get('locus_tag', 'unknown')))
-            clusters_to_keep.append(cluster)
-    
-    logging.info("Clusters to keep for SeqRecord ({}): {}".format(seq_record.id, [cluster.qualifiers.get('locus_tag', 'unknown') for cluster in clusters_to_keep]))
-    
-    seq_record.features = [feature for feature in seq_record.features if feature in clusters_to_keep or feature.type != 'cluster']
-    
-    if clusters_to_keep:
-        logging.info("At least one cluster with a BURP domain containing has_repeat=True or a non-cyclopeptide cluster was retained in SeqRecord (Seq ID: {}).".format(seq_record.id))
-        return True
-    
-    logging.info("No clusters with BURP domains containing has_repeat=True were found in SeqRecord (Seq ID: {}).".format(seq_record.id))
-    return False
 
 
 def renumber_clusters(seq_record, options):
@@ -1266,14 +1208,14 @@ def renumber_clusters(seq_record, options):
 def list_available_plugins(plugins, output_plugins):
     print("Support for detecting the following secondary metabolites:")
     for plugin in plugins:
-        print(" * %s" % plugin.short_description)
+        print((" * %s" % plugin.short_description))
 
     print("\nSupport for the following modules acting in whole-genome scope")
     for plugin in load_generic_genome_plugins():
-        print(" * %s: %s" % (plugin.name, plugin.short_description))
+        print((" * %s: %s" % (plugin.name, plugin.short_description)))
     print("\nSupport for the following output formats:")
     for plugin in output_plugins:
-        print(" * %s" % plugin.short_description)
+        print((" * %s" % plugin.short_description))
 
 
 def filter_plugins(plugins, options, clustertypes):
@@ -1284,7 +1226,7 @@ def filter_plugins(plugins, options, clustertypes):
         if plugin.name in clustertypes and plugin.name not in options.enabled_cluster_types:
             plugins.remove(plugin)
 
-    if plugins == []:
+    if not options.disable_specific_modules and plugins == []:
         print("No plugins enabled, use --list-plugins to show available plugins")
         sys.exit(1)
 
@@ -1334,7 +1276,7 @@ def setup_logging(options):
 def load_specific_modules():
     "Load available secondary metabolite detection modules"
     logging.info('Loading specific modules')
-    detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
+    detection_plugins = list(load('antismash.specific_modules'))
 
     logging.info("The following modules were loaded:%s "%(detection_plugins))
     #TODO remove this logging block
@@ -1347,14 +1289,15 @@ def load_specific_modules():
 
 def load_output_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.output_modules'))
-    plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
+    plugins = list(load('antismash.output_modules'))
+    plugins.sort(key=lambda x: x.priority)
     return plugins
 
 def load_generic_genome_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.generic_genome_modules'))
-    plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
+    plugins = list(load('antismash.generic_genome_modules'))
+    plugins.sort(key=lambda x: x.priority)
+
     return plugins
 
 def fetch_entries_from_ncbi(efetch_url):
@@ -1365,12 +1308,12 @@ def fetch_entries_from_ncbi(efetch_url):
         try:
             nrtries += 1
             time.sleep(3)
-            req = urllib2.Request(efetch_url)
-            response = urllib2.urlopen(req)
+            req = urllib.request.Request(efetch_url)
+            response = urllib.request.urlopen(req)
             output = response.read()
             if len(output) > 5:
                 urltry = "y"
-        except (IOError,httplib.BadStatusLine,URLError,httplib.HTTPException):
+        except (IOError,http.client.BadStatusLine,URLError,http.client.HTTPException):
             logging.error("Entry fetching from NCBI failed. Waiting for connection...")
             time.sleep(5)
     return output
@@ -1404,7 +1347,7 @@ def fix_wgs_master_record(seq_record):
                 nrzeros += 1
             else:
                 break
-        contigrange = [alpha_tag + nrzeros * "0" + str(number) for number in xrange(int(startnumber), int(endnumber))]
+        contigrange = [alpha_tag + nrzeros * "0" + str(number) for number in range(int(startnumber), int(endnumber))]
         allcontigs.extend(contigrange)
     #Create contig groups of 50 (reasonable download size per download)
     nr_groups = len(allcontigs) / 50 + 1
@@ -1425,7 +1368,7 @@ def fix_wgs_master_record(seq_record):
         try:
             handle = StringIO(output)
             updated_seq_records.extend(list(SeqIO.parse(handle, 'genbank')))
-        except ValueError, e:
+        except ValueError as e:
             logging.error('Parsing %r failed: %s', "temporary contig file", e)
     return updated_seq_records
 
@@ -1562,7 +1505,7 @@ def add_translations(seq_records):
                     import Bio.Data.CodonTable
                     try:
                         translation = str(utils.get_aa_translation(seq_record, cdsfeature))
-                    except Bio.Data.CodonTable.TranslationError, e:
+                    except Bio.Data.CodonTable.TranslationError as e:
                         logging.error('Getting amino acid sequences from %s, CDS %r failed: %s',
                                 seq_record.name, cdsfeature.id, e)
                         sys.exit(1)
@@ -1614,7 +1557,7 @@ def fix_id_lines(options, filename):
 
     try:
         filetype = seqio._get_seqtype_from_ext(filename)
-    except ValueError, e:
+    except ValueError as e:
         logging.debug("Got ValueError %s trying to guess the file format", e)
         return filename
 
@@ -1679,13 +1622,13 @@ def parse_input_sequences(options):
             if len(record_list) == 0:
                 logging.error('No sequence in file %r', filename)
             sequences.extend(record_list)
-        except ValueError, e:
+        except ValueError as e:
             logging.error('Parsing %r failed: %s', filename, e)
             sys.exit(1)
-        except AssertionError, e:
+        except AssertionError as e:
             logging.error('Parsing %r failed: %s', filename, e)
             sys.exit(1)
-        except Exception, e:
+        except Exception as e:
             logging.error('Parsing %r failed with unhandled exception: %s',
                           filename, e)
             sys.exit(1)
@@ -1782,7 +1725,7 @@ def parse_input_sequences(options):
                         continue
                 if len(concat_seq_text) > 1:
                     concat_seq_text += "TGA-TGA--TGA" # 3-frames stop codon to prevent cross-contig gene prediction
-                    for ix in xrange(0, 30): # create gaps to separate between contigs
+                    for ix in range(0, 30): # create gaps to separate between contigs
                         concat_seq_text += "-"
                 s_pos = len(concat_seq_text)
                 concat_seq_text += "%s" % sequence.seq
@@ -1796,7 +1739,7 @@ def parse_input_sequences(options):
             for det_gene in utils.get_cds_features(concat_seq): # pass the annotations back into the sequences
                 gene_start = det_gene.location.start
                 gene_end = det_gene.location.end
-                for ci in xrange(0, len(concated_seq_loc)):
+                for ci in range(0, len(concated_seq_loc)):
                     s_pos, e_pos = concated_seq_loc[ci]
                     if (e_pos >= gene_start >= s_pos) and (e_pos >= gene_end >= s_pos):
                         det_gene.location = FeatureLocation((gene_start - s_pos), (e_pos - gene_end))
@@ -1897,7 +1840,7 @@ def parse_input_sequences(options):
                             if hsp.bitscore > sig[2]:
                                 if len(sig[0].split("/")) > 1:
                                     hsp.query_id = sig[0].split("/")[0] + "/" + hsp.query_id
-                                if not results_by_id.has_key(hsp.hit_id):
+                                if hsp.hit_id not in results_by_id:
                                     results_by_id[hsp.hit_id] = [hsp]
                                 else:
                                     results_by_id[hsp.hit_id].append(hsp)
@@ -1915,7 +1858,7 @@ def parse_input_sequences(options):
                     if hsp.bitscore > sig[2]:
                         if len(sig[0].split("/")) > 1:
                             hsp.query_id = sig[0].split("/")[0] + "/" + hsp.query_id
-                        if not results_by_id.has_key(hsp.hit_id):
+                        if hsp.hit_id not in results_by_id:
                             results_by_id[hsp.hit_id] = [hsp]
                         else:
                             results_by_id[hsp.hit_id].append(hsp)
@@ -1928,7 +1871,7 @@ def parse_input_sequences(options):
     #Remove records without potential hits, checked by HMMer - saves time for inputs with many contigs
     contigs_hits = check_signature_gene_presence(sequences, options)
     new_sequences = []
-    for idx in xrange(len(sequences)):
+    for idx in range(len(sequences)):
         if len(contigs_hits[idx]) > 0:
             new_sequences.append(sequences[idx])
     del contigs_hits
@@ -2065,7 +2008,7 @@ def check_signature_gene_presence(seq_records, options):
     logging.info('Checking gene clusters for presence of profile hits using HMM library')
     #Identify contigs with HMM hits
     contigs_hits = []
-    for idx in xrange(len(seq_records)):
+    for idx in range(len(seq_records)):
         contigs_hits.append([])
         seq_record = seq_records[idx]
         for feature in utils.get_cds_features(seq_record):

@@ -617,7 +617,7 @@ def create_clusterblast_svg(options, seq_record, screenwidth, searchtype="genera
         qclusternr = utils.get_cluster_number(genecluster)
 #        print "Dumping queryclusterdata"
 #        pprint.pprint(queryclusterdata)
-        hitclusters = range(queryclusterdata[qclusternr][0] + 1)[1:]
+        hitclusters = list(range(queryclusterdata[qclusternr][0] + 1))[1:]
         #Create svgs for pairwise gene cluster alignment
         colorschemedict,rgbcolorscheme = calculate_colorgroups(qclusternr, hitclusters, queryclusterdata, seq_record.internalhomologygroupsdict)
         for k in hitclusters:
@@ -719,11 +719,11 @@ def calculate_colorgroups(queryclusternumber,hitclusternumbers,queryclusterdata,
         for j in metacolorgroups:
             if i in j:
                 for l in j:
-                    if colorschemedict.has_key(l):
+                    if l in colorschemedict:
                         pass
                     else:
                         colorschemedict[l] = z
-        if z in colorschemedict.values():
+        if z in list(colorschemedict.values()):
             z += 1
     return colorschemedict,rgbcolorscheme
 
@@ -761,7 +761,7 @@ def generate_genecoords(strandsbalancedict, queryclustergenes, queryclustergenes
             qstarts.append(qgenedata[1])
             qends.append(qgenedata[0])
         qstrands.append(qgenedata[2])
-        if colorschemedict.has_key(i):
+        if i in colorschemedict:
             qcolors.append(colorschemedict[i])
         else:
             qcolors.append("white")
@@ -785,7 +785,7 @@ def generate_genecoords(strandsbalancedict, queryclustergenes, queryclustergenes
                 hstarts.append(hgenedata[1])
                 hends.append(hgenedata[0])
             hstrands.append(hgenedata[2])
-            if colorschemedict.has_key(i):
+            if i in colorschemedict:
                 hcolors.append(colorschemedict[i])
             else:
                 hcolors.append("white")
@@ -949,7 +949,7 @@ def clusterblast_gene_arrows(s, qnrgenes, qdata, hdata, rgbcolorscheme, queryclu
             arrow.setAttribute('locus_tag', hitclustergenes[x])
             start, end, strand, desc, hitgene_acc = hitclustergenesdetails[hitclustergenes[x]]
             description_string = '%s[br]Location: %s - %s' % (desc, start, end)
-            if hits_accessions_dict.has_key(hitclustergenes[x]):
+            if hitclustergenes[x] in hits_accessions_dict:
                 querygenes = hits_accessions_dict[hitclustergenes[x]]
                 for querygene in querygenes:
                     evalue, bitscore, pid, pcov = blastdetailsdict[querygene + "_|_|_" + hitclustergenes[x]]

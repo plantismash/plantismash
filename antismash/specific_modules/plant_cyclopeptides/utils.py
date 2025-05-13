@@ -19,9 +19,9 @@ from os import path
 import subprocess
 import string
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 from argparse import Namespace
 import warnings
 # Don't display the SearchIO experimental warning, we know this.
@@ -41,6 +41,7 @@ try:
 except ImportError:
     USE_BIOSQL = False
 import argparse
+
 
 class Storage(dict):
     """Simple storage class"""
@@ -379,7 +380,7 @@ def get_sorted_cluster_features(seq_record):
     numberdict = {}
     for cluster in clusters:
         numberdict[get_cluster_number(cluster)] = cluster
-    return [numberdict[clusternr] for clusternr in numberdict.keys()]
+    return [numberdict[clusternr] for clusternr in list(numberdict.keys())]
 
 def get_structure_pred(cluster):
     "Return all structure prediction for a cluster feature"
@@ -452,19 +453,26 @@ def execute(commands, input=None):
 
     if input is not None:
         stdin_redir = subprocess.PIPE
+        # Ensure input is encoded to bytes
+        if isinstance(input, str):
+            input = input.encode("utf-8")
     else:
         stdin_redir = None
 
     try:
         proc = subprocess.Popen(commands, stdin=stdin_redir,
                                 stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stderr=subprocess.PIPE,
+                                text=False)
+        # Debug statement to check input type and length
+        print(f"DEBUG: Input type: {type(input)}, Input length: {len(input) if input else 0}")
         out, err = proc.communicate(input=input)
         retcode = proc.returncode
-        return out, err, retcode
-    except OSError, e:
+        return out.decode("utf-8"), err.decode("utf-8"), retcode
+    except OSError as e:
         logging.debug("%r %r returned %r", commands, input[:40] if input is not None else None, e)
         raise
+
 # pylint: enable=redefined-builtin
 
 def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
@@ -499,7 +507,11 @@ def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
             command.insert(1, str(cutoff))
             command.insert(1, "--domT")
     try:
-        out, err, retcode = execute(command, input=target_sequence)
+        # Ensure target_sequence is encoded to bytes before passing to execute
+        target_sequence_bytes = target_sequence.encode("utf-8") if isinstance(target_sequence, str) else target_sequence
+        print(f"DEBUG: target_sequence type before encoding: {type(target_sequence)}, length: {len(target_sequence) if target_sequence else 0}")
+
+        out, err, retcode = execute(command, input=target_sequence_bytes)
     except OSError:
         return []
     if retcode != 0:
@@ -913,13 +925,13 @@ def writefasta(names, seqs, filename):
     out_file.close()
 
 def sortdictkeysbyvaluesrev(indict):
-    items = [(value, key) for key, value in indict.items()]
+    items = [(value, key) for key, value in list(indict.items())]
     items.sort()
     items.reverse()
     return [key for value, key in items]
 
 def sortdictkeysbyvaluesrevv(indict):
-    values = indict.values()
+    values = list(indict.values())
     values.sort()
     values.reverse()
     return values
@@ -1041,7 +1053,7 @@ def get_geotable_json(features):
 
     for data in data_buffer:
         if len(result[data[0]]["data"]["nodes"][data[2]]["features"]) == 0:
-            for i in xrange(0, len(result[data[0]]["data"]["feature_names"])):
+            for i in range(0, len(result[data[0]]["data"]["feature_names"])):
                 result[data[0]]["data"]["nodes"][data[2]]["features"].append(None)
         result[data[0]]["data"]["nodes"][data[2]]["features"][result[data[0]]["data"]["feature_names"].index(data[1])] = data[3]
 
@@ -1356,13 +1368,13 @@ def get_pct_identity_table(features):
     pct_values = {}
     for cds in features:
         cur_gene = get_gene_id(cds)
-        if not cur_gene in pct_values.keys():
+        if not cur_gene in list(pct_values.keys()):
             pct_values[cur_gene] = {}
         for othercds in [feature for feature in features if feature != cds]:
             other_gene = get_gene_id(othercds)
-            if not other_gene in pct_values[cur_gene].keys():
-                if other_gene in pct_values.keys():
-                    if cur_gene in pct_values[other_gene].keys():
+            if not other_gene in list(pct_values[cur_gene].keys()):
+                if other_gene in list(pct_values.keys()):
+                    if cur_gene in list(pct_values[other_gene].keys()):
                         pct_values[cur_gene][other_gene] = pct_values[other_gene][cur_gene]
                         continue
                 pct_values[cur_gene][other_gene] = get_percentage_identity(cds, othercds)
@@ -1382,7 +1394,7 @@ if USE_BIOSQL:
         # connect to namespace for full genomes (dbgenomesnamespace)
         try:
             myDB.connect(namespace=options.BioSQLconfig.dbgenomenamespace)
-        except Exception, e:
+        except Exception as e:
             logging.exception("Could not connect to database %s, namespace %s : %s",
                               options.BioSQLconfig.dbdb, options.BioSQLconfig.dbgenomenamespace, e)
             return False

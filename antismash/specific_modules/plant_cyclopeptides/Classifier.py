@@ -1,7 +1,7 @@
 #import IO.seqparse as sp
 import re
 import sys
-print(sys.path)
+print((sys.path))
 from antismash import utils 
 #The filepath for the known motifs file
 #filepath = "./plantismash/antismash/specific_modules/plant_cyclopeptides/known_motifs.txt"
@@ -127,10 +127,10 @@ def check_known_classes(feat):
             pattern_instances.append(m.start())
         
         #print "pattern occurrences %s and instances %s, key is %s" %(str(pattern_occurrences),str(pattern_instances),key) 
-        if mlen is not 0: 
+        if mlen != 0:
             qualdict[pattern] = pattern_instances
         
-    if len(qualdict) is not 0: 
+    if len(qualdict) != 0:
         feat.qualifiers["ripp_evidence"] = qualdict
     else:
         feat.qualifiers["ripp_evidence"] = {}
@@ -156,7 +156,7 @@ def get_known_classes_from_file(filepath):
 
 def classify_ripp(feat):
 
-    print 'p'
+    print('p')
 
     #define AA into classes DONE
     #check if it is a ripp SEMI_DONE
@@ -183,5 +183,5 @@ if __name__ == "__main__":
     known_dict = get_known_classes_from_file("known_motifs.txt")
 
     for k in known_dict:
-        print k
-        print known_dict[k]
+        print(k)
+        print(known_dict[k])

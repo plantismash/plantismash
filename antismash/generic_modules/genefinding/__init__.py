@@ -20,10 +20,10 @@ from os import path
 from os import listdir
 from antismash import utils
 from antismash.utils import locate_executable
-from all_orfs import find_all_orfs
-from run_glimmerhmm import run_glimmerhmm
-from run_glimmer import run_glimmer
-from run_prodigal import run_prodigal
+from .all_orfs import find_all_orfs
+from .run_glimmerhmm import run_glimmerhmm
+from .run_glimmer import run_glimmer
+from .run_prodigal import run_prodigal
 
 name = "genefinding"
 short_description = name.capitalize()

@@ -34,7 +34,7 @@ except ImportError:
 import sys
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -63,7 +63,7 @@ class extradata(object):
                                       password=options.BioSQLconfig.dbpass,
                                       host=options.BioSQLconfig.dbhost,
                                       port=options.BioSQLconfig.dbport)
-        except Exception, e:
+        except Exception as e:
             logging.exception("failed to connect to database!")
             raise e
 
@@ -77,7 +77,7 @@ class extradata(object):
     def close(self):
         try:
             del self.dbconn
-        except Exception, e:
+        except Exception as e:
             logging.warning("could not close database connection: %s!", e)
 
     def check_SeqID(self, genbank_id, secondary_id):

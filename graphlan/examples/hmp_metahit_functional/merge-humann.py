@@ -13,8 +13,8 @@ if __name__ == "__main__":
         argv[5]
         argv[6]
     except:
-        print "Usage error!"
-        print "$ python merge_humann.py <in_hmp> <skip_rows_hmp> <in_metahit> <skip_rows_metahit> <metahit_map> <out_file>"
+        print("Usage error!")
+        print("$ python merge_humann.py <in_hmp> <skip_rows_hmp> <in_metahit> <skip_rows_metahit> <metahit_map> <out_file>")
         exit(1)
 
     infile1 = str(argv[1])

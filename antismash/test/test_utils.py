@@ -131,7 +131,7 @@ class TestUtils(unittest2.TestCase):
         "Test utils.get_feature_dict()"
         fd = utils.get_feature_dict(self.rec)
         ids = [f.qualifiers['locus_tag'][0] for f in self.rec.features if f.type == "CDS"]
-        keys = fd.keys()
+        keys = list(fd.keys())
         ids.sort()
         keys.sort()
         self.assertListEqual(ids, keys)

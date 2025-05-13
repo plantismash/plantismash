@@ -18,7 +18,7 @@
 
 import sys
 from os import path
-import ConfigParser
+import configparser
 from argparse import Namespace
 
 _config = None
@@ -37,7 +37,7 @@ def load_config(namespace):
     instance_file = path.join(_basedir, _instance_file_name)
 
     # load generic configuration settins
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     with open(default_file, 'r') as fp:
         config.readfp(fp)
 
