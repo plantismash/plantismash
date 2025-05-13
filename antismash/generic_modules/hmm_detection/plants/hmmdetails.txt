@@ -1,21 +1,9 @@
 cMT	cMT	-1	cMT.hmm
 nMT	nMT	-1	nMT.hmm
 oMT	oMT	-1	oMT.hmm
-adh	adh	-1	adh_short.hmm
-t3pksc	t3pksc	-1	Chal_sti_synt_C.hmm
-t3pksn	t3pksn	-1	Chal_sti_synt_N.hmm
-coest	coest	-1	COesterase.hmm
-glyco28	glyco28	-1	Glyco_transf_28.hmm
-glyco1	glyco1	-1	Glycos_transf_1.hmm
-glyco2	glyco2	-1	Glycos_transf_2.hmm
-lycop	lycop	-1	Lycopene_cycl.hmm
-nad	nad	-1	NAD_binding_1.hmm
 p450	p450	-1	p450.hmm
 SQHop_cyclase_C	Squalene-hopene cyclase C-terminal domain	-1	SQHop_cyclase_C.hmm
 SQHop_cyclase_N	pren2	-1	SQHop_cyclase_N.hmm
-pren	pren	-1	Prenyltrans.hmm
-terpsyn_c	terpsyn_c	-1	Terpene_synth_C.hmm
-terpsyn	terpsyn	-1	Terpene_synth.hmm
 Transferase	Transferase family	-1	Transferase.hmm
 Bet_v_1	Bet v I allergen	-1	Bet_v_1.hmm
 Cu_amine_oxid	Copper-amine oxidase	-1	Cu_amine_oxid.hmm
