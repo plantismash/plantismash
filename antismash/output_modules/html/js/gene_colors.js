@@ -30,10 +30,13 @@ var gene_colors = [
   { label: "pyridoxal synthase", color: "#a8eeab", members : ["plants/YjeF_N", "plants/Pyridox_oxidase", "plants/PNPOx_C"] },
   { label: "pyridoxal-dependent Amino acid decarboxylase", color: "#FFC300", members : ["plants/Orn_Arg_deC_N", "plants/Orn_DAP_Arg_deC", "plants/Pyridoxal_deC"] },
   { label: "Amino acid Dehydrogenase", color: "#FFC300", members : ["plants/PALP", "plants/Thr_dehydrat_C", "plants/E1_dh"] },
-  { label: "Transporter", color: "#0abaef", members : ["plants/MatE"] },
-  { label: "hydrolase", color: "#1040ef", members : ["plants/Abhydrolase_3"] },
+  { label: "Transporter", color: "#0abaef", members : ["plants/MatE", "plants/LTP_2", "plants/ABC2_membrane", "plants/ABC_tran"] },
+  { label: "Hydrolase", color: "#1040ef", members : ["plants/Abhydrolase_3"] },
   { label: "Glycosyl hydrolase", color: "#1040ef", members : ["plants/Glyco_hydro_1"] },
-  { label: "peptide cyclases", color: "#05f5ce", members : ["plants/BURP"] }
+  { label: "Peptide cyclases", color: "#05f5ce", members : ["plants/BURP"] }, 
+  { label: "Male sterility protein", color: "#FF6E54", members : ["plants/NAD_binding_4"] },
+  { label: "FAE1/Type III polyketide synthase-like protein", color: "#7C29F0", members : ["plants/FAE1_CUT1_RppA"] },
+  { label: "Glycerol-3-phosphate acyltransferase RAM2-like, HAD-like domain", color: "#2EB67D", members : ["plants/HAD_RAM2_N"] }
 ];
 
 function get_gene_color(orf) {
