@@ -9,8 +9,15 @@ tags
 .idea/
 /antismash/generic_modules/fullhmmer/Pfam-A.hmm
 test_datasets/
-__pycache__/
+# Ignore clusterBLAST database files 
 plantgeneclusters.txt
 plantgeneclusterprots.fasta
 plantgeneclusterprots.dmnd
+# Ignore all .hmm downloaded files in hmm_detection and subdirs
+antismash/generic_modules/hmm_detection/**/*.hmm
+# But don't ignore any in the plants subdirectory
+!antismash/generic_modules/hmm_detection/plants/*.hmm
+# Ignore environment and editor-specific files
+.python-version
 *.vscode
+__pycache__/
