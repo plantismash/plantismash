@@ -19,7 +19,7 @@ from antismash.common.secmet.locations import (
     location_contains_other,
 )
 
-from .tfbs_finder import Confidence, TFBSFinderResults
+from .tfbs_detection import Confidence, TFBSFinderResults
 
 
 AMBIGUITY_BASES = {

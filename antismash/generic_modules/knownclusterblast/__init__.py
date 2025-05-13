@@ -62,9 +62,6 @@ def check_prereqs(options):
 
     return failure_messages
 
-
-    return failure_messages
-
 def run_knownclusterblast(seq_record, options):
     logging.info('Running known cluster search')
     knownclusterblastvars = utils.Storage()

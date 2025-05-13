@@ -52,7 +52,7 @@ from antismash.generic_modules import (
     coexpress,
     gff_parser,
     subgroup, 
-    tfbs_finder,
+    tfbs_finder
 )
 try:
     from antismash.db.biosql import get_record
@@ -214,11 +214,15 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a prepared Expression data.")
-    group.add_argument('--tfbs',
+    group.add_argument('--tfbs-detection',
                    dest='tfbs',
                    action='store_true',
                    default=False,
                    help="Run transcription factor binding site (TFBS) prediction.")
+    group.add_argument('--tfbs-pvalue', dest='tfbs_pvalue', type=float, default=None,
+                   help="TFBS p-value cutoff (default from config)")
+    group.add_argument('--tfbs-range', dest='tfbs_range', type=int, default=None,
+                    help="Range around clusters to scan for TFBS (default from config)")
     group.add_argument('--disable_subgroup',
                        dest='disable_subgroup',
                        action='store_true',
@@ -633,6 +637,10 @@ def main():
     #Load configuration data from config file
     load_config(options)
     set_config(options)
+
+    # Unpack TFBS config section into top-level options
+    options.tfbs_pvalue = getattr(options, "tfbs_pvalue", 1e-4)
+    options.tfbs_range = getattr(options, "tfbs_range", 1000)
 
     # set up standard DB namespace
     options.dbnamespace = options.BioSQLconfig.dbgenomenamespace

@@ -19,7 +19,6 @@ dependencies:
   - pplacer
   - ncbi-datasets-cli
   - unzip
-  - helperlibs 
   - biopython==1.76
 
  # Extras for TFBS and visualization
@@ -41,5 +40,6 @@ dependencies:
       - bcbio-gff==0.6.7
       - ete3
       - ./graphlan
+      # TFBS specific dependencies
       - MOODS-python
 
