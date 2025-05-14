@@ -5,8 +5,10 @@ PlantiSMASH - Plant Secondary Metabolites Analysis Shell
 
 ## 📚 Documentation & Wiki
 
-- 🔍 **User documentation**: [plantismash.github.io/documentation](https://plantismash.github.io/documentation/)
+- 🔍 **User documentation**: [plantismash.github.io/documentation](https://plantismash.github.io/documentation/) 
+- 🔧 **Installation manual**: available in the [documentation](https://plantismash.github.io/documentation/install/)
 - 🧠 **Developer & technical wiki**: [GitHub Wiki](https://github.com/plantismash/plantismash/wiki)
+
 
 ---
 
@@ -38,3 +40,10 @@ Interested in contributing or reporting bugs? See our [contributing guidelines](
 ## ✉️ Contact
 
 For questions, suggestions, or collaborations, feel free to contact the maintainers via GitHub or reach out to the [plantiSMASH team](mailto:plantismash@bioinformatics.nl).
+
+---
+
+## Acknowledgements
+----------------
+
+Some icons used courtesy of fontawesome.com

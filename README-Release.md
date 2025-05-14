@@ -1,7 +1,7 @@
-antiSMASH release process
+PlantiSMASH release process
 =========================
 
-This file documents the release process of antiSMASH.
+This file documents the release process of plantiSMASH.
 
 
 Preparation work
@@ -15,7 +15,7 @@ from previous versions.
 What version number will the new release get?
 ---------------------------------------------
 
-antiSMASH is using [semantic versioning](http://semver.org/). Unfortunately,
+PlantiSMASH is using [semantic versioning](http://semver.org/). Unfortunately,
 semantic versioning focuses on libaries and other things that present APIs,
 making it an imperfect match for antiSMASH.
 
@@ -35,15 +35,15 @@ Tag the actual release
 
 * Make sure the `CONTRIBUTORS` file is up-to-date. Update and commit if
   necessary.
-* Update the version number in `antismash/__init__.py` and commit.
+* Update the version number in `antismash/__init__.py` and commit. You can check what is the current specified version by running `python run_antismash.py -h`. This will automatically update the version specified in the 
 * Grab a list of detailed changes using `git shortlog <last-release-tag>.. >
   changes.txt`
 * Edit `changes.txt` to add some release notes on top.
 * Tag the release using `git tag -s -F changes.txt
-  antismash-<MAJOR>-<MINOR>-<PATCH>`, filling in the correct values for MAJOR,
+  plantismash-<MAJOR>-<MINOR>-<PATCH>`, filling in the correct values for MAJOR,
   MINOR and PATCH, of course.
-* Push the changes to bitbucket `git push origin master && git push origin
-  master --tags`
+* The releases are automatically tracked in [Zenodo](https://zenodo.org)
+
 
 
 Post-push work

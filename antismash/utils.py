@@ -92,7 +92,7 @@ def getArgParser():
         def format_help(self):
             """Custom help format"""
             help_text = """
-########### antiSMASH ver. {version} #############
+########### plantiSMASH ver. {version} #############
 
 {usage}
 
