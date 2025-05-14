@@ -192,7 +192,7 @@ def main():
                        dest='update_clusterblast',
                        action='store_true',
                        default=False,
-                       help="update the database of antiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta, plantgeneclusterprots.dmnd) using this time found clusters.")
+                       help="update the database of plantiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta, plantgeneclusterprots.dmnd) using this time found clusters.")
     group.add_argument('--clusterblastdir',
                        dest='clusterblastdir',
                        type=str,
