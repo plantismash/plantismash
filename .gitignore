@@ -21,3 +21,5 @@ antismash/generic_modules/hmm_detection/**/*.hmm
 .python-version
 *.vscode
 __pycache__/
+# Ignore results directory 
+results/
