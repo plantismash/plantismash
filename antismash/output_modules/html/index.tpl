@@ -240,7 +240,7 @@ function update_legends() {
 			["other", "other genes"]
 		];
 		for (var i = 0; i < borders.length; i++) {
-			var div = $("<div style='width: 20em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
+			var div = $("<div style='width: 25em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
 			div.append("<div class='legend-field legend-type-" + borders[i][0] + "' style='float: left;'/>");
 			div.append("<div class='legend-label' style='float: left;'>" + borders[i][1] + "</div>");
 			$(this).append(div);
