@@ -1349,9 +1349,16 @@ def get_percentage_identity(feature_1, feature_2):
         fasta_file1 = os.path.join(temp_dir, "temp1.fasta")
         fasta_file2 = os.path.join(temp_dir, "temp2.fasta")
         
+        # use the shared helpers to write the FASTA files
+        ids1 = get_gene_id(feature_1)
+        ids2 = get_gene_id(feature_2)
+        seq1 = get_aa_sequence(feature_1)
+        seq2 = get_aa_sequence(feature_2)
         with open(fasta_file1, "w") as f1, open(fasta_file2, "w") as f2:
-            f1.write(f">{feature_1.qualifiers['locus_tag'][0]}\n{feature_1.qualifiers['translation'][0]}\n")
-            f2.write(f">{feature_2.qualifiers['locus_tag'][0]}\n{feature_2.qualifiers['translation'][0]}\n")
+            f1.write(f">{ids1}\n{seq1}\n")
+            f2.write(f">{ids2}\n{seq2}\n")
+            
+        # execute blastp command
         
         command = ["blastp", "-query", fasta_file1, "-subject", fasta_file2, "-outfmt", "6 pident"]
         try:
