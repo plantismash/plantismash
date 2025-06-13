@@ -49,9 +49,17 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
     for r in result_list:
         output_html += output.write_result_summary(r)
 
-    details.append(pq(output_html))
+    # —— guard against empty HTML ——  
+    if not output_html or not output_html.strip():
+        logging.warning(
+            "plant_cyclopeptides: no summary HTML produced for record %s cluster %s",
+            seq_record.id, cluster['idx']
+        )
+    else:
+        details.append(pq(output_html))
 
     return details
+
 
 def generate_sidepanel(cluster, seq_record, options, sidepanel=None):
     """No sidepanel output for cyclopeptide repeatfinder."""
