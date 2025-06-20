@@ -43,6 +43,7 @@ Tag the actual release
   plantismash-<MAJOR>-<MINOR>-<PATCH>`, filling in the correct values for MAJOR,
   MINOR and PATCH, of course.
 * The releases are automatically tracked in [Zenodo](https://zenodo.org)
+* Make sure to tag the right version of the changelog for the detection rules in the script `antismash/output_modules/html/generator.py` function `add_overview_entry`. E.g., "https://plantismash.github.io/documentation/changelog/2.0/#supported-cluster-types-version-2"
 
 
 
@@ -92,15 +93,6 @@ push it to the Docker Hub by using `docker push antismash/standalone && docker
 push antismash/standalone:<VERSION>`.
 
 Then, repeat the process for the other container builds.
-
-### Update the download page
-
-In the `antismash/websmash.git` repository on bitbucket, update all relevant
-download links in `websmash/templates/download.html`. Make sure to also adjust
-the tests to check for the new release string. Run `nosetests -v` to make sure
-you got everything right.
-
-Push your changes, and pull from the webserver to roll out the new version.
 
 ### Send the release announcement to the mailing list
 
