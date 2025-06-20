@@ -176,7 +176,7 @@ def add_overview_entry(d, cluster, odd):
         a = pq('<a>')
         a.attr('href', "http://antismash.secondarymetabolites.org/help#{}".format(subtype))
         if (config.taxon == "plants"):
-            a.attr('href', "http://plantismash.secondarymetabolites.org/help#{}".format(subtype))
+            a.attr('href', "https://plantismash.github.io/documentation/changelog/2.0/#supported-cluster-types-version-2")
         a.attr('target', '_blank')
         a.text(subtype.capitalize())
         td.append(a)
