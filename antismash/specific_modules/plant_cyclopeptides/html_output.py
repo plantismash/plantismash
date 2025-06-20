@@ -51,7 +51,7 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
 
     # —— guard against empty HTML ——  
     if not output_html or not output_html.strip():
-        logging.warning(
+        logging.debug(
             "plant_cyclopeptides: no summary HTML produced for record %s cluster %s",
             seq_record.id, cluster['idx']
         )
