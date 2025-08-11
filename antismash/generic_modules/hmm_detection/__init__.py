@@ -80,13 +80,28 @@ def check_prereqs():
                                         (model_name, lineno, line))
             lineno += 1
 
-        #Check if cluster_rules.txt is readable and well-formatted
-        lineno = 1
-        for line in open(path.join(dir_path, "cluster_rules.txt"),"r"):
-            if line.count("\t") != 3:
-                failure_messages.append("Failed to use cluster rules %s from the line %s due to misformatting:\n %r" %
-                                        (model_name, lineno, line))
-            lineno += 1
+        # Check cluster_rules.txt in the MODEL directory (e.g., plants/cluster_rules.txt)
+        rules_dir = path.dirname(path.abspath(__file__))
+        if hmm_model != "default":
+            rules_dir = path.join(rules_dir, hmm_model)
+        cluster_rules_path = path.join(rules_dir, "cluster_rules.txt")
+
+        try:
+            lineno = 1
+            with open(cluster_rules_path, "r") as f:
+                for line in f:
+                    if lineno == 1:
+                        lineno += 1
+                        continue  # skip legend/header
+                    if line.strip() and line.count("\t") < 3:
+                        failure_messages.append(
+                            "Failed to use cluster rules %s from line %s due to misformatting:\n %r" %
+                            (model_name or "(default)", lineno, line))
+                    lineno += 1
+            logging.info("cluster rules file found in directory %s", cluster_rules_path)
+        except IOError as e:
+            failure_messages.append("Could not read cluster rules at %s: %s" % (cluster_rules_path, e))
+
 
     profiles_found = False  # Track if any profiles exist
 
@@ -116,17 +131,33 @@ def get_supported_detection_models():
 
 
 def get_supported_cluster_types():
-    "Get a list of all supported cluster types"
-    clustertypes = [line.split("\t")[0] for line in open(utils.get_full_path(__file__, 'cluster_rules.txt'), "r")][1:]
-    # TODO: Iterating across all directories is not needed, as plants is the only supported type 
-    for fname in listdir(path.dirname(path.abspath(__file__))):
-       # Skip the __pycache__ directory
-        if fname == "__pycache__":
+    "Get a list of all supported cluster types."
+    cfg = config.get_config()
+    base_dir = path.dirname(path.abspath(__file__))
+
+    clustertypes = []
+
+    for hmm_model in getattr(cfg, "enabled_detection_models", []):
+        rules_dir = base_dir
+        prefix = ""
+        if hmm_model and hmm_model != "default":
+            rules_dir = path.join(base_dir, hmm_model)
+            prefix = hmm_model + "/"
+
+        rules_path = path.join(rules_dir, "cluster_rules.txt")
+        try:
+            with open(rules_path, "r") as f:
+                for i, line in enumerate(f):
+                    if i == 0:
+                        continue  # skip header
+                    name = line.split("\t")[0].strip()
+                    if not name:
+                        continue
+                    clustertypes.append(prefix + name)
+        except IOError:
+            # check_prereqs() will already report a clear error if missing
             continue
 
-        dir_path = path.join(path.dirname(path.abspath(__file__)), fname)
-        if path.isdir(dir_path):
-            clustertypes.extend([(fname + "/" + line.split("\t")[0]) for line in open(path.join(dir_path, "cluster_rules.txt"), "r")][1:])
     return clustertypes
 
 
@@ -380,31 +411,37 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
 def create_rules_dict(enabled_clustertypes):
     "Create a cluster rules dictionary from the cluster rules file"
     rulesdict = {}
-    first = True
     cfg = config.get_config()
-    
+    base_dir = path.dirname(path.abspath(__file__))
+
     for hmm_model in cfg.enabled_detection_models:
-        dir_path = path.dirname(path.abspath(__file__))
+        rules_dir = base_dir
         prefix = ""
         if hmm_model != "default":
-            dir_path = path.join(dir_path, hmm_model)
+            rules_dir = path.join(base_dir, hmm_model)
             prefix = hmm_model + "/"
-        #TODO: We should move all user-customizable files into config subdirectory; the rulefiles are redundant also in hmm_detection_dblookup
-        for line in open(path.join(dir_path, "cluster_rules.txt"),"r"):
-            # skip the first line with the legend
-            if first:
-                first = False
-                continue
-            parts = line.split('\t')
-            if len(parts) < 3:
-                continue
-            key = prefix + parts.pop(0)
-            if key not in enabled_clustertypes:
-                continue
-            rules = parts.pop(0)
-            cutoff = int(float(parts.pop(0)) * 1000.00 * cfg.cutoff_multiplier)
-            extension = int(float(parts.pop(0)) * 1000.00 * cfg.cutoff_multiplier)
-            rulesdict[key] = (rules, cutoff, extension)
+
+        rules_path = path.join(rules_dir, "cluster_rules.txt")
+        try:
+            with open(rules_path, "r") as f:
+                for i, line in enumerate(f):
+                    if i == 0:
+                        continue  # skip header per file
+                    parts = line.strip().split('\t')
+                    if len(parts) < 4:
+                        continue
+                    name, rules, cutoff_s, ext_s = parts[0], parts[1], parts[2], parts[3]
+                    key = prefix + name
+                    if key not in enabled_clustertypes:
+                        continue
+                    cutoff = int(float(cutoff_s) * 1000.00 * cfg.cutoff_multiplier)
+                    extension = int(float(ext_s) * 1000.00 * cfg.cutoff_multiplier)
+                    rulesdict[key] = (rules, cutoff, extension)
+
+            logging.info("Cluster rules file read from: %s", rules_path)
+        except IOError as e:
+            logging.error("Failed to read cluster rules at %s: %s", rules_path, e)
+
     return rulesdict
 
 def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps, options):
@@ -419,6 +456,11 @@ def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rule
             _type = typedict[cds]
         cdsresults = [res.query_id for res in results_by_id[cds]]
         for clustertype in [ct for ct in enabled_clustertypes if ct not in _type.split("-")]:
+            if clustertype not in rulesdict:
+                logging.warning("Skipping unknown clustertype %s; available: %s",
+                                clustertype, ", ".join(sorted(rulesdict.keys())))
+                continue
+
             prefix = ""
             if len(clustertype.split("/")) > 1:
                 prefix = clustertype.split("/")[0] + "/"
