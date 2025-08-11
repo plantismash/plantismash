@@ -21,6 +21,8 @@ dependencies:
   - unzip
   - helperlibs 
   - biopython==1.76
+  - pytest 
+  - tqdm
   # Pip dependencies
   - pip
   - pip:
