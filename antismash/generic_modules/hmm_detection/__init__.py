@@ -408,8 +408,8 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
 
     return results, results_by_id
 
-def create_rules_dict(enabled_clustertypes):
-    "Create a cluster rules dictionary from the cluster rules file"
+def create_rules_dict():
+    "Create a cluster rules dictionary from the cluster rules file (load ALL rules)"
     rulesdict = {}
     cfg = config.get_config()
     base_dir = path.dirname(path.abspath(__file__))
@@ -423,39 +423,45 @@ def create_rules_dict(enabled_clustertypes):
 
         rules_path = path.join(rules_dir, "cluster_rules.txt")
         try:
+            total = kept = bad = 0
             with open(rules_path, "r") as f:
                 for i, line in enumerate(f):
                     if i == 0:
                         continue  # skip header per file
-                    parts = line.strip().split('\t')
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split('\t')
                     if len(parts) < 4:
+                        bad += 1
                         continue
                     name, rules, cutoff_s, ext_s = parts[0], parts[1], parts[2], parts[3]
                     key = prefix + name
-                    if key not in enabled_clustertypes:
-                        continue
                     cutoff = int(float(cutoff_s) * 1000.00 * cfg.cutoff_multiplier)
                     extension = int(float(ext_s) * 1000.00 * cfg.cutoff_multiplier)
                     rulesdict[key] = (rules, cutoff, extension)
-
-            logging.info("Cluster rules file read from: %s", rules_path)
+                    kept += 1
+                    total += 1
+            logging.info("Cluster rules file read from: %s (loaded %d rules, %d bad lines)", rules_path, kept, bad)
         except IOError as e:
             logging.error("Failed to read cluster rules at %s: %s", rules_path, e)
 
     return rulesdict
 
-def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps, options):
+
+def apply_cluster_rules(results_by_id, feature_by_id, rulesdict, overlaps, options):
     "Apply cluster rules to determine if HMMs lead to secondary metabolite core gene detection"
     typedict = {}
     cfg = config.get_config()
     cds_with_hits = sorted(list(results_by_id.keys()), key = lambda gene_id: feature_by_id[gene_id].location.start)
+    all_types = sorted(rulesdict.keys())
     for cds in cds_with_hits:
         _type = "none"
         #if typedict[cds] exist (the case of in-advance assignment from neighboring genes), use that instead of "none"
-        if cds in list(typedict.keys()):
+        if cds in typedict:
             _type = typedict[cds]
         cdsresults = [res.query_id for res in results_by_id[cds]]
-        for clustertype in [ct for ct in enabled_clustertypes if ct not in _type.split("-")]:
+        for clustertype in [ct for ct in all_types if ct not in _type.split("-")]:
             if clustertype not in rulesdict:
                 logging.warning("Skipping unknown clustertype %s; available: %s",
                                 clustertype, ", ".join(sorted(rulesdict.keys())))
@@ -634,7 +640,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     "Function to be executed by module"
     logging.info('Detecting gene clusters using HMM library')
     feature_by_id = utils.get_feature_dict(seq_record)
-    rulesdict = create_rules_dict(enabled_clustertypes)
+    rulesdict = create_rules_dict()
     results = []
     sig_by_name = {}
     results_by_id = {}
@@ -668,6 +674,13 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     results_to_delete = [gene_id for gene_id in results_by_id]
     results, results_by_id = filter_results(results, results_by_id, overlaps, feature_by_id)
 
+    logging.debug("MODELS: %s", config.get_config().enabled_detection_models)
+    logging.debug("RULE TYPES LOADED: %d", len(rulesdict))
+    logging.debug("RESULT GENES WITH HITS: %d", len(results_by_id))
+    if results_by_id:
+        sample_gid = next(iter(results_by_id))
+        logging.debug("SAMPLE HITS for %s: %s", sample_gid, [h.query_id for h in results_by_id[sample_gid]])
+
     #Update filtered results back to the options.hmm_results
     for gene_id in results_by_id:
         results_to_delete.remove(gene_id)
@@ -680,7 +693,8 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
             del options.hmm_results[(prefix + gene_id)]
 
     #Use rules to determine gene clusters
-    typedict = apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps, options)
+    typedict = apply_cluster_rules(results_by_id, feature_by_id, rulesdict, overlaps, options)
+
 
     #Rearrange hybrid clusters name in typedict alphabetically
     fix_hybrid_clusters_typedict(typedict)
