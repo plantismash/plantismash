@@ -4,6 +4,8 @@
 """ Manages HTML construction for the TFBS finder module
 """
 
+print("✅ TFBS: html_output.generate_html called")
+
 import bisect
 from typing import Any, Optional, Sequence
 
@@ -49,6 +51,10 @@ def generate_html(region_layer: RegionLayer, results: TFBSFinderResults,
     body = FileTemplate(path.get_full_path(__file__, "templates", "details.html"))
 
     all_region_hits = results.get_hits_by_region(region_layer.get_region_number())
+    print(f"TFBS HTML: found {len(all_region_hits)} hits in region {region_layer.get_region_number()}")
+
+    for hit in all_region_hits[:3]:
+        print(f"TFBS hit: {hit.name}, start: {hit.start}, confidence: {hit.confidence}")
 
     if not all_region_hits:
         return html
