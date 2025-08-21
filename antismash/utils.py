@@ -1175,8 +1175,9 @@ def zip_path(dir_path, name):
         shutil.move(name, dir_path)
 
 def log_status(status, level='running'):
-    """Write status to the status file"""
+    """Write status to the status file and print"""
     options = get_config()
+    print(f"STATUS: {level}: {status}", flush=True)  # clearer terminal output
     if 'statusfile' not in options:
         return
     with open(options.statusfile, 'w') as statusfile:

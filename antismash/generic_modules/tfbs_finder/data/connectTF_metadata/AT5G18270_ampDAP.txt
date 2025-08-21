@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT5G18270
+*Experiment_Type: Binding
+*Technology/Method: DAPSeq
+*Edge_Type: in vitro:Bound:ampDAP
+*Data_Source/Publication: O'Malley & Huang Cell 2016
+*Genotype: Col-0
+*Treatments: None
+*Control: n/a
+*Tissue/Sample: PCR amplified gDNA
+Treatment_Time: n/a
+Growth_Period_Days: n/a
+Growth_Medium: n/a
+Analysis_Method: GEM
+Analysis_Cutoff: Q<0.01
+DOI: 10.1016/j.cell.2016.04.038

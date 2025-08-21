@@ -17,7 +17,8 @@ from antismash.generic_modules import (
         knownclusterblast,
         smcogs,
         coexpress,
-        gff_parser,
+        # gff_parser,
+        tfbs_finder
     )
 
 def check_prereqs(options):
@@ -43,5 +44,9 @@ def check_prereqs(options):
 
     if options.coexpress:
         failure_msgs.extend(coexpress.check_prereqs(options))
+
+    if getattr(options, 'tfbs_detection', False):
+        failure_msgs.extend(tfbs_finder.check_prereqs(options))
+        failure_msgs.extend(tfbs_finder.check_options(options))
 
     return failure_msgs

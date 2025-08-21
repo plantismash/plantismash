@@ -24,6 +24,11 @@ import unicodedata
 import re
 import xml.sax.saxutils as saxutils
 
+try: 
+    from antismash.generic_modules.tfbs_finder import output as tfbs_output
+except Exception: 
+    tfbs_output = None
+
 def set_title(d, seq_id, num_clusters):
     d('title').text('%s - %s clusters - antiSMASH results' % (seq_id, num_clusters))
 
@@ -307,6 +312,23 @@ def add_cluster_page(d, cluster, seq_record, options, extra_data, seq_id):
     description.append(desc_svg)
 
     content.append(description)
+
+    # --- TFBS panel (if available) ---
+    try:
+        if tfbs_output is not None:
+            extra_ns = options.extrarecord.get(seq_record.id)
+            extra = getattr(extra_ns, "extradata", {}) if extra_ns else {}
+            tfbs_res = extra.get("TFBSFinderResults")
+            if tfbs_res:
+                tfbs_div = tfbs_output.generate_details_div(
+                    cluster, seq_record, options, extra_data['js_domains'], details=None
+                )
+                if tfbs_div is not None:
+                    content.append(tfbs_div)
+    except Exception as e:
+        logging.debug("TFBS panel not added: %s", e)
+    # --- end TFBS panel ---
+
 
     if options.input_type == 'nucl':
         legend = pq('<div>')

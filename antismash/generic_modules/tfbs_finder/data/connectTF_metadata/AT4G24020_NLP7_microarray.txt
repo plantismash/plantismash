@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT4G24020
+*Experiment_Type: Expression
+*Technology/Method: Microarray
+*Edge_Type: in planta:Regulated
+*Data_Source/Publication: Marchive Nat Commun 2103
+*Genotype: nlp7
+*Treatments: 3mM Nitrate
+*Control: Col-0
+*Tissue/Sample: Seedlings
+Treatment_Time: 10/20 min
+Growth_Period_Days: 13 days
+Growth_Medium: liquid cluture (3mM KNO3, 1mM KH2PO4/K2HPO4, 0.5mM CaSO4, 0.5mM MgCl2, 3mM MES, pH 5.8, 0.25% (w/v) sucrose, microelements
+Analysis_Method: CATMA array
+Analysis_Cutoff: P<0.05 (Bonferroni corrected)
+DOI: 10.1038/ncomms2650

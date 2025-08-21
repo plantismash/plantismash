@@ -1,4 +1,4 @@
-name: plantismash
+name: plantismash_tfbs_test
 channels:
   - conda-forge
   - bioconda
@@ -9,7 +9,7 @@ dependencies:
   - glimmerhmm
   - hmmer=3.3.2
   - bioconda/label/cf201901::hmmer2
-  - fasttree=2.1.8
+  - fasttree=2.1.11       
   - diamond=2.0.15
   - muscle=3.8.31
   - prodigal
@@ -19,8 +19,9 @@ dependencies:
   - pplacer
   - ncbi-datasets-cli
   - unzip
-  - helperlibs 
   - biopython==1.76
+ # Extras for TFBS and visualization
+  - logomaker
   - pytest 
   - tqdm
   # Pip dependencies
@@ -39,3 +40,6 @@ dependencies:
       - bcbio-gff==0.6.7
       - ete3
       - ./graphlan
+      # TFBS specific dependencies
+      - MOODS-python==1.9.4.1
+

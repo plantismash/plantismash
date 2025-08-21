@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT1G22640
+*Experiment_Type: Binding
+*Technology/Method: ChIPSeq
+*Edge_Type: in planta:Bound
+*Data_Source/Publication: Song Science 2016
+*Genotype: AT1G22640-YFP
+*Treatments: ABA
+*Control: Col-0
+*Tissue/Sample: Seedlings
+Treatment_Time: 240 min
+Growth_Period_Days: 3 days
+Growth_Medium: 1x LS
+Analysis_Method: MACS2
+Analysis_Cutoff: P<1e-16
+DOI: 10.1126/science.aag1550

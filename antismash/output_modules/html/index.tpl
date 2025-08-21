@@ -225,7 +225,7 @@ function update_legends() {
 		gcs.push({ label: "(Other) Biosynthetic Genes", color: "#810e15", members : [] });
 		gcs.push({ label: "Other Genes", color: "gray", members : [] });
 		for (var i = 0; i < gcs.length; i++) {
-			var div = $("<div class='legend-container' style='width: 20em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
+			var div = $("<div class='legend-container' style='width: 25em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
 			div.append("<div class='legend-field' style='float: left; border: 2px solid " + gcs[i].color + "; background-color: " + gcs[i].color + ";'/>");
 			div.append("<div class='legend-label' style='float: left;'>" + gcs[i].label + "</div>");
 			if (gene_colors.indexOf(gcs[i]) >= 0) {
@@ -243,7 +243,7 @@ function update_legends() {
 			["other", "other genes"]
 		];
 		for (var i = 0; i < borders.length; i++) {
-			var div = $("<div style='width: 20em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
+			var div = $("<div style='width: 25em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
 			div.append("<div class='legend-field legend-type-" + borders[i][0] + "' style='float: left;'/>");
 			div.append("<div class='legend-label' style='float: left;'>" + borders[i][1] + "</div>");
 			$(this).append(div);
