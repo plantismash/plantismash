@@ -17,7 +17,7 @@ from antismash.generic_modules import (
         knownclusterblast,
         smcogs,
         coexpress,
-        gff_parser,
+        # gff_parser,
         tfbs_finder
     )
 

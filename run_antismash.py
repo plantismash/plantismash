@@ -52,13 +52,13 @@ from antismash.generic_modules import (
     coexpress,
     gff_parser,
     subgroup, 
-    tfbs_finder
+    tfbs_finder 
 )
 try:
     from antismash.db.biosql import get_record
     from antismash.db.extradata import getExtradata
     USE_BIOSQL = True
-except ImportError:
+except ImportError: 
     USE_BIOSQL = False
 from numpy import array_split, array
 import urllib.request, urllib.error, urllib.parse
@@ -559,8 +559,8 @@ def main():
         print("antiSMASH %s" % utils.get_version())
         sys.exit(0)
 
-    logging.info("starting antiSMASH {version}, called with {cmdline}".format(version=utils.get_version(), cmdline=" ".join(sys.argv)))
-    logging.debug("antismash analysis started at %s", str(start_time))
+    logging.info("starting plantiSMASH {version}, called with {cmdline}".format(version=utils.get_version(), cmdline=" ".join(sys.argv)))
+    logging.debug("plantismash analysis started at %s", str(start_time))
     options.run_info = {}
     options.run_info["ver"] = utils.get_version()
     options.run_info["param"] = " ".join(sys.argv[1:-1])
@@ -658,7 +658,7 @@ def main():
 
     filter_outputs(output_plugins, options)
 
-    #Check prerequisites
+    # Check prerequisites
     if check_prereqs(plugins, options) > 0:
         logging.error("Not all prerequisites met")
         sys.exit(1)
@@ -1152,21 +1152,29 @@ def run_analyses(seq_record, options, plugins):
     for f in utils.get_cluster_features(seq_record):
         logging.debug(f)
 
+    logging.debug(f"[DEBUG] run_analyses: disable_specific_modules = {options.disable_specific_modules}")
+    logging.debug(f"[DEBUG] run_analyses: plugins passed in: {[p.name for p in plugins]}")
+
     if len(utils.get_cluster_features(seq_record)) > 0:
         # Run specific analyses first
+        logging.debug("Running specific analyses for %s", seq_record.id)
         run_specific_analyses(seq_record, options, plugins)
 
         # Renumber the clusters to maintain contiguous numbering
         renumber_clusters(seq_record, options)
 
         # Run general analyses
+        logging.debug("Running general analyses for %s", seq_record.id)
         run_general_analyses(seq_record, options)
 
 
 def run_specific_analyses(seq_record, options, plugins):
-    """Run specific cluster-related analyses"""
-    # Run analyses for specific cluster types (e.g., cyclopeptide clusters)
+    """Run specific cluster related analyses"""
+    if options.disable_specific_modules:
+        logging.debug("Skipping run_specific_analyses because --disable_specific_modules is set.")
+        return
     cluster_specific_analysis(plugins, seq_record, options)
+
 
 
 def run_general_analyses(seq_record, options):
@@ -1197,6 +1205,12 @@ def run_general_analyses(seq_record, options):
         utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
         for i in range(0, len(options.geo_dataset)):
             coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+
+    # Run Transcription Factor Binding Site (TFBS) analysis
+    if options.tfbs:
+        utils.log_status(
+            f"TFBS analysis for contig #{options.record_idx} (p-value={options.tfbs_pvalue}, region ±{options.tfbs_range} bp)")
+        tfbs_finder.run_tfbs_finder_for_record(seq_record, options)
     
     # Run Active Site Finder
     if options.run_asf:
@@ -1977,20 +1991,21 @@ def detect_geneclusters(seq_record, options):
 
 
 def cluster_specific_analysis(plugins, seq_record, options):
-    "Run specific analysis steps for every detected gene cluster"
+    if options.disable_specific_modules:
+        logging.debug("Skipping cluster-specific analyses because --disable_specific_modules is set.")
+        return
+
     logging.info('Running cluster-specific analyses')
 
     for plugin in plugins:
-        if  options.taxon == "plants":
-            if not plugin.name.startswith("plant_"):
-                continue
-        if 'specific_analysis' in dir(plugin):
-            logging.debug('Running analyses specific to %s clusters',
-                          plugin.short_description)
+        if options.taxon == "plants" and not plugin.name.startswith("plant_"):
+            continue
+        if hasattr(plugin, "specific_analysis"):
+            logging.debug('Running analyses specific to %s clusters', plugin.short_description)
             plugin.specific_analysis(seq_record, options)
         else:
-            logging.debug('No specific analyses implemented for %s clusters',
-                          plugin.short_description)
+            logging.debug('No specific analyses implemented for %s clusters', plugin.short_description)
+
 
 def run_generic_genome_modules(seq_records, options):
     "Run genome wide analysis modules"

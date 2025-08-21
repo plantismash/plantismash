@@ -41,5 +41,5 @@ dependencies:
       - ete3
       - ./graphlan
       # TFBS specific dependencies
-      - MOODS-python
+      - MOODS-python==1.9.4.1
 

@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.SeqFeature import FeatureLocation, CompoundLocation
+from Bio.SeqFeature import CompoundLocation
 
 import tempfile 
 from MOODS import tools as moods_tools
@@ -23,10 +23,8 @@ from collections import Counter
 from antismash import utils 
 import json
 import os 
-from argparse import Namespace
-import math 
 
-PWM_PATH = utils.get_full_path(__file__, os.path.join("data", "Athaliana_subset_transposed.json"))
+PWM_PATH = utils.get_full_path(__file__, os.path.join("data", "Athaliana_motifs.filtered.json"))
 
 class Confidence(IntEnum):
     WEAK = auto()
@@ -63,21 +61,22 @@ class Matrix:
         return Confidence.MEDIUM
 
     def to_json(self) -> Dict[str, Any]:
-        return {key: val for key, val in vars(self).items() if not key.startswith("_")}
+        return {k: v for k, v in vars(self).items() if not k.startswith("_")}
 
     @staticmethod
     def from_json(name: str, data: Dict[str, Any]) -> "Matrix":
         return Matrix(
             name=name,
             pwm=data["pwm"],
-            max_score=data["max_score"],
-            min_score=data["min_score"],
-            description=data["description"],
-            species=data["species"],
-            link=data["link"],
-            consensus=data["consensus"],
-            is_log_odds=data.get("is_log_odds", False)  
-    )
+            max_score=data.get("max_score", 0.0),
+            min_score=data.get("min_score", 0.0),
+            description=data.get("description", ""),
+            species=data.get("species", ""),
+            link=data.get("link", ""),
+            consensus=data.get("consensus", ""),
+            is_log_odds=data.get("is_log_odds", False),
+        )
+
 
 @dataclass
 class TFBSHit:
@@ -124,8 +123,10 @@ class TFBSFinderResults:
             }
         }
     
-    def get_hits_by_region(self, region_number: int, confidence: Optional[Confidence] = None, allow_better: bool = False) -> List[TFBSHit]:
-        hits = self.hits_by_record.get(str(region_number), [])
+    def get_hits_for_record(self, record_id: str,
+                            confidence: Optional[Confidence] = None,
+                            allow_better: bool = False) -> List[TFBSHit]:
+        hits = self.hits_by_record.get(record_id, [])
         if confidence is None:
             return hits
         if allow_better:
@@ -156,25 +157,48 @@ class TFBSFinderResults:
         return "\n".join(output)
 
     @staticmethod
-    def from_json(name: str, data: Dict[str, Any]) -> "Matrix":
-        return Matrix(
-            name=name,
-            pwm=data["pwm"],
-            max_score=data.get("max_score", 0.0),
-            min_score=data.get("min_score", 0.0),
-            description=data.get("description", ""),
-            species=data.get("species", ""),
-            link=data.get("link", ""),
-            consensus=data.get("consensus", ""),
-            is_log_odds=data.get("is_log_odds", False),
-        )
+    def from_json(previous: Dict[str, Any], record: SeqRecord) -> Optional["TFBSFinderResults"]:
+        """Rebuild results from JSON; return None if schema/options/record mismatch."""
+        try:
+            if previous.get("schema_version") != TFBSFinderResults.schema_version:
+                return None
+            if previous.get("record_id") != record.id:
+                return None
+
+            pvalue = float(previous["pvalue"])
+            start_overlap = int(previous["start_overlap"])
+
+            hits_by_record: Dict[str, List[TFBSHit]] = {}
+            for key, hits in previous.get("hits_by_record", {}).items():
+                hits_by_record[str(key)] = [TFBSHit.from_json(h) for h in hits]
+
+            return TFBSFinderResults(
+                record_id=previous["record_id"],
+                pvalue=pvalue,
+                start_overlap=start_overlap,
+                hits_by_record=hits_by_record,
+            )
+        except Exception:
+            return None
 
 ### Utility functions ###
 
 def load_matrices(json_file: str) -> List[Matrix]:
     with open(json_file, encoding="utf-8") as handle:
         data = json.load(handle)
-    mats = [Matrix.from_json(name, values) for name, values in data.items()]
+
+    mats: List[Matrix] = []
+    for name, values in data.items():
+        try:
+            m = Matrix.from_json(name, values)
+            # quick shape sanity check: 4 x N
+            if len(m.pwm) != 4 or any(len(row) != len(m.pwm[0]) for row in m.pwm):
+                raise ValueError("PWM must be 4×N")
+            mats.append(m)
+        except Exception as e:
+            logging.error("Skipping motif %r due to parse/shape error: %s", name, e)
+            continue
+
     logging.debug("Loaded %d matrices from %s", len(mats), json_file)
     return mats
 
@@ -402,6 +426,18 @@ def run_tfbs_finder(record: SeqRecord, pvalue: float, start_overlap: int,
     }
 
     logging.warning("🏁 run_tfbs_finder finished for record: %s", record.id)
+
+    # Attach JSON-serialisable TFBS hits to the record annotations for HTML panel
+    try:
+        record.annotations.setdefault("tfbs_finder", {})[record.id] = [
+            hit.to_json() for hit in hits_by_record[record.id]
+        ]
+        logging.debug("🔗 Attached %d TFBS hits to record.annotations['tfbs_finder']",
+                      len(hits_by_record[record.id]))
+    except Exception as e:
+        logging.warning("Could not attach TFBS hits to record: %s", e)
+
+
     return TFBSFinderResults(record.id, pvalue, start_overlap, hits_by_record)
 
 
