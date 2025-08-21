@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT1G72830
+*Experiment_Type: Expression
+*Technology/Method: RNASeq
+*Edge_Type: Cells:Regulated:TARGET
+*Data_Source/Publication: Alvarez Nat Commun 2020
+*Genotype: nlp7
+*Treatments: 60N Chx Dex
+*Control: Empty Vector
+*Tissue/Sample: Root Protoplasts
+Treatment_Time: 180 min
+Growth_Period_Days: 10 days
+Growth_Medium: 1x MS w/ 1% sucrose 2mM KNO3
+Analysis_Method: DESeq2
+Analysis_Cutoff: FDR<0.05
+DOI: 10.1038/s41467-020-14979-6

@@ -16,6 +16,8 @@ plantgeneclusterprots.dmnd
 .vscode/
 # ignore the data in TFBS 
 /antismash/generic_modules/tfbs_finder/data/others/*
+# need to download the connectTF_validated.csv file
+/antismash/generic_modules/tfbs_finder/data/connectTF_validated.csv
 # Ignore all .hmm downloaded files in hmm_detection and subdirs
 antismash/generic_modules/hmm_detection/**/*.hmm
 # But don't ignore any in the plants subdirectory
