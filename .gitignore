@@ -15,7 +15,7 @@ plantgeneclusterprots.fasta
 plantgeneclusterprots.dmnd
 .vscode/
 # ignore the data in TFBS 
-/antismash/generic_modules/tfbs_finder/data/*
+/antismash/generic_modules/tfbs_finder/data/others/*
 # Ignore all .hmm downloaded files in hmm_detection and subdirs
 antismash/generic_modules/hmm_detection/**/*.hmm
 # But don't ignore any in the plants subdirectory
