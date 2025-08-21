@@ -1,30 +1,49 @@
 # License: GNU AGPL v3 or later
 
 """
-Genome-wide module to detect transcription factor binding sites (TFBSs)
-using position weight matrices (PWMs).
+TFBS detection (per-BGC) using PWMs with MOODS.
+
+This implementation:
+- iterates over each BGC (cluster) on the record,
+- builds ±range promoter windows for CDS that overlap the BGC,
+- clips each window to the BGC span,
+- merges overlapping windows within that BGC,
+- scans each merged interval exactly once,
+- aggregates hits across all BGCs (the HTML/output module maps hits to clusters).
+
+Public entry point: run_tfbs_finder(record, pvalue, start_overlap, matrix_path=PWM_PATH)
 """
 
-import logging
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Any, Dict, List, Optional, Tuple
+import os
+import json
+import logging
+import tempfile
 
+import numpy as np
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import CompoundLocation
 
-import tempfile 
 from MOODS import tools as moods_tools
-from MOODS import scan, parsers 
-import numpy as np 
+from MOODS import scan, parsers
 
-from collections import Counter
-from antismash import utils 
-import json
-import os 
+from antismash import utils
+
+# --------------------------------------------------------------------------
+# Constants / cache
+# --------------------------------------------------------------------------
 
 PWM_PATH = utils.get_full_path(__file__, os.path.join("data", "Athaliana_motifs.filtered.json"))
+_MATRIX_CACHE: Dict[str, List["Matrix"]] = {}   # cache parsed matrices per file path
+
+
+# --------------------------------------------------------------------------
+# Data structures
+# --------------------------------------------------------------------------
 
 class Confidence(IntEnum):
     WEAK = auto()
@@ -34,18 +53,19 @@ class Confidence(IntEnum):
     def __str__(self) -> str:
         return self.name.lower()
 
+
 @dataclass
 class Matrix:
     name: str
-    pwm: List[List[float]]
+    pwm: List[List[float]]           # 4×N, PFM or log-odds
     max_score: float
     min_score: float
     description: str
     species: str
     link: str
     consensus: str
-    _threshold: float = -1.
-    is_log_odds: bool = False
+    _threshold: float = -1.0
+    is_log_odds: bool = False        # if True, pwm already is log-odds
 
     @property
     def score_threshold(self) -> float:
@@ -81,13 +101,13 @@ class Matrix:
 @dataclass
 class TFBSHit:
     name: str
-    start: int
+    start: int                  # absolute genomic coord on record (0-based)
     species: str
     link: str
     description: str
     consensus: str
     confidence: Confidence
-    strand: int
+    strand: int                 # +1 / -1
     score: float
     max_score: float
 
@@ -98,9 +118,10 @@ class TFBSHit:
 
     @staticmethod
     def from_json(data: Dict[str, Any]) -> "TFBSHit":
-        data = dict(data)
-        data["confidence"] = Confidence[data["confidence"].upper()]
-        return TFBSHit(**data)
+        d = dict(data)
+        d["confidence"] = Confidence[d["confidence"].upper()]
+        return TFBSHit(**d)
+
 
 class TFBSFinderResults:
     schema_version = 1
@@ -122,7 +143,7 @@ class TFBSFinderResults:
                 k: [hit.to_json() for hit in v] for k, v in self.hits_by_record.items()
             }
         }
-    
+
     def get_hits_for_record(self, record_id: str,
                             confidence: Optional[Confidence] = None,
                             allow_better: bool = False) -> List[TFBSHit]:
@@ -133,45 +154,40 @@ class TFBSFinderResults:
             return [h for h in hits if h.confidence >= confidence]
         return [h for h in hits if h.confidence == confidence]
 
-
     def format_html(self) -> str:
-        """Simple HTML output for plantiSMASH final page"""
-        output = [f"<h3>TFBS Finder Results</h3>"]
+        out = [f"<h3>TFBS Finder Results</h3>"]
         if not self.hits_by_record:
-            output.append("<p>No transcription factor binding sites detected.</p>")
-            return "\n".join(output)
-
-        output.append("<table class='table table-sm'>")
-        output.append("<thead><tr><th>Motif</th><th>Start</th><th>Strand</th><th>Score</th><th>Confidence</th><th>Species</th></tr></thead>")
-        output.append("<tbody>")
-
-        for record_id, hits in self.hits_by_record.items():
-            for hit in hits:
-                strand = "+" if hit.strand == 1 else "−"
-                output.append(
-                    f"<tr><td>{hit.name}</td><td>{hit.start}</td><td>{strand}</td><td>{hit.score:.1f}/{hit.max_score:.1f}</td>"
-                    f"<td>{str(hit.confidence).capitalize()}</td><td>{hit.species}</td></tr>"
+            out.append("<p>No transcription factor binding sites detected.</p>")
+            return "\n".join(out)
+        out += [
+            "<table class='table table-sm'>",
+            "<thead><tr><th>Motif</th><th>Start</th><th>Strand</th><th>Score</th>"
+            "<th>Confidence</th><th>Species</th></tr></thead>",
+            "<tbody>",
+        ]
+        for _, hits in self.hits_by_record.items():
+            for h in hits:
+                strand = "+" if h.strand == 1 else "−"
+                out.append(
+                    f"<tr><td>{h.name}</td><td>{h.start}</td><td>{strand}</td>"
+                    f"<td>{h.score:.2f}/{h.max_score:.2f}</td>"
+                    f"<td>{str(h.confidence).capitalize()}</td><td>{h.species}</td></tr>"
                 )
-
-        output.append("</tbody></table>")
-        return "\n".join(output)
+        out += ["</tbody></table>"]
+        return "\n".join(out)
 
     @staticmethod
     def from_json(previous: Dict[str, Any], record: SeqRecord) -> Optional["TFBSFinderResults"]:
-        """Rebuild results from JSON; return None if schema/options/record mismatch."""
         try:
             if previous.get("schema_version") != TFBSFinderResults.schema_version:
                 return None
             if previous.get("record_id") != record.id:
                 return None
-
             pvalue = float(previous["pvalue"])
             start_overlap = int(previous["start_overlap"])
-
             hits_by_record: Dict[str, List[TFBSHit]] = {}
-            for key, hits in previous.get("hits_by_record", {}).items():
-                hits_by_record[str(key)] = [TFBSHit.from_json(h) for h in hits]
-
+            for k, hits in previous.get("hits_by_record", {}).items():
+                hits_by_record[str(k)] = [TFBSHit.from_json(h) for h in hits]
             return TFBSFinderResults(
                 record_id=previous["record_id"],
                 pvalue=pvalue,
@@ -181,68 +197,106 @@ class TFBSFinderResults:
         except Exception:
             return None
 
-### Utility functions ###
 
-def load_matrices(json_file: str) -> List[Matrix]:
-    with open(json_file, encoding="utf-8") as handle:
-        data = json.load(handle)
+# --------------------------------------------------------------------------
+# Helpers: windows, matrices, MOODS
+# --------------------------------------------------------------------------
 
-    mats: List[Matrix] = []
-    for name, values in data.items():
-        try:
-            m = Matrix.from_json(name, values)
-            # quick shape sanity check: 4 x N
-            if len(m.pwm) != 4 or any(len(row) != len(m.pwm[0]) for row in m.pwm):
-                raise ValueError("PWM must be 4×N")
-            mats.append(m)
-        except Exception as e:
-            logging.error("Skipping motif %r due to parse/shape error: %s", name, e)
+def _cds_tss_and_strand(cds) -> Tuple[Optional[int], Optional[int]]:
+    """Return TSS (on forward axis) and strand for a CDS (handles split genes)."""
+    loc = getattr(cds, "location", None)
+    if loc is None:
+        return None, None
+    strand = int(getattr(loc, "strand", 1) or 1)
+    if isinstance(loc, CompoundLocation) and loc.parts:
+        first, last = loc.parts[0], loc.parts[-1]
+        tss = int(first.start) if strand == 1 else int(last.end) - 1
+    else:
+        tss = int(loc.start) if strand == 1 else int(loc.end) - 1
+    return tss, strand
+
+
+def _merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+    """Merge overlapping [a,b] inclusive intervals."""
+    if not intervals:
+        return []
+    intervals = sorted(intervals)
+    merged = [[intervals[0][0], intervals[0][1]]]
+    for s, e in intervals[1:]:
+        if s > merged[-1][1] + 1:
+            merged.append([s, e])
+        else:
+            if e > merged[-1][1]:
+                merged[-1][1] = e
+    return [(int(s), int(e)) for s, e in merged]
+
+
+def _collect_windows_for_cluster(record: SeqRecord,
+                                 cluster_feature,
+                                 half_window: int) -> Tuple[List[Tuple[int, int]], int]:
+    """
+    Build CDS promoter windows for CDS overlapping this cluster and clip to cluster span.
+    Returns (raw_intervals_inclusive, cds_count_included).
+    """
+    seqlen = len(record.seq)
+    cstart = int(cluster_feature.location.start)
+    cend   = int(cluster_feature.location.end) - 1  # inclusive
+    cds_count = 0
+    raw: List[Tuple[int, int]] = []
+
+    for cds in utils.get_cds_features(record):
+        cds_start = int(cds.location.start)
+        cds_end   = int(cds.location.end) - 1  # inclusive
+        if cds_end < cstart or cds_start > cend:
+            continue  # CDS does not overlap cluster
+
+        tss, _ = _cds_tss_and_strand(cds)
+        if tss is None:
             continue
 
-    logging.debug("Loaded %d matrices from %s", len(mats), json_file)
-    return mats
+        # Build ±window around TSS, then clip to cluster span and contig
+        a = max(0, tss - half_window)
+        b = min(seqlen - 1, tss + half_window)
+        a = max(a, cstart)
+        b = min(b, cend)
+        if b >= a:
+            raw.append((a, b))
+            cds_count += 1
+
+    return raw, cds_count
 
 
-def get_bg_distribution(seq: Seq) -> Tuple[float, float, float, float]:
+def _safe_bg_from_seq(seq: Seq) -> List[float]:
     s = str(seq).upper()
-    gc = (s.count('G') + s.count('C')) / (2.0 * max(1, len(s)))
-    at = 0.5 - gc
-    return (at, gc, gc, at)  # A, C, G, T
+    nA = s.count("A")
+    nC = s.count("C")
+    nG = s.count("G")
+    nT = s.count("T")
+    total = nA + nC + nG + nT
+    if total == 0:
+        return [0.25, 0.25, 0.25, 0.25]
+    eps = 1e-9
+    arr = np.array([nA, nC, nG, nT], dtype=float) + eps
+    arr /= arr.sum()
+    return arr.tolist()  # A,C,G,T
 
-def matrix_to_pfm_string(pwm_4xN: List[List[float]]) -> str:
-    """Return a JASPAR-style PFM string (4 lines: A,C,G,T; N space-separated values)."""
-    # use spaces (not tabs) and ensure trailing newline; MOODS is picky on parsing
-    lines = [" ".join(f"{v:.6f}" for v in row) for row in pwm_4xN]
-    return "\n".join(lines) + "\n"
 
-
-def pwm_to_string(pwm: List[List[float]]) -> str:
-    """Convert PWM (list of lists) to string format for MOODS."""
-    return "\n".join("\t".join(f"{val:.6f}" for val in row) for row in pwm)
-
-def _prepare_log_odds(pwm_like: List[List[float]], background: List[float], name: str) -> List[List[float]]:
-    """Return a 4×N log-odds matrix for MOODS.
-       - Accepts list-of-lists or numpy arrays.
-       - If values look like PFMs (no negatives), converts via MOODS parsers.
-       - Otherwise assumes they are already log-odds.
+def _matrix_to_log_odds(matrix: Matrix, background: List[float]) -> List[List[float]]:
     """
-    # Normalize type
-    pwm = pwm_like
-    if isinstance(pwm, np.ndarray):
-        pwm = pwm.tolist()
+    Produce a 4×N log-odds matrix for a motif.
+    If matrix.is_log_odds == True, assume matrix.pwm already is log-odds.
+    Otherwise, treat matrix.pwm as PFM and convert using MOODS with the *given* background.
+    """
+    pwm = matrix.pwm if not isinstance(matrix.pwm, np.ndarray) else matrix.pwm.tolist()
+    if not pwm or len(pwm) != 4 or any(len(r) != len(pwm[0]) for r in pwm):
+        raise ValueError(f"{matrix.name}: PWM must be 4×N")
 
-    # Basic 4×N shape check on input
-    if not pwm or len(pwm) != 4 or len(pwm[0]) == 0 or any(len(r) != len(pwm[0]) for r in pwm):
-        raise ValueError(f"{name}: PWM must be 4×N")
-
-    # Heuristic: log-odds usually contain negatives; PFMs typically do not
-    looks_like_log_odds = any(val < 0 for row in pwm for val in row)
-
-    if looks_like_log_odds:
+    # Heuristic: negatives → already log-odds
+    if matrix.is_log_odds or any(val < 0 for row in pwm for val in row):
         lod = pwm
     else:
-        # Convert PFM → log-odds using MOODS; needs a temp file
-        pfm_str = matrix_to_pfm_string(pwm)
+        # Convert PFM -> log-odds via MOODS; needs a temp file
+        pfm_str = "\n".join(" ".join(f"{v:.6f}" for v in row) for row in pwm) + "\n"
         tmp = None
         try:
             tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".pfm", delete=False)
@@ -250,8 +304,7 @@ def _prepare_log_odds(pwm_like: List[List[float]], background: List[float], name
             tmp.flush()
             tmp.close()
             lod = parsers.pfm_to_log_odds(tmp.name, background, 1e-3)
-            if isinstance(lod, np.ndarray):
-                lod = lod.tolist()
+            lod = lod.tolist() if isinstance(lod, np.ndarray) else lod
         finally:
             if tmp is not None:
                 try:
@@ -259,187 +312,180 @@ def _prepare_log_odds(pwm_like: List[List[float]], background: List[float], name
                 except Exception:
                     pass
 
-    # Validate 4×N on output
-    if not lod or len(lod) != 4 or len(lod[0]) == 0 or any(len(r) != len(lod[0]) for r in lod):
-        raise ValueError(f"{name}: log-odds must be 4×N")
-
+    if not lod or len(lod) != 4 or any(len(r) != len(lod[0]) for r in lod):
+        raise ValueError(f"{matrix.name}: log-odds must be 4×N")
     return lod
 
 
-def run_moods(seq: Seq,
-              background: List[float],
-              matrices: List[Matrix],
-              pvalue: float,
-              offset: int) -> List[Tuple[int, int, int, float]]:
+def _load_matrices_cached(json_file: str) -> List[Matrix]:
+    mats = _MATRIX_CACHE.get(json_file)
+    if mats is not None:
+        return mats
+    with open(json_file, encoding="utf-8") as fh:
+        data = json.load(fh)
+    mats = []
+    for name, values in data.items():
+        try:
+            m = Matrix.from_json(name, values)
+            if len(m.pwm) != 4 or any(len(row) != len(m.pwm[0]) for row in m.pwm):
+                raise ValueError("PWM must be 4×N")
+            mats.append(m)
+        except Exception as e:
+            logging.error("Skipping motif %r due to parse/shape error: %s", name, e)
+    _MATRIX_CACHE[json_file] = mats
+    logging.debug("Loaded %d matrices from %s", len(mats), json_file)
+    return mats
 
+
+def _scan_segment_with_pwms(record: SeqRecord,
+                            seg_a: int,
+                            seg_b: int,
+                            matrices: List[Matrix],
+                            pvalue: float) -> List[Tuple[int, int, int, float]]:
+    """
+    Scan record.seq[seg_a:seg_b+1] once across all PWMs and return raw hits:
+      List[(matrix_idx, absolute_start, strand(+1/-1), score)]
+    Uses per-segment background and per-motif MOODS thresholds from p-value.
+    """
+    seq = record.seq[seg_a:seg_b+1]
+    background = _safe_bg_from_seq(seq)  # A,C,G,T
     hits: List[Tuple[int, int, int, float]] = []
-    seq = str(seq).upper()
-    rc_seq = str(Seq(seq).reverse_complement())
+    rc_seq = str(Seq(str(seq)).reverse_complement())
+    fwd_seq = str(seq)
 
-    for idx, matrix in enumerate(matrices):
-        logging.debug("🔍 Scanning for matrix: %s", matrix.name)
+    # Debug throttle (optional): limit number of motifs via env
+    max_pwms = int(os.environ.get("TFBS_MAX_MOTIFS", "0") or "0")
+    mats = matrices[:max_pwms] if max_pwms > 0 else matrices
 
-        # Prepare a 4×N log-odds matrix (convert if needed)
+    for idx, m in enumerate(mats):
         try:
-            lod = _prepare_log_odds(matrix.pwm, background, matrix.name)
-        except Exception as e:
-            logging.error("❌ preparing log-odds for %s failed: %s", matrix.name, e)
-            continue
+            lod = _matrix_to_log_odds(m, background)
+            motif_len = len(lod[0])
 
-        motif_len = len(lod[0])
-        logging.debug("✅ Log-odds for %s: 4×%d", matrix.name, motif_len)
-
-        # Compute per-motif threshold from p-value (on the *same* log-odds)
-        try:
             thr = moods_tools.threshold_from_p(lod, background, pvalue)
-        except Exception as e:
-            logging.error("❌ threshold_from_p failed for %s: %s", matrix.name, e)
-            continue
+            thresholds = [thr]
 
-        thresholds = [thr]
+            fwd = scan.scan_dna(fwd_seq, [lod], background, thresholds, 7)[0]
+            for mh in fwd:
+                hits.append((idx, seg_a + mh.pos, 1, mh.score))
 
-        # Forward strand
-        try:
-            fwd = scan.scan_dna(seq, [lod], background, thresholds, 7)[0]
-        except Exception as e:
-            logging.error("❌ scan_dna (forward) failed for %s: %s", matrix.name, e)
-            fwd = []
-        for mh in fwd:
-            hits.append((idx, offset + mh.pos, 1, mh.score))
-
-        # Reverse strand (report forward coordinates for starts)
-        try:
             rev = scan.scan_dna(rc_seq, [lod], background, thresholds, 7)[0]
+            for mh in rev:
+                abs_pos = seg_a + (len(fwd_seq) - mh.pos - motif_len)
+                hits.append((idx, abs_pos, -1, mh.score))
+
         except Exception as e:
-            logging.error("❌ scan_dna (reverse) failed for %s: %s", matrix.name, e)
-            rev = []
-        for mh in rev:
-            real_pos = offset + (len(seq) - mh.pos - motif_len)
-            hits.append((idx, real_pos, -1, mh.score))
+            logging.error("MOODS failed for %s: %s", m.name, e)
 
     return hits
 
 
+def _filter_hits_to_objects(matrices: List[Matrix],
+                            raw_hits: List[Tuple[int, int, int, float]]) -> List[TFBSHit]:
+    out: List[TFBSHit] = []
+    for mat_idx, start, strand, score in raw_hits:
+        m = matrices[mat_idx]
+        conf = m.get_score_confidence(score)
+        out.append(
+            TFBSHit(
+                name=m.name,
+                start=int(start),
+                species=m.species,
+                link=m.link,
+                description=m.description,
+                consensus=m.consensus,
+                confidence=conf,
+                strand=int(strand),
+                score=float(score),
+                max_score=float(m.max_score),
+            )
+        )
+    return out
 
-def filter_hits(matrices: List[Matrix], seqlen: int, hits: List[Tuple[int, int, int, float]]) -> List[TFBSHit]:
-    tfbs_hits = []
-    for matrix_idx, start, strand, score in hits:
-        matrix = matrices[matrix_idx]
-        conf = matrix.get_score_confidence(score)
-        tfbs_hits.append(TFBSHit(
-            name=matrix.name,
-            start=start,
-            species=matrix.species,
-            link=matrix.link,
-            description=matrix.description,
-            consensus=matrix.consensus,
-            confidence=conf,
-            strand=strand,
-            score=score,
-            max_score=matrix.max_score
-        ))
-    return tfbs_hits
 
+# --------------------------------------------------------------------------
+# Public entry point (per-BGC scanning only)
+# --------------------------------------------------------------------------
 
-### Core analysis ###
-
-def _promoter_windows_around_gene_starts(record: SeqRecord, half_window: int) -> List[Tuple[int, int]]:
-    """Return merged [start,end) windows of size ±half_window around CDS start sites.
-       For + strand, start site is CDS.start; for – strand, it's CDS.end-1.
+def run_tfbs_finder(record: SeqRecord,
+                    pvalue: float,
+                    start_overlap: int,
+                    matrix_path: str = PWM_PATH) -> TFBSFinderResults:
     """
-    seqlen = len(record.seq)
-    starts: List[int] = []
+    Run TFBS scan **per BGC** on this record:
+      - for each cluster on the record, build ±start_overlap windows around CDS TSS,
+        clipped to the cluster span;
+      - merge windows inside that cluster and scan each merged interval once;
+      - aggregate/deduplicate hits across clusters.
 
-    for feat in getattr(record, "features", []):
-        if getattr(feat, "type", None) != "CDS":
+    Returns TFBSFinderResults with hits_by_record = { record.id: [TFBSHit, ...] }.
+    """
+    logging.info("TFBS: %s starting (per-BGC mode)", record.id)
+
+    matrices = _load_matrices_cached(matrix_path)
+    if not matrices:
+        logging.warning("TFBS: no matrices loaded (%s)", matrix_path)
+        return TFBSFinderResults(record.id, pvalue, start_overlap, {record.id: []})
+
+    clusters = utils.get_sorted_cluster_features(record)
+    if not clusters:
+        logging.info("TFBS: %s has no clusters; nothing to scan", record.id)
+        return TFBSFinderResults(record.id, pvalue, start_overlap, {record.id: []})
+
+    all_raw_hits: List[Tuple[int, int, int, float]] = []
+    total_bp = 0
+    total_int = 0
+
+    for c in clusters:
+        cidx = utils.get_cluster_number(c)
+        cstart = int(c.location.start)
+        cend   = int(c.location.end) - 1  # inclusive
+
+        raw_windows, cds_count = _collect_windows_for_cluster(record, c, start_overlap)
+        if not raw_windows:
+            logging.info("TFBS: cluster #%d %d-%d: no CDS windows; skip",
+                         cidx, cstart, cend)
             continue
-        loc = getattr(feat, "location", None)
-        if loc is None:
-            continue
-        strand = int(getattr(loc, "strand", 1) or 1)
 
-        # Handle split genes too
-        if isinstance(loc, CompoundLocation) and loc.parts:
-            first, last = loc.parts[0], loc.parts[-1]
-            s = int(first.start) if strand == 1 else int(last.end) - 1
-        else:
-            s = int(loc.start) if strand == 1 else int(loc.end) - 1
+        merged = _merge_intervals(raw_windows)
+        bp = sum(b - a + 1 for a, b in merged)
+        total_bp += bp
+        total_int += len(merged)
+        logging.info("TFBS: cluster #%d %d-%d: CDS windows=%d; merged intervals=%d; bp=%d",
+                     cidx, cstart, cend, cds_count, len(merged), bp)
 
-        starts.append(s)
+        # Optional debug throttle: limit intervals per cluster
+        max_intervals = int(os.environ.get("TFBS_MAX_INTERVALS", "0") or "0")
+        intervals = merged[:max_intervals] if max_intervals > 0 else merged
 
-    # Build and merge intervals
-    intervals = []
-    for s in starts:
-        a = max(0, s - half_window)
-        b = min(seqlen, s + half_window + 1)  # half-open
-        intervals.append((a, b))
-    intervals.sort()
+        scanned_bp = 0
+        for j, (a, b) in enumerate(intervals, 1):
+            seg_hits = _scan_segment_with_pwms(record, a, b, matrices, pvalue)
+            all_raw_hits.extend(seg_hits)
+            scanned_bp += (b - a + 1)
+            if j % 20 == 0 or j == len(intervals):
+                logging.info("TFBS: cluster #%d scanned %d/%d intervals (%.1f%%), bp=%d, hits=%d",
+                             cidx, j, len(intervals), 100.0 * j / len(intervals),
+                             scanned_bp, len(all_raw_hits))
 
-    merged: List[Tuple[int, int]] = []
-    for a, b in intervals:
-        if not merged or a > merged[-1][1]:
-            merged.append([a, b])
-        else:
-            merged[-1][1] = max(merged[-1][1], b)
+    # Deduplicate across clusters (same motif, start, strand, score)
+    if all_raw_hits:
+        as_set = {}
+        for mi, st, sd, sc in all_raw_hits:
+            as_set[(mi, st, sd, round(sc, 4))] = (mi, st, sd, sc)
+        all_raw_hits = list(as_set.values())
 
-    return [(int(a), int(b)) for a, b in merged]
-
-def run_tfbs_finder(record: SeqRecord, pvalue: float, start_overlap: int,
-                    matrix_path: str = PWM_PATH,
-                    region: Optional[Tuple[int, int]] = None) -> TFBSFinderResults:
-    logging.warning("📥 Starting run_tfbs_finder for record: %s", record.id)
-
-    logging.debug("🔢 Loading matrices from %s", matrix_path)
-    matrices = load_matrices(matrix_path)
-    logging.debug("✅ Loaded %d matrices", len(matrices))
-
-    # Decide scanning areas
-    if region:
-        areas = [region]
-        logging.debug("📏 Using specified region: %d-%d", region[0], region[1])
-    else:
-        if start_overlap and start_overlap > 0:
-            areas = _promoter_windows_around_gene_starts(record, start_overlap)
-            if not areas:
-                areas = [(0, len(record.seq))]
-                logging.debug("🔎 No CDS features found; scanning full sequence.")
-        else:
-            areas = [(0, len(record.seq))]
-
-    total_bp = sum(b - a for a, b in areas)
-    logging.debug("🗺️ Scanning %d window(s) totalling %d bp (of %d bp)",
-                  len(areas), total_bp, len(record.seq))
-    logging.debug("📊 p-value for thresholds: %.3g", pvalue)
-
-    # Run MOODS per window (background per window)
-    all_hits: List[Tuple[int, int, int, float]] = []
-    for a, b in areas:
-        sub_seq = record.seq[a:b]
-        background = get_bg_distribution(sub_seq)  # (A,C,G,T) for this window
-        logging.debug("  • Window %d-%d: bg=%s", a, b, background)
-        window_hits = run_moods(sub_seq, background, matrices, pvalue, offset=a)
-        all_hits.extend(window_hits)
+    logging.info("TFBS: scanned total ~%d bp across %d merged intervals × %d motifs; raw hits=%d",
+                 total_bp, total_int, len(matrices), len(all_raw_hits))
 
     logging.warning("🧪 Filtering hits")
-    hits_by_record = {
-        record.id: filter_hits(matrices, len(record.seq), all_hits)
-    }
+    hits = _filter_hits_to_objects(matrices, all_raw_hits)
 
-    logging.warning("🏁 run_tfbs_finder finished for record: %s", record.id)
-
-    # Attach JSON-serialisable TFBS hits to the record annotations for HTML panel
+    # Attach to record.annotations for downstream HTML (best effort)
     try:
-        record.annotations.setdefault("tfbs_finder", {})[record.id] = [
-            hit.to_json() for hit in hits_by_record[record.id]
-        ]
-        logging.debug("🔗 Attached %d TFBS hits to record.annotations['tfbs_finder']",
-                      len(hits_by_record[record.id]))
+        record.annotations.setdefault("tfbs_finder", {})[record.id] = [h.to_json() for h in hits]
     except Exception as e:
-        logging.warning("Could not attach TFBS hits to record: %s", e)
+        logging.debug("TFBS: could not attach hits to record annotations: %s", e)
 
-
-    return TFBSFinderResults(record.id, pvalue, start_overlap, hits_by_record)
-
-
-
-
+    logging.info("TFBS: %s finished with %d hit record(s)", record.id, len(hits))
+    return TFBSFinderResults(record.id, pvalue, start_overlap, {record.id: hits})

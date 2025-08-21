@@ -45,7 +45,8 @@ def check_prereqs(options):
     if options.coexpress:
         failure_msgs.extend(coexpress.check_prereqs(options))
 
-    if options.tfbs:
+    if getattr(options, 'tfbs_detection', False):
         failure_msgs.extend(tfbs_finder.check_prereqs(options))
+        failure_msgs.extend(tfbs_finder.check_options(options))
 
     return failure_msgs

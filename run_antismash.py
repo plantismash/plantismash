@@ -214,14 +214,14 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a prepared Expression data.")
-    group.add_argument('--tfbs-detection',
-                   dest='tfbs',
+    group.add_argument('--tfbs',
+                   dest='tfbs_detection',
                    action='store_true',
                    default=False,
                    help="Run transcription factor binding site (TFBS) prediction.")
-    group.add_argument('--tfbs-pvalue', dest='tfbs_pvalue', type=float, default=None,
+    group.add_argument('--tfbs-pvalue', dest='tfbs_pvalue', type=float, default= 1e-4,
                    help="TFBS p-value cutoff (default from config)")
-    group.add_argument('--tfbs-range', dest='tfbs_range', type=int, default=None,
+    group.add_argument('--tfbs-range', dest='tfbs_range', type=int, default=500,
                     help="Range around clusters to scan for TFBS (default from config)")
     group.add_argument('--disable_subgroup',
                        dest='disable_subgroup',
@@ -1207,7 +1207,7 @@ def run_general_analyses(seq_record, options):
             coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
 
     # Run Transcription Factor Binding Site (TFBS) analysis
-    if options.tfbs:
+    if options.tfbs_detection:
         utils.log_status(
             f"TFBS analysis for contig #{options.record_idx} (p-value={options.tfbs_pvalue}, region ±{options.tfbs_range} bp)")
         tfbs_finder.run_tfbs_finder_for_record(seq_record, options)

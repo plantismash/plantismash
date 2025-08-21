@@ -63,7 +63,6 @@ def _get_output_dir(options) -> str:
     return os.getcwd()
 
 
-
 def _cds_tss_and_strand(cds) -> Tuple[int, int]:
     """Return TSS (on forward axis) and strand for a CDS (handles split genes)."""
     loc = getattr(cds, "location", None)
