@@ -9,7 +9,7 @@ tags
 .idea/
 /antismash/generic_modules/fullhmmer/Pfam-A.hmm
 test_datasets/
-__pycache__/
+# Ignore clusterBLAST database files 
 plantgeneclusters.txt
 plantgeneclusterprots.fasta
 plantgeneclusterprots.dmnd
@@ -24,6 +24,7 @@ antismash/generic_modules/hmm_detection/**/*.hmm
 !antismash/generic_modules/hmm_detection/plants/*.hmm
 # Ignore environment and editor-specific files
 .python-version
-.vscode/
-# Ignore results 
+# Ignore results directory 
 /results/*
+*.vscode
+__pycache__/

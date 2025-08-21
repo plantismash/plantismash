@@ -20,10 +20,10 @@ dependencies:
   - ncbi-datasets-cli
   - unzip
   - biopython==1.76
-
  # Extras for TFBS and visualization
   - logomaker
-
+  - pytest 
+  - tqdm
   # Pip dependencies
   - pip
   - pip:

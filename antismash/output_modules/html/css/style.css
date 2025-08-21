@@ -154,6 +154,10 @@ a:visited {
   min-height: 1.25em;
   text-align: center;
   vertical-align: middle;
+  /* Overwrite bootstrap min values */
+  box-sizing: content-box !important;
+  -webkit-box-sizing: content-box !important;
+  -moz-box-sizing: content-box !important;
 }
 /* start colour definitions for secondary metabolite types */
 .clbutton {
@@ -478,10 +482,10 @@ a:visited {
 .phenolamide a {
   color: black;
 }
-.MatE {
+.transporter_associated {
   background-color: lightsteelblue;
 }
-.MatE a {
+.transporter_associated a {
   color: black;
 }
 .strictosidine_like {

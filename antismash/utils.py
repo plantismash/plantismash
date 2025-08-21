@@ -31,6 +31,7 @@ from Bio import SearchIO
 from Bio.Seq import Seq
 from antismash.config import get_config
 from helperlibs.wrappers.io import TemporaryDirectory
+from argparse import Namespace
 
 try:
     from antismash.db import biosql
@@ -92,7 +93,7 @@ def getArgParser():
         def format_help(self):
             """Custom help format"""
             help_text = """
-########### antiSMASH ver. {version} #############
+########### plantiSMASH ver. {version} #############
 
 {usage}
 
@@ -820,7 +821,7 @@ def get_multifasta(seq_record):
         gene_id = get_gene_id(feature)
         fasta_seq = feature.qualifiers['translation'][0]
         if "-" in str(fasta_seq):
-            fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+            fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
         # Never write empty fasta entries
         if len(fasta_seq) == 0:
@@ -900,9 +901,9 @@ def get_aa_translation(seq_record, feature):
         logging.debug("Retranslating %s with stop codons", feature.id)
         fasta_seq = feature.extract(seq_record.seq).ungap('-').translate()
     if "*" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("*","X"), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("*","X"))
     if "-" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
     return fasta_seq
 
@@ -1350,9 +1351,16 @@ def get_percentage_identity(feature_1, feature_2):
         fasta_file1 = os.path.join(temp_dir, "temp1.fasta")
         fasta_file2 = os.path.join(temp_dir, "temp2.fasta")
         
+        # use the shared helpers to write the FASTA files
+        ids1 = get_gene_id(feature_1)
+        ids2 = get_gene_id(feature_2)
+        seq1 = get_aa_sequence(feature_1)
+        seq2 = get_aa_sequence(feature_2)
         with open(fasta_file1, "w") as f1, open(fasta_file2, "w") as f2:
-            f1.write(f">{feature_1.qualifiers['locus_tag'][0]}\n{feature_1.qualifiers['translation'][0]}\n")
-            f2.write(f">{feature_2.qualifiers['locus_tag'][0]}\n{feature_2.qualifiers['translation'][0]}\n")
+            f1.write(f">{ids1}\n{seq1}\n")
+            f2.write(f">{ids2}\n{seq2}\n")
+            
+        # execute blastp command
         
         command = ["blastp", "-query", fasta_file1, "-subject", fasta_file2, "-outfmt", "6 pident"]
         try:

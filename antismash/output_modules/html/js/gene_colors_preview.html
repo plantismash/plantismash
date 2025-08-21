@@ -1,4 +1,48 @@
-var gene_colors = [
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gene Color Preview</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    .color-box {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow: hidden;
+      background-color: white;
+    }
+    .swatch {
+      width: 100px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .info {
+      padding: 8px;
+    }
+    .label {
+      font-weight: bold;
+    }
+    .hex {
+      font-family: monospace;
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gene Color Preview</h1>
+  <div id="colorList"></div>
+
+  <script>
+    var gene_colors = gene_colors = [
   { label: "Cytochrome 450", color: "#D50000", members : ["plants/p450"] },
   { label: "Terpene synthase", color: "#35F800", members : ["plants/Terpene_synth", "plants/Terpene_synth_C", "plants/SQHop_cyclase_C", "plants/SQHop_cyclase_N", "plants/Lycopene_cycl"] },
   { label: "Copper amine oxidase", color: "#E9C63E", members : ["plants/Cu_amine_oxid"] },
@@ -51,39 +95,20 @@ var gene_colors = [
   { label: "Pyridoxine Oxidase C-terminal", color: "#00CED1", members : ["plants/PNP_phzG_C"] }
 ];
 
-function get_gene_color(orf) {
-	var color = "gray";
-	var newColor = false;
-	if (orf.hasOwnProperty("domains") && orf["domains"].length > 0) {
-		var domain = orf["domains"][0];
-		for (var i = 0; i < gene_colors.length; i++) {
-			var elm = gene_colors[i];
-			if (elm.members.indexOf(domain) >= 0) {
-				color = elm.color;
-				newColor = true;
-				break;
-			}
-		}
-	}
-	if (!newColor) {
-		if (orf["type"] == "biosynthetic") {
-			color = "#810e15";
-		}
-	}
-	return color;
-}
+    const container = document.getElementById("colorList");
+    gene_colors.forEach(entry => {
+      const div = document.createElement("div");
+      div.className = "color-box";
+      div.innerHTML = `
+        <div class="swatch" style="background-color: ${entry.color};"></div>
+        <div class="info">
+          <div class="label">${entry.label}</div>
+          <div class="hex">${entry.color}</div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  </script>
 
-function get_legend_obj(orf) {
-	var legobj = null;
-	if (orf.hasOwnProperty("domains") && orf["domains"].length > 0) {
-		var domain = orf["domains"][0];
-		for (var i = 0; i < gene_colors.length; i++) {
-			var elm = gene_colors[i];
-			if (elm.members.indexOf(domain) >= 0) {
-				legobj = elm;
-				break;
-			}
-		}
-	}
-	return legobj;
-}
+</body>
+</html>

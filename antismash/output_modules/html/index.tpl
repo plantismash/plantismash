@@ -7,6 +7,9 @@
     <link rel="stylesheet" type="text/css" href="css/datatable.css">
     <link rel="stylesheet" type="text/css" href="css/coexpress.d3.hiveplot.css">
     <link rel="stylesheet" type="text/css" href="css/modal.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <meta charset="utf-8" />
   </head>
   <body>
@@ -14,12 +17,12 @@
       <div class="top-header">
         <img class="antismash-logo" src="images/plantismash.png" alt="plantiSMASH">
         <span class="antismash-title"><a href="http://plantismash.secondarymetabolites.org">Plant Specialized Metabolite Analysis</a><br>
-            <span class="white">Version 2.0.0-beta<span id="antismash-version" style="display: none;"></span></span>
+            <span class="white">Version <span id="antismash-version" "></span></span>
         </span>
         <div id="icons">
           <a href="http://plantismash.secondarymetabolites.org/"><img src="images/home.png" alt="home" title="Go to start page"></a>
-          <a href="http://plantismash.secondarymetabolites.org/help.html"><img src="images/help.png" alt="help" title="Get help using plantiSMASH"></a>
-          <a href="http://plantismash.secondarymetabolites.org/about.html"><img src="images/about.png" alt="about" title="About plantiSMASH"></a>
+          <a href="https://plantismash.github.io/documentation/website_submission/"><img src="images/help.png" alt="help" title="Get help using plantiSMASH"></a>
+          <a href="https://plantismash.github.io/documentation/about/"><img src="images/about.png" alt="about" title="About plantiSMASH"></a>
           <a href="#" id="download"><img src="images/download.png" alt="download" title="Download results"></a>
           <div id="downloadmenu">
             <ul id="downloadoptions">
@@ -57,29 +60,29 @@
       </table>
     </div>
 
-    <div id="footer">
-      <div id="logos">
-      	<table id="logo-table">
-      		<tr>
-      			<td>
-        			<img src='images/wur-logo.png' />
-        		</td>
-        		<td>
-        			<img src='images/unila-logo.png' />
-        		</td>
-        		<td>
-        			<img src='images/cfb-logo.png' />
-        		</td>
-        		<td>
-				      <img src='images/jic-logo.png' />
-        		</td>
-        	</tr>
-        </table>
+  <div id="footer" class="container">
+    <div class="row justify-content-center align-items-center text-center org-logos" style="gap: 1rem;">
+      <div class="col-1 col-md-3">
+        <img class="img-responsive org-logo" src="images/wur-logo1.png" alt="WUR Logo" style="padding-top: 1em; width: 100%;">
       </div>
-      <div id="copyright">
-        If you have found plantiSMASH useful, please <a href="http://plantismash.secondarymetabolites.org/about">cite us</a>.
+      <div class="col-1 col-md-2">
+        <img class="img-responsive org-logo" src="images/jic-logo.png" alt="JIC Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2">
+        <img class="img-responsive org-logo" src="images/hu-logo.png" alt="HU Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2">  
+        <img class="img-responsive org-logo" src="images/jgi-logo.png" alt="JGI Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2 d-flex justify-content-center">
+        <div class="copyright-box well well-small text-center">
+          If you have found plantiSMASH useful, please 
+          <a href="http://plantismash.secondarymetabolites.org/about">cite us</a>.
+        </div>
       </div>
     </div>
+  </div>
+
 
     <script src="js/jquery.js"></script>
     <script src="js/purl.js"></script>
