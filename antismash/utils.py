@@ -31,6 +31,7 @@ from Bio import SearchIO
 from Bio.Seq import Seq
 from antismash.config import get_config
 from helperlibs.wrappers.io import TemporaryDirectory
+from argparse import Namespace
 
 try:
     from antismash.db import biosql
@@ -820,7 +821,7 @@ def get_multifasta(seq_record):
         gene_id = get_gene_id(feature)
         fasta_seq = feature.qualifiers['translation'][0]
         if "-" in str(fasta_seq):
-            fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+            fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
         # Never write empty fasta entries
         if len(fasta_seq) == 0:
@@ -900,9 +901,9 @@ def get_aa_translation(seq_record, feature):
         logging.debug("Retranslating %s with stop codons", feature.id)
         fasta_seq = feature.extract(seq_record.seq).ungap('-').translate()
     if "*" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("*","X"), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("*","X"))
     if "-" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
     return fasta_seq
 
