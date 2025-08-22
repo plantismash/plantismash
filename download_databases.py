@@ -28,8 +28,9 @@ from os import path
 
 PFAM_URL = "ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam27.0/Pfam-A.hmm.gz"
 PFAM_CHECKSUM = "b29bc2c54db8090531df0361a781b8d7397f60ebedc0c36a16e7d45e999cc329"
-# CLUSTERBLAST_URL = "https://bitbucket.org/antismash/antismash/downloads/clusterblast_dmnd07.tar.xz"
-# CLUSTERBLAST_CHECKSUM = "0b4911ee3e30bc2fbe00b85fdd100ec7389c835c22527586d7b93ab661a0a57b"
+# --- ClusterBlast (Zenodo) ---
+CLUSTERBLAST_URL = "https://zenodo.org/records/16927685/files/clusterblast.tar.gz?download=1"
+CLUSTERBLAST_MD5 = "6c31dfbb4f8af1e83760ad943edf5840"
 
 if sys.platform == ('win32') or sys.platform == ('darwin'):
     os.environ['EXEC'] = os.getcwd() + "\exec"
@@ -118,6 +119,13 @@ def checksum(filename, chunksize=2 ** 20):
 
     return sha.hexdigest()
 
+def checksum_md5(filename, chunksize=2 ** 20):
+    md5 = hashlib.md5()
+    with open(filename, 'rb') as fh:
+        for chunk in iter(lambda: fh.read(chunksize), b''):
+            md5.update(chunk)
+    return md5.hexdigest()
+
 
 def unzip_file(filename, decompressor, error_type):
     """Decompress a compressed file"""
@@ -186,44 +194,51 @@ def download_if_not_present(url, filename, sha256sum):
               (filename, sha256sum, csum))
         sys.exit(1)
 
+def download_if_not_present_md5(url, filename, md5sum_expected):
+    if path.exists(filename):
+        print("Creating MD5 of %s" % path.basename(filename))
+        csum = checksum_md5(filename)
+        if csum == md5sum_expected:
+            return
+        else:
+            print("MD5 mismatch: expected %s, got %s" % (md5sum_expected, csum))
+
+    download_file(url, filename)
+
+    print("Creating MD5 of %s" % path.basename(filename))
+    csum = checksum_md5(filename)
+    if csum != md5sum_expected:
+        print("Error downloading %s, MD5 mismatch. Expected %s, got %s." %
+              (filename, md5sum_expected, csum))
+        sys.exit(1)
+
 
 def download_clusterblast():
-    """Download and extract the ClusterBlast database"""
-    
-    CLUSTERBLAST_URL = "https://plantismash.bioinformatics.nl/clusterblast/clusterblast.tar.gz"
-    CLUSTERBLAST_CHECKSUM = "1e032f1f3b297e8e924a328ef26912d324cb01deae25332933f2ba50ff7af2fd"
-    
-    # Check for sufficient disk space before download
+    """Download and extract the ClusterBlast database from Zenodo (MD5 verified)."""
+    # Check space first (uses HEAD to get Content-Length if available)
     check_diskspace(CLUSTERBLAST_URL)
-    
-    # Define the filename for the downloaded file
-    filename = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast_dmnd07.tar.gz")
-    
-    # Download the file if not present or if the checksum does not match
-    download_if_not_present(CLUSTERBLAST_URL, filename, CLUSTERBLAST_CHECKSUM)
-    
-    # Extract the .gz file to its contents
-    extracted_filename = unzip_file(filename, gzip, gzip.zlib.error)
-    
-    # Extract the contents of the tar file into the generic_modules/clusterblast directory
+
     clusterblast_dir = path.join(os.getcwd(), "antismash", "generic_modules", "clusterblast")
+    os.makedirs(clusterblast_dir, exist_ok=True)
+
+    # Save the tarball next to the target directory
+    tarball = path.join(clusterblast_dir, "clusterblast.tar.gz")
+
+    # Download + verify by MD5 (use the provided MD5)
+    download_if_not_present_md5(CLUSTERBLAST_URL, tarball, CLUSTERBLAST_MD5)
+
+    # Extract .tar.gz directly
     try:
-        with tarfile.open(extracted_filename, 'r') as tar:
-            for member in tar.getmembers():
-                # Remove any leading directories from the member's path to avoid subdirectory creation
-                member.name = path.relpath(member.name, start=member.name.split('/')[0])
-                tar.extract(member, path=clusterblast_dir)  # Extract directly into clusterblast directory
+        with tarfile.open(tarball, "r:gz") as tar:
+            tar.extractall(path=clusterblast_dir)
     except tarfile.ReadError:
-        print(("ERROR: Error extracting %s. Please try to extract it manually." % extracted_filename))
-        return
-    
-    print(("Extraction of %s finished successfully." % extracted_filename))
-    
-    # Clean up by deleting the original compressed files
-    delete_file(filename)  # delete the .tar.gz file
-    delete_file(extracted_filename)  # delete the .tar file
+        print("ERROR: Error extracting %s. Please try to extract it manually." % path.basename(tarball))
+        sys.exit(1)
 
+    print("Extraction of %s finished successfully." % path.basename(tarball))
 
+    # Clean up the tarball
+    delete_file(tarball)
 
 def main():
     #Download and compile PFAM database
