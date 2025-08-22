@@ -4,7 +4,11 @@ from typing import Any, Dict, List, Tuple
 from pyquery import PyQuery as pq
 import logging
 import os
-import csv, io, urllib.parse
+import csv
+import io
+import urllib.parse
+import gzip
+import posixpath
 
 from Bio.SeqFeature import CompoundLocation
 from antismash import utils
@@ -29,19 +33,16 @@ def _get_output_dir(options) -> str:
     Prefer the absolute path set by run_antismash.py:
       - options.full_outputfolder_path
       - else abspath(options.outputfoldername)
-    Fallback to other common attributes, then CWD.
     """
-    # 1) The canonical absolute results dir used by run_antismash.py
     val = getattr(options, "full_outputfolder_path", None)
     if isinstance(val, str) and val.strip():
         return val
 
-    # 2) The name used on the CLI; make absolute
     val = getattr(options, "outputfoldername", None)
     if isinstance(val, str) and val.strip():
         return os.path.abspath(val)
 
-    # 3) Other possible names, made absolute if present
+    # Fallbacks
     candidates = [
         "outputfolder", "output_dir", "outdir", "output", "output_folder",
         "output_path", "results_dir", "results_path", "result_dir", "work_dir",
@@ -51,7 +52,6 @@ def _get_output_dir(options) -> str:
         if isinstance(v, str) and v.strip():
             return os.path.abspath(v)
 
-    # 4) Sometimes options.general holds paths
     general = getattr(options, "general", None)
     if general:
         for attr in ["full_outputfolder_path", "outputfoldername"] + candidates:
@@ -59,7 +59,6 @@ def _get_output_dir(options) -> str:
             if isinstance(v, str) and v.strip():
                 return os.path.abspath(v)
 
-    # 5) Fallback
     return os.getcwd()
 
 
@@ -71,7 +70,6 @@ def _cds_tss_and_strand(cds) -> Tuple[int, int]:
     strand = int(getattr(loc, "strand", 1) or 1)
     if isinstance(loc, CompoundLocation) and loc.parts:
         first, last = loc.parts[0], loc.parts[-1]
-        # +: TSS = left/start, -: TSS = right/end-1
         tss = int(first.start) if strand == 1 else int(last.end) - 1
     else:
         tss = int(loc.start) if strand == 1 else int(loc.end) - 1
@@ -95,7 +93,7 @@ def _signed_distance(hit_start: int, tss: int, gene_strand: int) -> int:
 def _load_hits_from_options(seq_record, options) -> List[TFBSHit]:
     """Pull hits from options.extrarecord (populated by run_tfbs_finder_for_record)."""
     try:
-        ns = options.extrarecord.get(seq_record.id)  # Namespace
+        ns = options.extrarecord.get(seq_record.id)
         if not ns or "TFBSFinderResults" not in getattr(ns, "extradata", {}):
             return []
         results: TFBSFinderResults = ns.extradata["TFBSFinderResults"]
@@ -107,16 +105,12 @@ def _load_hits_from_options(seq_record, options) -> List[TFBSHit]:
 
 
 def _csv_download_link(headers: List[str], rows: List[List[str]], filename: str) -> str:
-    """
-    Create a UTF-8 CSV in-memory and return a HTML anchor with data URI for download.
-    Uses ASCII '-' for strand to avoid mojibake like '‚àí' in spreadsheet apps.
-    """
+    """Create a small CSV in-memory and return a HTML anchor with data URI for download."""
     try:
         buf = io.StringIO()
         w = csv.writer(buf, delimiter=",", lineterminator="\n")
         w.writerow(headers)
         for r in rows:
-            # force ASCII '-' and '+' in strand-like fields
             r = [(x.replace("−", "-").replace("＋", "+") if isinstance(x, str) else x) for x in r]
             w.writerow(r)
         csv_text = buf.getvalue()
@@ -145,23 +139,71 @@ def _append_global_csv(outdir: str, headers: List[str], rows: List[List[str]]) -
         logging.warning("TFBS: failed to write global CSV: %s", e)
 
 
+def _ensure_tfbs_dir(options) -> Tuple[str, str]:
+    """Returns (abs_dir, rel_href_prefix) for a 'tfbs' subfolder under the results directory."""
+    outdir = _get_output_dir(options)
+    tfbs_dir = os.path.join(outdir, "tfbs")
+    os.makedirs(tfbs_dir, exist_ok=True)
+    return tfbs_dir, "tfbs"  # POSIX for href
+
+
+def _human_size(n: int) -> str:
+    units = ["B", "KB", "MB", "GB"]
+    size = float(n)
+    for u in units:
+        if size < 1024 or u == units[-1]:
+            return f"{size:.1f} {u}"
+        size /= 1024.0
+    return f"{size:.1f} GB"
+
+
+def _count_csv_rows(csv_path: str) -> int:
+    try:
+        with open(csv_path, "r", encoding="utf-8") as fh:
+            return max(0, sum(1 for _ in fh) - 1)  # minus header
+    except Exception:
+        return 0
+
+
+def _write_tsv_gz_from_rows(
+    headers: List[str],
+    rows: List[List[str]],
+    abs_dir: str,
+    rel_prefix: str,
+    filename: str,
+) -> Tuple[str, int, int]:
+    """
+    Write rows as a gzipped TSV at abs_dir/filename and return:
+      (rel_href, n_rows, file_size_bytes)
+    """
+    abs_path = os.path.join(abs_dir, filename)
+    with gzip.open(abs_path, "wt", newline="", encoding="utf-8") as gz:
+        w = csv.writer(gz, delimiter="\t", lineterminator="\n")
+        w.writerow(headers)
+        for r in rows:
+            w.writerow(r)
+    try:
+        size = os.path.getsize(abs_path)
+    except Exception:
+        size = 0
+    rel_href = posixpath.join(rel_prefix, filename)
+    return rel_href, len(rows), size
+
+
 def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
     """
-    Returns (per_cds_html, per_hit_html) for the current cluster.
-    - per_cds_html: aggregated motif list per CDS within ±tfbs_range (collapsible, closed by default)
-    - per_hit_html: detailed hit table per CDS (collapsible, closed by default)
-    Adds **Download CSV** buttons for both tables via data-URI (no files written to disk).
-    Integrates TAIR symbols and connectTF validation/evidence.
-    Also APPENDS all detailed hits to a single run-level CSV in the results directory.
+    Returns (per_cds_html, per_hit_download_html).
+    - per_cds_html: aggregated motif list per CDS (inline; with small CSV download)
+    - per_hit_download_html: no giant table; only a Download link to TSV.gz on disk
+    Also appends all detailed hits to a single run-level CSV in the results directory.
     """
     hits = _load_hits_from_options(seq_record, options)
     if not hits:
         return "", ""
 
-    # Limit to CDS overlapping this cluster
+    # Restrict to CDS overlapping this cluster
     cluster_feat = utils.get_cluster_by_nr(seq_record, cluster["idx"])
     cstart, cend = int(cluster_feat.location.start), int(cluster_feat.location.end)
-
     cds_feats = [
         f for f in utils.get_cds_features(seq_record)
         if int(f.location.end) > cstart and int(f.location.start) < cend
@@ -170,7 +212,7 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
     half = int(getattr(options, "tfbs_range", 1000))
     seqlen = len(seq_record.seq)
 
-    # Prepare CDS windows (also clip displayed window to cluster span)
+    # Build CDS windows (and clip display to cluster span)
     cds_windows: List[Dict[str, Any]] = []
     for i, cds in enumerate(cds_feats):
         tss, gstrand = _cds_tss_and_strand(cds)
@@ -192,23 +234,19 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                 "disp_b": disp_b,
             }
         )
-
     if not cds_windows:
         return "", ""
 
-    # Load mappings once
+    # Mappings
     tair_map = load_tair_symbols()
     validated_map = load_validated_map()
 
     # Accumulators
-    per_hit_rows_html: List[str] = []
-    per_hit_rows_csv: List[List[str]] = []  # detailed table
-    per_cds_rows_csv: List[List[str]] = []  # aggregated table CSV
+    per_hit_rows_csv: List[List[str]] = []   # detailed rows for per-BGC TSV.gz + global CSV
+    per_cds_rows_csv: List[List[str]] = []   # aggregated rows for small in-memory CSV
     per_cds: Dict[str, Dict[str, Any]] = {}
+    validated_hits_total = 0
 
-    validated_hits_total = 0  # count for the second table header
-
-    # For global CSV writing
     outdir = _get_output_dir(options)
     global_headers = [
         "Record", "Cluster", "ClusterStart", "ClusterEnd", "Product",
@@ -217,19 +255,12 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
         "Distance_to_TSS", "Score", "Confidence", "Validated", "Evidence", "TF_link",
     ]
     global_rows: List[List[str]] = []
-
-    # Try to fetch a product label/type if present in the cluster descriptor
     product = cluster.get("type", cluster.get("product", "-"))
 
+    # Build rows
     for cw in cds_windows:
         label, gstrand, tss, a, b, disp_a, disp_b = (
-            cw["label"],
-            cw["strand"],
-            cw["tss"],
-            cw["win_a"],
-            cw["win_b"],
-            cw["disp_a"],
-            cw["disp_b"],
+            cw["label"], cw["strand"], cw["tss"], cw["win_a"], cw["win_b"], cw["disp_a"], cw["disp_b"]
         )
         target_norm = norm_agi(label)
 
@@ -238,55 +269,22 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
             if a <= h.start <= max(a, b - mlen):
                 dist = _signed_distance(h.start, tss, gstrand)
 
-                # TF locus + symbol
                 tf_id_norm = norm_agi(h.name or "")
                 tf_sym = tair_map.get(tf_id_norm, "")
-                display_label = f"{tf_id_norm} ({tf_sym})" if tf_sym else tf_id_norm
 
-                # Validation (TF, target) -> metadata id
                 meta_id = validated_map.get((tf_id_norm, target_norm))
                 is_validated = meta_id is not None
                 ev_txt = evidence_summary(meta_id) if is_validated else ""
-                ev_cell_html = (
-                    f'<a href="{CONNECTF_URL}" target="_blank" rel="noopener">{ev_txt}</a>'
-                    if ev_txt
-                    else "—"
-                )
                 if is_validated:
                     validated_hits_total += 1
 
-                # Strand characters: use pretty minus for HTML; ASCII for CSV
-                strand_gene_html = "+" if gstrand == 1 else "−"
+                # ASCII for CSV
                 strand_gene_csv = "+" if gstrand == 1 else "-"
-                strand_hit_html = "+" if h.strand == 1 else "−"
                 strand_hit_csv = "+" if h.strand == 1 else "-"
-
-                # Build motif cell HTML safely
-                if getattr(h, "link", ""):
-                    motif_cell_html = f'<a href="{h.link}" target="_blank" rel="noopener">{display_label}</a>'
-                else:
-                    motif_cell_html = display_label
 
                 window_str = f"{disp_a}-{disp_b}"
 
-                # HTML row (detailed)
-                per_hit_rows_html.append(
-                    "<tr>"
-                    f"<td>{label}</td>"
-                    f"<td>{strand_gene_html}</td>"
-                    f"<td>{tss}</td>"
-                    f"<td>{window_str}</td>"
-                    f"<td>{motif_cell_html}</td>"
-                    f"<td>{h.start}</td>"
-                    f"<td>{strand_hit_html}</td>"
-                    f"<td>{dist}</td>"
-                    f"<td>{h.score:.2f}/{h.max_score:.2f}</td>"
-                    f"<td>{str(h.confidence).capitalize()}</td>"
-                    f"<td>{ev_cell_html}</td>"
-                    "</tr>"
-                )
-
-                # CSV row (detailed) for table button
+                # Per-BGC TSV.gz row
                 per_hit_rows_csv.append(
                     [
                         label,
@@ -329,7 +327,7 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                     ]
                 )
 
-                # Aggregate by CDS
+                # Aggregate per CDS
                 agg = per_cds.setdefault(
                     label,
                     {
@@ -337,29 +335,31 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                         "tss": tss,
                         "disp_a": disp_a,
                         "disp_b": disp_b,
-                        "motifs": {},        # name -> link
-                        "validated": set(),  # set of TF ids validated for this CDS
+                        "motifs": {},        # TF id -> link
+                        "validated": set(),  # TF ids validated for this CDS
                         "count": 0,
                     },
                 )
-                # store link once
                 if tf_id_norm not in agg["motifs"] or not agg["motifs"][tf_id_norm]:
                     agg["motifs"][tf_id_norm] = getattr(h, "link", "") or ""
                 if is_validated:
                     agg["validated"].add(tf_id_norm)
                 agg["count"] += 1
 
-    # ---- Append per-hit rows to a single run-level CSV file ----
+    # Totals for this cluster
+    total_hits = len(per_hit_rows_csv)
+
+    # Append to global CSV
     if global_rows:
         _append_global_csv(outdir, global_headers, global_rows)
 
-    # Aggregated per-CDS table (collapsible, closed by default)
+    # Aggregated per-CDS table (inline)
     per_cds_html = ""
     if per_cds:
-        rows_html = []
-        per_cds_rows_csv = []  # flatten for CSV
+        rows_html: List[str] = []
+        per_cds_rows_csv = []
         for label, agg in sorted(per_cds.items()):
-            # HTML motifs list with TAIR symbol and '*' if validated
+            # HTML motifs with TAIR symbol and '*' if validated
             motifs_html = ", ".join(
                 (
                     (lambda nm, lnk: (
@@ -373,7 +373,6 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                 )(nm, lnk)
                 for nm, lnk in sorted(agg["motifs"].items())
             )
-
             window_str_cds = f"{agg['disp_a']}-{agg['disp_b']}"
             strand_html = '+' if agg['strand'] == 1 else '−'
 
@@ -388,7 +387,7 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                 "</tr>"
             )
 
-            # CSV motifs list (plain text; include symbol and '*' if validated)
+            # CSV (plain text motifs; symbol + '*' if validated)
             motifs_txt = ", ".join(
                 f"{nm}"
                 f"{' (' + tair_map.get(nm, '') + ')' if tair_map.get(nm, '') else ''}"
@@ -398,7 +397,7 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
             per_cds_rows_csv.append(
                 [
                     label,
-                    ("+" if agg["strand"] == 1 else "-"),  # ASCII for CSV
+                    ("+" if agg["strand"] == 1 else "-"),
                     str(agg["tss"]),
                     window_str_cds,
                     motifs_txt,
@@ -406,7 +405,6 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
                 ]
             )
 
-        # Download link for the aggregated table
         dl_cds = _csv_download_link(
             headers=["CDS", "CDS strand", "TSS", "Window", "Motifs", "#Hits"],
             rows=per_cds_rows_csv,
@@ -415,8 +413,9 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
 
         per_cds_html = (
             "<details class='tfbs-block'>"
-            "<summary><strong>Motifs per CDS (aggregated)</strong>"
-            " <span style='opacity:.7'>(* validated via connectTF.org)</span>"
+            "<summary><strong>Motifs per CDS (aggregated)</strong> "
+            f"<span style='opacity:.7'>(validated: {validated_hits_total:,} / total: {total_hits:,})</span> "
+            "<span style='opacity:.7'>* validated via connectTF.org</span>"
             f"{dl_cds}</summary>"
             "<div class='mt-2'>"
             "<table class='table table-sm'>"
@@ -430,51 +429,32 @@ def _build_tables_for_cluster(seq_record, cluster, options) -> Tuple[str, str]:
             "</details>"
         )
 
-    # Detailed per-hit table (collapsible, closed by default)
+    # Per-BGC detailed hits: write TSV.gz and show a download button
     per_hit_html = ""
-    if per_hit_rows_html:
-        dl_hits = _csv_download_link(
-            headers=[
-                "CDS",
-                "CDS strand",
-                "TSS",
-                "Window",
-                "TF locus",
-                "TF symbol",
-                "Hit start",
-                "Hit strand",
-                "Distance to TSS",
-                "Score",
-                "Confidence",
-                "Evidence (connectTF)",
-            ],
-            rows=per_hit_rows_csv,
-            filename=f"tfbs_hits_cluster{cluster['idx']}_{_safe_filename(seq_record.id)}.csv",
+    if per_hit_rows_csv:
+        tfbs_dir, rel_prefix = _ensure_tfbs_dir(options)
+        file_base = f"tfbs_hits_cluster{cluster['idx']}_{_safe_filename(seq_record.id)}.tsv.gz"
+        dl_headers = [
+            "CDS", "CDS_strand", "TSS", "Window", "TF_locus", "TF_symbol",
+            "Hit_start", "Hit_strand", "Distance_to_TSS", "Score", "Confidence", "Evidence"
+        ]
+        rel_href, nrows, fsize = _write_tsv_gz_from_rows(
+            dl_headers, per_hit_rows_csv, tfbs_dir, rel_prefix, file_base
         )
         per_hit_html = (
-            "<details class='tfbs-block'>"
-            f"<summary><strong>TFBS hits per CDS (within ±window)</strong> "
-            f"<span style='opacity:.7'>(rows: {len(per_hit_rows_html)}; validated: {validated_hits_total})</span>{dl_hits}</summary>"
-            "<div class='mt-2'>"
-            "<table class='table table-sm'>"
-            "<thead><tr>"
-            "<th>CDS</th><th>CDS strand</th><th>TSS</th><th>Window</th>"
-            "<th>Motif / TF</th><th>Hit start</th><th>Hit strand</th><th>Distance to TSS</th>"
-            "<th>Score</th><th>Confidence</th><th>Evidence (connectTF)</th>"
-            "</tr></thead><tbody>"
-            + "".join(sorted(per_hit_rows_html))
-            + "</tbody></table>"
-            "</div>"
-            "</details>"
+            "<p class='tfbs-download'>"
+            f"<a class='as-button' href='{rel_href}' download>"
+            f"Download full TFBS hits for this BGC (TSV.gz, {nrows:,} rows, {_human_size(fsize)})"
+            "</a> "
+            f"<span style='opacity:.7'>(validated: {validated_hits_total:,} / total: {total_hits:,})</span>"
+            "</p>"
         )
 
     return per_cds_html, per_hit_html
 
 
 def generate_details_div(cluster, seq_record, options, js_domains, details=None):
-    """
-    Insert a TFBS panel into each cluster page and append all hits to a global CSV in the results directory.
-    """
+    """Insert the TFBS panel into the cluster page and add a run-level CSV download if present."""
     try:
         per_cds_html, per_hit_html = _build_tables_for_cluster(seq_record, cluster, options)
     except Exception as e:
@@ -498,6 +478,20 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
         container.append(pq(per_cds_html))
     if per_hit_html:
         container.append(pq(per_hit_html))
-    details.append(container)
 
+    # Run-level CSV link (if available)
+    outdir = _get_output_dir(options)
+    global_csv = os.path.join(outdir, GLOBAL_CSV_NAME)
+    if os.path.exists(global_csv):
+        nrows = _count_csv_rows(global_csv)
+        size = _human_size(os.path.getsize(global_csv))
+        link_html = (
+            "<p class='tfbs-download-all'>"
+            f"<a class='as-button' href='{GLOBAL_CSV_NAME}' download>"
+            f"Download TFBS hits for all BGCs (CSV, {nrows:,} rows, {size})"
+            "</a></p>"
+        )
+        container.append(pq(link_html))
+
+    details.append(container)
     return details
