@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT4G24020
+*Experiment_Type: Binding
+*Technology/Method: ChIPSeq
+*Edge_Type: Cells:Bound
+*Data_Source/Publication: Alvarez Nat Commun 2020
+*Genotype: nlp7
+*Treatments: 60N Chx Dex
+*Control: Input
+*Tissue/Sample: Root Protoplasts
+Treatment_Time: 30 min
+Growth_Period_Days: 10 days
+Growth_Medium: 1x MS w/ 1% sucrose 2mM KNO3
+Analysis_Method: MACS2
+Analysis_Cutoff: FDR<0.05
+DOI: 10.1038/s41467-020-14979-6

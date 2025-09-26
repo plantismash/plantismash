@@ -20,6 +20,14 @@ import os
 from antismash import utils
 from antismash.config import get_config
 from antismash.output_modules.html import js
+import unicodedata
+import re
+import xml.sax.saxutils as saxutils
+
+try: 
+    from antismash.generic_modules.tfbs_finder import output as tfbs_output
+except Exception: 
+    tfbs_output = None
 
 def set_title(d, seq_id, num_clusters):
     d('title').text('%s - %s clusters - antiSMASH results' % (seq_id, num_clusters))
@@ -173,7 +181,7 @@ def add_overview_entry(d, cluster, odd):
         a = pq('<a>')
         a.attr('href', "http://antismash.secondarymetabolites.org/help#{}".format(subtype))
         if (config.taxon == "plants"):
-            a.attr('href', "http://plantismash.secondarymetabolites.org/help#{}".format(subtype))
+            a.attr('href', "https://plantismash.github.io/documentation/changelog/2.0/#supported-cluster-types-version-2")
         a.attr('target', '_blank')
         a.text(subtype.capitalize())
         td.append(a)
@@ -202,9 +210,23 @@ def add_overview_entry(d, cluster, odd):
     td = pq('<td>')
     td.text(", ".join(cluster['domains']))
     tr.append(td)
+    # predicted substrate type
+    td = pq('<td>')
+    td.text(", ".join(cluster['substrates']))
+    tr.append(td)
     # closest cluster match BGCid description
     td = pq('<td>')
-    td.text(cluster['knowncluster'])
+
+    print(("Raw value for cluster['knowncluster']:", cluster['knowncluster']))
+
+    # Sanitize the knowncluster value for XML compatibility
+    try:
+        sanitized_knowncluster = sanitize_for_xml(cluster['knowncluster'])
+        td.text(sanitized_knowncluster)
+    except ValueError as e:
+        logging.error("Error assigning text to XML: {}".format(e))
+        td.text("Invalid text")
+        
     tr.append(td)
 
     td = pq('<td>')
@@ -290,6 +312,23 @@ def add_cluster_page(d, cluster, seq_record, options, extra_data, seq_id):
     description.append(desc_svg)
 
     content.append(description)
+
+    # --- TFBS panel (if available) ---
+    try:
+        if tfbs_output is not None:
+            extra_ns = options.extrarecord.get(seq_record.id)
+            extra = getattr(extra_ns, "extradata", {}) if extra_ns else {}
+            tfbs_res = extra.get("TFBSFinderResults")
+            if tfbs_res:
+                tfbs_div = tfbs_output.generate_details_div(
+                    cluster, seq_record, options, extra_data['js_domains'], details=None
+                )
+                if tfbs_div is not None:
+                    content.append(tfbs_div)
+    except Exception as e:
+        logging.debug("TFBS panel not added: %s", e)
+    # --- end TFBS panel ---
+
 
     if options.input_type == 'nucl':
         legend = pq('<div>')
@@ -584,7 +623,7 @@ def generate_searchgtr_htmls(seq_records, options):
         smcogdict, smcogdescriptions = utils.get_smcog_annotations(seq_record)
         for feature in utils.get_cds_features(seq_record):
             gene_id = utils.get_gene_id(feature)
-            if smcogdict.has_key(gene_id):
+            if gene_id in smcogdict:
                 smcog = smcogdict[gene_id]
                 if smcog in gtrcoglist:
 
@@ -599,3 +638,39 @@ def generate_searchgtr_htmls(seq_records, options):
                     formfile.write("%s\n%s" % (gene_id, utils.get_aa_sequence(feature)))
                     formfile.write(searchgtrformtemplateparts[1])
                     formfile.close()
+
+
+def sanitize_for_xml(input_str):
+    """
+    Sanitize a string for XML compatibility by ensuring it is Unicode,
+    removing control characters, and escaping XML special characters.
+
+    Args:
+        input_str (str or unicode): The input string to sanitize.
+
+    Returns:
+        str: A sanitized, XML-compatible string.
+    """
+    if not input_str:  # Handle None, empty, or null values
+        return ""
+
+    try:
+        # Convert to Unicode (if not already)
+        if not isinstance(input_str, str):
+            input_str = input_str.decode('utf-8', 'ignore')  # Ignore bad bytes
+
+        # Normalize Unicode (NFKC form)
+        input_str = unicodedata.normalize("NFKC", input_str)
+
+        # Remove control characters except for tab, newline, and carriage return
+        input_str = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', input_str)
+        
+        # Escape special XML characters using saxutils
+        sanitized = saxutils.escape(input_str)
+        
+        # Return the final sanitized string
+        return sanitized
+
+    except Exception as e:
+        logging.error("Failed to sanitize XML string: {}. Error: {}".format(repr(input_str), e))
+        return ""

@@ -1,8 +1,30 @@
 *.swp
 *.pyc
+*.bak
 cover/
 .coverage
 tags
 *.h3?
 .DS_Store
 .idea/
+/antismash/generic_modules/fullhmmer/Pfam-A.hmm
+test_datasets/
+# Ignore clusterBLAST database files 
+plantgeneclusters.txt
+plantgeneclusterprots.fasta
+plantgeneclusterprots.dmnd
+.vscode/
+# ignore the data in TFBS 
+/antismash/generic_modules/tfbs_finder/data/others/*
+# need to download the connectTF_validated.csv file
+/antismash/generic_modules/tfbs_finder/data/connectTF_validated.csv
+# Ignore all .hmm downloaded files in hmm_detection and subdirs
+antismash/generic_modules/hmm_detection/**/*.hmm
+# But don't ignore any in the plants subdirectory
+!antismash/generic_modules/hmm_detection/plants/*.hmm
+# Ignore environment and editor-specific files
+.python-version
+# Ignore results directory 
+/results/*
+*.vscode
+__pycache__/

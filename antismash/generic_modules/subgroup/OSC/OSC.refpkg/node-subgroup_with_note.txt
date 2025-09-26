@@ -1,0 +1,197 @@
+AAG44096.1 cycloartenol synthase [Abies magnifica]	basal_CAS
+AOG74853.1 cycloartenol synthase [Laurencia dendroidea]	basal_CAS
+BAF93208.1 cycloartenol synthase [Adiantum capillus-veneris]	basal_CAS
+BAI48072.1 cycloartenol synthase [Goniophlebium niponicum]	basal_CAS
+BBE49388.1 cycloartenol synthase [Polystichum polyblepharum]	basal_CAS
+XP_042928216.1 uncharacterized protein CHLRE_01g011100v5 [Chlamydomonas reinhardtii]	basal_CAS
+ACH88048.1 beta-amyrin synthase [Nigella sativa]	basal_core_BAS
+ALR73777.1 LUP2-P [Barbarea vulgaris subsp. arcuata]	brassica_core_BAS_other
+ALR73778.1 LUP2-G [Barbarea vulgaris subsp. arcuata]	brassica_core_BAS_other
+ALR73779.1 LUP5-P [Barbarea vulgaris subsp. arcuata]	brassica_core_BAS_other
+ALR73780.1 LUP5-G [Barbarea vulgaris subsp. arcuata]	brassica_core_BAS_other
+AQS23741.1 lupeol synthase [Cleome arabica]	brassica_core_BAS_other
+NP_001321029.1 lupeol synthase 1 [Arabidopsis thaliana]	brassica_core_BAS_other
+NP_001322959.1 lupeol synthase 2 [Arabidopsis thaliana]	brassica_core_BAS_other
+NP_001323105.1 Terpenoid cyclases family protein [Arabidopsis thaliana]	brassica_core_BAS_other
+NP_178016.2 Terpenoid cyclases family protein [Arabidopsis thaliana]	brassica_core_BAS_other
+NP_683508.1 camelliol C synthase 1 [Arabidopsis thaliana]	brassica_core_BAS_other
+AO_OSC14	brassica_core_BAS_other
+AO_OSC15	brassica_core_BAS_other
+NP_001078733.1 thalianol synthase 1 [Arabidopsis thaliana]	brassica_diverse_OSC
+NP_001318680.1 putative pentacyclic triterpene synthase 3 [Arabidopsis thaliana]	brassica_diverse_OSC
+NP_001322480.1 Terpenoid cyclases family protein [Arabidopsis thaliana]	brassica_diverse_OSC
+NP_193272.1 baruol synthase 1 [Arabidopsis thaliana]	brassica_diverse_OSC
+NP_199074.1 marneral synthase [Arabidopsis thaliana]	brassica_diverse_OSC
+NP_567462.1 pentacyclic triterpene synthase 1 [Arabidopsis thaliana]	brassica_diverse_OSC
+XP_009140447.1 tirucalladienol synthase-like [Brassica rapa]	brassica_diverse_OSC
+AO_OSC19	brassica_diverse_OSC
+AO_OSC20	brassica_diverse_OSC
+AEM42982.1 cucurbitadienol synthase [Siraitia grosvenorii]	cucurbitadienol_synth
+AIT72030.1 oxidosqualene cyclase [Cucumis sativus]	cucurbitadienol_synth
+AJR21210.1 cucurbitadienol synthase 2 [Citrullus colocynthis]	cucurbitadienol_synth
+BAD34645.1 cucurbitadienol synthase [Cucurbita pepo]	cucurbitadienol_synth
+BBN67121.1 cucurbitadienol synthase [Momordica charantia var. pavel]	cucurbitadienol_synth
+AO_OSC1	cucurbitadienol_synth
+AAS01523.1 putative beta-amyrin synthase [Centella asiatica]	dammarenyl_GroupI
+ACZ71036.1 dammarenediol synthase protein [Panax ginseng]	dammarenyl_GroupI
+AFH53506.1 2,3-oxidosqualene cyclase 2 [Ocimum basilicum]	dammarenyl_GroupI
+AFJ19235.1 mixed amyrin synthase [Catharanthus roseus]	dammarenyl_GroupI
+AHF22084.1 OSC2 [Artemisia annua]	dammarenyl_GroupI
+AIS39793.1 mixed amyrin synthase 1 [Ilex asprella var. asprella]	dammarenyl_GroupI
+ARS25031.1 AS1 [Ilex pubescens]	dammarenyl_GroupI
+AXU93516.1 oxidosqualene cyclase 1 [Taraxacum kok-saghyz]	dammarenyl_GroupI
+BAF33291.1 dammarenediol-II synthase [Panax ginseng]	dammarenyl_GroupI
+BAF63702.1 mixed amyrin synthase [Olea europaea]	dammarenyl_GroupI
+QBO24611.1 multifunctional taraxasterol triterpene synthase [Taraxacum coreanum]	dammarenyl_GroupI
+QBO24612.1 multifunctional baurenol triterpene synthase [Taraxacum coreanum]	dammarenyl_GroupI
+QBQ04197.1 butyrospermol synthase 1 [Euphorbia lathyris]	dammarenyl_GroupI
+AO_OSC8	dammarenyl_GroupI
+AO_OSC9	dammarenyl_GroupI
+AO_OSC10	dammarenyl_GroupI
+ABX75048.2 cycloartenol synthase 2 [Polygala tenuifolia]	dicot_CAS_GroupB
+APG38074.1 cycloartenol synthase 1 [Monteverdia ilicifolia]	dicot_CAS_GroupB
+AWK97868.1 OSC4 [Tripterygium wilfordii]	dicot_CAS_GroupB
+BAA85266.1 cycloartenol synthase [Luffa aegyptiaca]	dicot_CAS_GroupB
+BAB83085.1 cycloartenol synthase [Betula platyphylla]	dicot_CAS_GroupB
+BAD34644.1 cycloartenol synthase [Cucurbita pepo]	dicot_CAS_GroupB
+BBN67123.1 cycloartenol synthase [Momordica charantia var. pavel]	dicot_CAS_GroupB
+AAS01524.1 cycloartenol synthase [Centella asiatica]	dicot_CAS_GroupC
+ABB76767.1 cycloartenol synthase [Ricinus communis]	dicot_CAS_GroupC
+ABX75046.1 cycloartenol synthase 1 [Polygala tenuifolia]	dicot_CAS_GroupC
+ADG60271.1 cycloartenol synthase [Withania somnifera]	dicot_CAS_GroupC
+ADK35127.1 cycloartenol synthase [Kalanchoe daigremontiana]	dicot_CAS_GroupC
+AIY33888.1 cycloartenol synthase [Nicotiana tabacum]	dicot_CAS_GroupC
+AJE29378.1 cycloartenol synthase [Artemisia annua]	dicot_CAS_GroupC
+AOX15290.1 cycloartenol synthase [Withania somnifera]	dicot_CAS_GroupC
+AZS32331.1 oxidosqualene cyclase [Lagerstroemia speciosa]	dicot_CAS_GroupC
+BAA23533.1 cycloartenol synthase [Pisum sativum]	dicot_CAS_GroupC
+BAA33460.1 Cycloartenol Synthase [Panax ginseng]	dicot_CAS_GroupC
+BAA76902.1 cycloartenol synthase [Glycyrrhiza glabra]	dicot_CAS_GroupC
+BAB83086.1 cycloartenol synthase [Betula platyphylla]	dicot_CAS_GroupC
+BAE53431.1 cycloartenol synthase [Lotus japonicus]	dicot_CAS_GroupC
+BAF73929.1 cycloartenol synthase [Rhizophora stylosa]	dicot_CAS_GroupC
+BAF73930.1 cycloartenol synthase [Kandelia candel]	dicot_CAS_GroupC
+BBI55115.1 cycloartenol synthase [Bauhinia forficata]	dicot_CAS_GroupC
+NP_001233784.1 cycloartenol synthase [Solanum lycopersicum]	dicot_CAS_GroupC
+NP_178722.1 cycloartenol synthase 1 [Arabidopsis thaliana]	dicot_CAS_GroupC
+QBQ04199.1 cycloartenol synthase 1 [Euphorbia lathyris]	dicot_CAS_GroupC
+QIR30797.1 oxidosqualene cyclase 3 [Terminalia arjuna]	dicot_CAS_GroupC
+AAO33580.1 multifunctional beta-amyrin synthase [Lotus japonicus]	dicot_core_BAS_other
+AAX14716.1 beta-amyrin synthase [Aster sedifolius]	dicot_core_BAS_other
+ABK76265.1 beta-amyrin synthase [Gypsophila vaccaria]	dicot_core_BAS_other
+ABL07607.1 beta-amyrin synthase [Polygala tenuifolia]	dicot_core_BAS_other
+ACA13386.1 beta-amyrin synthase [Artemisia annua]	dicot_core_BAS_other
+ACO24697.1 beta-amyrin synthase [Gentiana straminea]	dicot_core_BAS_other
+ADK12003.1 beta-amyrin synthase [Aralia elata]	dicot_core_BAS_other
+ADU52574.1 beta-amyrin synthase [Solanum lycopersicum]	dicot_core_BAS_other
+ADU52575.1 multifunctional triterpenoid synthase [Solanum lycopersicum]	dicot_core_BAS_other
+AGA17940.1 beta-amyrin synthase [Withania somnifera]	dicot_core_BAS_other
+AHF49822.1 bAS [Maesa lanceolata]	dicot_core_BAS_other
+AHI17180.1 beta-amyrin synthase, partial [Glycine max]	dicot_core_BAS_other
+AHJ10507.1 2,3-oxidosqualene cyclase [Ocimum basilicum]	dicot_core_BAS_other
+AHX97777.1 beta-amyrin synthase [Gentiana straminea]	dicot_core_BAS_other
+AIS39794.1 mixed amyrin synthase 2 [Ilex asprella var. asprella]	dicot_core_BAS_other
+ALO23119.1 beta-amyrin synthase [Kalopanax septemlobus]	dicot_core_BAS_other
+AMS36882.1 OSC4 [Malus domestica]	dicot_core_BAS_other
+AMS36883.1 OSC5 [Malus domestica]	dicot_core_BAS_other
+ANY30852.1 beta-amyrin synthase [Chenopodium quinoa]	dicot_core_BAS_other
+APZ88354.1 beta-amyrin synthase [Eleutherococcus senticosus]	dicot_core_BAS_other
+ASB17950.1 beta-amyrin synthase [Platycodon grandiflorus]	dicot_core_BAS_other
+ASW22752.1 beta-amyrin synthase [Eschenbachia blinii]	dicot_core_BAS_other
+AWK97811.1 oxidosqualene cyclase [Tripterygium wilfordii]	dicot_core_BAS_other
+AXU93522.1 oxidosqualene cyclase 6 [Taraxacum kok-saghyz]	dicot_core_BAS_other
+AZS32329.1 oxidosqualene cyclase [Lagerstroemia speciosa]	dicot_core_BAS_other
+AZS32330.1 oxidosqualene cyclase [Lagerstroemia speciosa]	dicot_core_BAS_other
+BAA33461.1 beta-Amyrin Synthase [Panax ginseng]	dicot_core_BAS_other
+BAA33722.1 beta-Amyrin Synthase [Panax ginseng]	dicot_core_BAS_other
+BAA89815.1 beta-amyrin synthase [Glycyrrhiza glabra]	dicot_core_BAS_other
+BAA97558.1 beta-amyrin synthase [Pisum sativum]	dicot_core_BAS_other
+BAA97559.1 mixed-amyrin synthase [Pisum sativum]	dicot_core_BAS_other
+BAB83088.1 beta-amyrin synthase [Betula platyphylla]	dicot_core_BAS_other
+BAE43642.1 beta-amyrin synthase [Euphorbia tirucalli]	dicot_core_BAS_other
+BAE53429.1 beta-amyrin synthase [Lotus japonicus]	dicot_core_BAS_other
+BAF80441.1 multifunctional triterpene synthase [Rhizophora stylosa]	dicot_core_BAS_other
+BAF80443.1 beta amyrin synthase [Bruguiera gymnorhiza]	dicot_core_BAS_other
+BAH23676.1 baccharis oxide synthase [Stevia rebaudiana]	dicot_core_BAS_other
+BAK52535.1 shionone synthase [Aster tataricus]	dicot_core_BAS_other
+BBI55112.1 multifunctional oxidosqualene cyclase [Bauhinia forficata]	dicot_core_BAS_other
+BBK68801.1 alpha-amyrin synthase [Lotus japonicus]	dicot_core_BAS_other
+BBN67122.1 beta-amyrin synthase [Momordica charantia var. pavel]	dicot_core_BAS_other
+CAD23247.1 beta-amyrin synthase [Medicago truncatula]	dicot_core_BAS_other
+QBJ05694.1 oxidosqualene cyclase 8 [Tripterygium wilfordii]	dicot_core_BAS_other
+QBO24613.1 beta-amyrin synthase [Taraxacum coreanum]	dicot_core_BAS_other
+QBO24614.1 taraxerol synthase [Taraxacum coreanum]	dicot_core_BAS_other
+QHT64454.1 2,3-oxidosqualene cyclase 1 [Tripterygium wilfordii]	dicot_core_BAS_other
+QHT64455.1 2,3-oxidosqualene cyclase 2 [Tripterygium wilfordii]	dicot_core_BAS_other
+QID89964.1 beta-amyrin synthase [Bupleurum chinense]	dicot_core_BAS_other
+QIR30795.1 oxidosqualene cyclase 1 [Terminalia arjuna]	dicot_core_BAS_other
+AO_OSC11	dicot_core_BAS_other
+AO_OSC12	dicot_core_BAS_other
+ABB76766.1 lupeol synthase [Ricinus communis]	dicot_diverse_OSC
+ACM89977.1 alpha/beta amyrin synthase [Malus domestica]	dicot_diverse_OSC
+ACM89979.1 putative alpha/beta amyrin synthase [Malus domestica]	dicot_diverse_OSC
+AFP95334.2 mixed amyrin synthase [Rhaphiolepis bibas]	dicot_diverse_OSC
+APG38073.1 Friedelin synthase [Monteverdia ilicifolia]	dicot_diverse_OSC
+ART66198.1 monofunctional friedelin synthase [Populus davidiana]	dicot_diverse_OSC
+AVR49026.1 friedelin synthase 2 [Monteverdia ilicifolia]	dicot_diverse_OSC
+AVR49027.1 friedelin synthase 3 [Monteverdia ilicifolia]	dicot_diverse_OSC
+AVR49028.1 friedelin synthase 4 [Monteverdia ilicifolia]	dicot_diverse_OSC
+AWK97810.1 oxidosqualene cyclase [Tripterygium wilfordii]	dicot_diverse_OSC
+AWK97812.1 oxidosqualene cyclase [Tripterygium wilfordii]	dicot_diverse_OSC
+AWK97867.1 oxidosqualene cyclase [Tripterygium regelii]	dicot_diverse_OSC
+AZS32328.1 oxidosqualene cyclase [Lagerstroemia speciosa]	dicot_diverse_OSC
+BAB68529.1 isomultiflorenol synthase [Luffa aegyptiaca]	dicot_diverse_OSC
+BAF35580.1 multifunctional triterpene synthase [Kandelia candel]	dicot_diverse_OSC
+BAF80442.1 multifunctional triterpene synthase [Rhizophora stylosa]	dicot_diverse_OSC
+BAF80444.1 lupeol synthase [Bruguiera gymnorhiza]	dicot_diverse_OSC
+BBI55113.1 multifunctional oxidosqualene cyclase [Bauhinia forficata]	dicot_diverse_OSC
+BBI55114.1 alpha-amyrin synthase [Bauhinia forficata]	dicot_diverse_OSC
+BBN67124.1 isomultiflorenol synthase [Momordica charantia var. pavel]	dicot_diverse_OSC
+QDZ36304.1 OSC1 [Melia azedarach]	dicot_diverse_OSC
+QDZ36305.1 OSC1 [Azadirachta indica]	dicot_diverse_OSC
+QHT64456.1 2,3-oxidosqualene cyclase 3 [Tripterygium wilfordii]	dicot_diverse_OSC
+QHT64457.1 2,3-oxidosqualene cyclase 4 [Tripterygium wilfordii]	dicot_diverse_OSC
+QIR30796.1 oxidosqualene cyclase 2 [Terminalia arjuna]	dicot_diverse_OSC
+QJX36711.1 multifunctional amyrin synthase 1 [Quercus suber]	dicot_diverse_OSC
+QJX36712.1 friedelin synthase 1 [Quercus suber]	dicot_diverse_OSC
+XP_006468116.1 beta-amyrin synthase-like [Citrus sinensis]	dicot_diverse_OSC
+XP_015382484.1 beta-amyrin synthase-like isoform X2 [Citrus sinensis]	dicot_diverse_OSC
+AO_OSC17	dicot_diverse_OSC
+ADK35123.1 taraxerol synthase [Kalanchoe daigremontiana]	kalanchoe_diverse_GroupL
+ADK35124.1 glutinol synthase [Kalanchoe daigremontiana]	kalanchoe_diverse_GroupL
+ADK35125.1 friedelin synthase [Kalanchoe daigremontiana]	kalanchoe_diverse_GroupL
+ADK35126.1 lupeol synthase [Kalanchoe daigremontiana]	kalanchoe_diverse_GroupL
+XP_024957905.1 beta-amyrin synthase-like [Citrus sinensis]	kalanchoe_diverse_GroupL
+AO_OSC16	kalanchoe_diverse_GroupL
+AWK97869.1 OSC5 [Tripterygium wilfordii]	lanosterol_synth
+BAA33462.1 Oxidosqualene Cyclase [Panax ginseng]	lanosterol_synth
+BAE95410.1 lanosterol synthase [Lotus japonicus]	lanosterol_synth
+NP_001327787.1 lanosterol synthase 1 [Arabidopsis thaliana]	lanosterol_synth
+QBQ04198.1 lanosterol synthase 1 [Euphorbia lathyris]	lanosterol_synth
+AGA17939.1 lupeol synthase [Withania somnifera]	lupeol_other_synth
+AJE29379.1 lupeol synthase [Artemisia annua]	lupeol_other_synth
+AXU93517.1 lupeol synthase [Taraxacum kok-saghyz]	lupeol_other_synth
+AZS32327.1 oxidosqualene cyclase [Lagerstroemia speciosa]	lupeol_other_synth
+BAA86930.1 lupeol synthase [Olea europaea]	lupeol_other_synth
+BAA86932.1 lupeol synthase [Taraxacum officinale]	lupeol_other_synth
+BAB83087.1 lupeol synthase [Betula platyphylla]	lupeol_other_synth
+BAD08587.1 lupeol synthase [Glycyrrhiza glabra]	lupeol_other_synth
+BAE53430.1 lupeol synthase [Lotus japonicus]	lupeol_other_synth
+QIR30798.1 oxidosqualene cyclase 4 [Terminalia arjuna]	lupeol_other_synth
+QJX36710.1 lupeol synthase 1 [Quercus suber]	lupeol_other_synth
+AO_OSC6	lupeol_other_synth
+AO_OSC7	lupeol_other_synth
+AYV65353.1 2,3-oxidosqualene cyclase [Oryza sativa]	monocot_GroupD
+AYV65381.1 2,3-oxidosqualene cyclase [Oryza sativa]	monocot_GroupD
+BAB83253.1 cycloartenol synthase [Hellenia speciosa]	monocot_GroupD
+BAB83254.1 multifunctional triterpene synthase [Hellenia speciosa]	monocot_GroupD
+BAH00370.1 unnamed protein product [Oryza sativa Japonica Group]	monocot_GroupD
+CAC84559.1 cycloartenol synthase [Avena strigosa]	monocot_GroupD
+CAM91422.1 cycloartenol synthase [Dioscorea zingiberensis]	monocot_GroupD
+QIN54760.1 cycloartenol synthase [Paris polyphylla var. yunnanensis]	monocot_GroupD
+BAG92014.1 unnamed protein product [Oryza sativa Japonica Group]	monocot_GroupE
+CAC84558.1 beta-amyrin synthase [Avena strigosa]	monocot_GroupE
+XP_015617607.1 achilleol B synthase-like isoform X1 [Oryza sativa Japonica Group]	monocot_GroupE
+AO_OSC2	monocot_GroupE
+BAT04379.1 Os08g0223900 [Oryza sativa Japonica Group]	poaceatapetol_synth
+AO_OSC4	poaceatapetol_synth

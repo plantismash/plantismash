@@ -77,7 +77,7 @@ def get_targetGenomeInfo(seq_records, options):
                     # Retrieving "translation (i.e., amino acid sequences)" for each CDS
                     translation = feature.qualifiers.get('translation')
                     targetGenome_locusTag_aaSeq_dict[locusTag] = translation[0]
-                    print >> fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
+                    print('>%s\n%s' % (str(locusTag), str(translation[0])), file=fp)
 
                 # Used to find "and" relationship in the GPR association
                 if item == 'product':
@@ -154,7 +154,7 @@ def parseBlaspResults(inputFile, outputFile):
         pident = float(sptList[5].strip())
 
         blastpResults_dict[key] = {"query_locusTag": qseqid, "db_locusTag": sseqid, "evalue": evalue, "score": score, "length": length, "identity": pident}
-        print >>fp2, '%s\t%s\t%s\t%f\t%d\t%f' % (qseqid, sseqid, evalue, score, length, pident)
+        print('%s\t%s\t%s\t%f\t%d\t%f' % (qseqid, sseqid, evalue, score, length, pident), file=fp2)
         itemnum += 1
     fp.close()
     fp2.close()
@@ -173,7 +173,7 @@ def makeBestHits_dict(inputFile):
         query_locusTag = sptList[0].strip()
         db_locusTag = sptList[1].strip()
 
-        if query_locusTag not in bestHits_dict.keys():
+        if query_locusTag not in list(bestHits_dict.keys()):
             #Value is in List to enable "append" below
             bestHits_dict[query_locusTag] = ([db_locusTag])
 
@@ -192,9 +192,9 @@ def getBBH(dic1,dic2):
     targetBBH_list = []
     temp_target_BBH_dict = {}
 
-    for target_locusTag in dic1.keys():
+    for target_locusTag in list(dic1.keys()):
         for temp_locusTag in dic1[target_locusTag]:
-            if temp_locusTag in dic2.keys():
+            if temp_locusTag in list(dic2.keys()):
                 for target_locusTag2 in dic2[temp_locusTag]:
                     # The BBH case
                     if target_locusTag == target_locusTag2:
@@ -202,7 +202,7 @@ def getBBH(dic1,dic2):
                             targetBBH_list.append(target_locusTag)
 
                         # Some genes in template model have more than one homologous gene in a target genome
-                        if temp_locusTag not in temp_target_BBH_dict.keys():
+                        if temp_locusTag not in list(temp_target_BBH_dict.keys()):
                             temp_target_BBH_dict[temp_locusTag] = ([target_locusTag])
                         else:
                             temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
@@ -214,7 +214,7 @@ def getBBH(dic1,dic2):
 def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list):
     nonBBH_list = []
 
-    for locusTag in targetGenome_locusTag_ec_dict.keys():
+    for locusTag in list(targetGenome_locusTag_ec_dict.keys()):
         if locusTag not in targetBBH_list:
             nonBBH_list.append(locusTag)
 
@@ -272,7 +272,7 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
         if type(booleanList[i])==list:
             for j in range(len(booleanList[i])):
                 geneid = booleanList[i][j]
-                if geneid in temp_target_BBH_dict.keys():
+                if geneid in list(temp_target_BBH_dict.keys()):
                     value = 0
                 #Now considers nonBBH genes without removing them in the Boolean list
                 else:
@@ -281,7 +281,7 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
                 valueList[i][j] = value
         else:
             geneid = booleanList[i]
-            if geneid in temp_target_BBH_dict.keys():
+            if geneid in list(temp_target_BBH_dict.keys()):
                 value = 0
             else:
                 value = 'na'
@@ -328,7 +328,7 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
 def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     rxnToRemove_dict = {}
 
-    for biggRxnid in tempModel_biggRxnid_locusTag_dict.keys():
+    for biggRxnid in list(tempModel_biggRxnid_locusTag_dict.keys()):
         rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
         if 'Transport' not in rxn.name and 'transport' not in rxn.name and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
@@ -343,28 +343,28 @@ def pruneModel(model, rxnToRemove_dict, solver_arg):
     rxnRemoved_dict = {}
     rxnRetained_dict = {}
 
-    for rxnid in rxnToRemove_dict.keys():
+    for rxnid in list(rxnToRemove_dict.keys()):
 
         #Single reaction deletion is performed only for reactions labelled as "False"
         if rxnToRemove_dict[rxnid] == False:
             growth_rate_dict, solution_status_dict, problem_dict = single_deletion(model, list([rxnid]), element_type='reaction', solver=solver_arg)
 
             #Checks optimality first.
-            if str(solution_status_dict.values()[0]) == 'optimal':
+            if str(list(solution_status_dict.values())[0]) == 'optimal':
 
                 #Full list of reactions and predicted growth rates upon their deletions
-                rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
+                rxnToRemoveEssn_dict[rxnid] = float(list(growth_rate_dict.values())[0])
 
                 #Checks growth rate upon reaction deletion
-                if float(growth_rate_dict.values()[0]) >= 0.01:
+                if float(list(growth_rate_dict.values())[0]) >= 0.01:
                     model.remove_reactions(rxnid)
                     #List of reactions removed from the template model
-                    rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Removed reaction: %s, %s, %s, %s", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites))
+                    rxnRemoved_dict[rxnid] = float(list(growth_rate_dict.values())[0])
+                    logging.debug("Removed reaction: %s, %s, %s, %s", rxnid, list(growth_rate_dict.values())[0], len(model.reactions), len(model.metabolites))
                 else:
                     #List of reactions retained in the template model
-                    rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Retained reaction: %s, %s, %s, %s", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites))
+                    rxnRetained_dict[rxnid] = float(list(growth_rate_dict.values())[0])
+                    logging.debug("Retained reaction: %s, %s, %s, %s", rxnid, list(growth_rate_dict.values())[0], len(model.reactions), len(model.metabolites))
 
     #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)

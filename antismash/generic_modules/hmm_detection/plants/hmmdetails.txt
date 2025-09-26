@@ -1,21 +1,9 @@
 cMT	cMT	-1	cMT.hmm
 nMT	nMT	-1	nMT.hmm
 oMT	oMT	-1	oMT.hmm
-adh	adh	-1	adh_short.hmm
-t3pksc	t3pksc	-1	Chal_sti_synt_C.hmm
-t3pksn	t3pksn	-1	Chal_sti_synt_N.hmm
-coest	coest	-1	COesterase.hmm
-glyco28	glyco28	-1	Glyco_transf_28.hmm
-glyco1	glyco1	-1	Glycos_transf_1.hmm
-glyco2	glyco2	-1	Glycos_transf_2.hmm
-lycop	lycop	-1	Lycopene_cycl.hmm
-nad	nad	-1	NAD_binding_1.hmm
 p450	p450	-1	p450.hmm
 SQHop_cyclase_C	Squalene-hopene cyclase C-terminal domain	-1	SQHop_cyclase_C.hmm
 SQHop_cyclase_N	pren2	-1	SQHop_cyclase_N.hmm
-pren	pren	-1	Prenyltrans.hmm
-terpsyn_c	terpsyn_c	-1	Terpene_synth_C.hmm
-terpsyn	terpsyn	-1	Terpene_synth.hmm
 Transferase	Transferase family	-1	Transferase.hmm
 Bet_v_1	Bet v I allergen	-1	Bet_v_1.hmm
 Cu_amine_oxid	Copper-amine oxidase	-1	Cu_amine_oxid.hmm
@@ -61,3 +49,45 @@ Amino_oxidase	Amino_oxidase	-1	Amino_oxidase.hmm
 DAHP_synth_1	DAHP_synth_1	-1	DAHP_synth_1.hmm
 DAHP_synth_2	DAHP_synth_2	-1	DAHP_synth_2.hmm
 BURP	BURP	-1	BURP.hmm
+Orn_DAP_Arg_deC	Pyridoxal-dependent decarboxylase, C-terminal sheet domain	-1	Orn_DAP_Arg_deC.hmm
+Pyridoxal_deC	Pyridoxal-dependent decarboxylase conserved domain	-1	Pyridoxal_deC.hmm
+BBE	Berberine and berberine like	-1	BBE.hmm
+FA_hydroxylase	Fatty acid hydroxylase	-1	FA_hydroxylase.hmm
+CER1-like_C	CER1-like, C-terminal domain	-1	CER1-like_C.hmm
+ECH_2	Enoyl-CoA hydratase/isomerase	-1	ECH_2.hmm
+Oxidored_FMN	NADH:flavin oxidoreductase / NADH oxidase family	-1	Oxidored_FMN.hmm
+3Beta_HSD	3β-hydroxysteroid-dehydrogenase/decarboxylase	-1	3Beta_HSD.hmm
+Glyco_hydro_1	Glycosyl hydrolase family 1	-1	Glyco_hydro_1.hmm
+ADH_zinc_N	Zinc-binding dehydrogenase	-1	ADH_zinc_N.hmm
+Abhydrolase_3	alpha/beta hydrolase fold	-1	Abhydrolase_3.hmm
+Aldo_ket_red	Aldo/keto reductase family	-1	Aldo_ket_red.hmm
+ADH_N	Alcohol dehydrogenase GroES-like domain	-1	ADH_N.hmm
+ADH_N_2	N-terminal domain of oxidoreductase	-1	ADH_N_2.hmm
+MatE	Multi Antimicrobial Extrusion	-1	MatE.hmm
+Thr_dehydrat_C	C-terminal regulatory domain of Threonine dehydratase	-1	Thr_dehydrat_C.hmm
+PALP	Pyridoxal-phosphate dependent enzyme	-1	PALP.hmm
+E1_dh	Dehydrogenase E1 component	-1	E1_dh.hmm
+Dimerisation	Dimerisation domain	-1	Dimerisation.hmm
+FAD_binding_4	FAD binding domain	-1	FAD_binding_4.hmm
+YjeF_N	YjeF-related protein N-terminus	-1	YjeF_N.hmm
+Putative_PNPOx	Pyridoxamine 5'-phosphate oxidase	-1	Putative_PNPOx.hmm
+PNP_phzG_C	Pyridoxine 5'-phosphate oxidase C-terminal dimerisation region	-1	PNP_phzG_C.hmm
+Orn_Arg_deC_N	Pyridoxal-dependent decarboxylase, pyridoxal binding domain	-1	Orn_Arg_deC_N.hmm
+ABC2_membrane	ABC-2 type transporter	-1	ABC2_membrane.hmm
+ABC_tran	ABC transporter	-1	ABC_tran.hmm
+COesterase	Carboxylesterase family	-1	COesterase.hmm
+Chal_sti_synt_C	Chalcone and stilbene synthases, C-terminal domain	-1	Chal_sti_synt_C.hmm
+Chal_sti_synt_N	Chalcone and stilbene synthases, N-terminal domain	-1	Chal_sti_synt_N.hmm
+FAE1_CUT1_RppA	FAE1/Type III polyketide synthase-like protein	-1	FAE1_CUT1_RppA.hmm
+Glyco_transf_28	Glycosyltransferase family 28 N-terminal domain	-1	Glyco_transf_28.hmm
+Glycos_transf_1	Glycosyl transferases group 1	-1	Glycos_transf_1.hmm
+Glycos_transf_2	Glycosyl transferase family 2	-1	Glycos_transf_2.hmm
+HAD_RAM2_N	Glycerol-3-phosphate acyltransferase RAM2-like, HAD-like domain	-1	HAD_RAM2_N.hmm
+LTP_2	Probable lipid transfer	-1	LTP_2.hmm
+Lycopene_cycl	Lycopene cyclase protein	-1	Lycopene_cycl.hmm
+NAD_binding_1	Oxidoreductase NAD-binding domain	-1	NAD_binding_1.hmm
+NAD_binding_4	Male sterility protein	-1	NAD_binding_4.hmm
+Prenyltrans	Prenyltransferase and squalene oxidase repeat	-1	Prenyltrans.hmm
+Terpene_synth	Terpene synthase, N-terminal domain	-1	Terpene_synth.hmm
+Terpene_synth_C	Terpene synthase family, metal binding domain	-1	Terpene_synth_C.hmm
+adh_short	short chain dehydrogenase	-1	adh_short.hmm

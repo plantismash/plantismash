@@ -30,9 +30,9 @@ def prepare_visualization(options, seq_record):
         sourceFeatures = utils.get_all_features_of_type(seq_record, 'source')
     
     if 'extrarecord' in options:
-        if options.extrarecord.has_key(seq_record.id):
+        if seq_record.id in options.extrarecord:
             # As there is only one source feature per record we just can take the first one without cycling through all features
-            for key in options.extrarecord[seq_record.id].extradata.keys():
+            for key in list(options.extrarecord[seq_record.id].extradata.keys()):
                 if key == 'ClusterBlastData':
                     logging.debug("prepare_visualization: Found ClusterBlastData storage object")
                     options.clusterblast = True
@@ -100,10 +100,10 @@ def construct_colorgroups(colorgroupsdict, clusternr, blasthitdict, blastdetails
             additionalhits = []
             #For each hit, check if it was also hit by another gene; if so, only add it to the group if this hit had the lowest blast score
             queryscore = 0
-            if blasthitdict.has_key(j):
+            if j in blasthitdict:
                 for k in blasthitdict[j]:
                     otherscores = []
-                    for l in blastdetailsdict.keys():
+                    for l in list(blastdetailsdict.keys()):
                         if j == l.partition("_|_|_")[0] and k == l.rpartition("_|_|_")[2]:
                             queryscore = blastdetailsdict[l][1]
                         if k in l and j not in l:
@@ -124,7 +124,7 @@ def construct_colorgroups(colorgroupsdict, clusternr, blasthitdict, blastdetails
 
 def test_accession(accession):
     #Test if accession number is probably real GenBank/RefSeq acc nr
-    numbers = range(0,10)
+    numbers = list(range(0,10))
     letters = [i for i in ascii_letters]
     nrletters = len([i for i in accession if i in ascii_letters])
     nrnumbers = len([i for i in accession if i.isdigit()])
@@ -172,7 +172,7 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
     transporters = []
     for j in clustergenes:
         cdsfeature = feature_by_id[j]
-        if cdsfeature.qualifiers.has_key('product'):
+        if 'product' in cdsfeature.qualifiers:
             annotations[j] = cdsfeature.qualifiers['product'][0]
         else:
             annotations[j] = 'Unannotated gene'
@@ -188,7 +188,7 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
             colors.append("grey")
         if j in pksnrpscoregenes:
             pksnrpsprots.append(j)
-        if smcogdict.has_key(j):
+        if j in smcogdict:
             if len(smcogdict[j]) > 0 and smcogdict[j][0] in gtrcoglist:
                 gtrs.append(j)
             if len(smcogdict[j]) > 0 and smcogdict[j][0] in transportercoglist:
@@ -197,7 +197,7 @@ def retrieve_gene_cluster_annotations(seq_record, smcogdict, gtrcoglist, transpo
     return clustergenes, clustertype, annotations, colors, starts, ends, strands, pksnrpsprots, gtrs, transporters, clustersize
 
 def retrieve_clusterblast_info(seq_record, geneclusternr):
-    hitgeneclusters = range(1,(seq_record.nrhitgeneclusters[geneclusternr] + 1))
+    hitgeneclusters = list(range(1,(seq_record.nrhitgeneclusters[geneclusternr] + 1)))
     hitgeneclusterdata = {}
     hitgeneclusterdata[geneclusternr] = [hitgeneclusters]
     return hitgeneclusterdata

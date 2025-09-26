@@ -19,7 +19,7 @@ from os import path
 from antismash import utils
 from antismash.generic_modules.clusterblast.clusterblast import internal_homology_blast, load_clusterblast_database
 from antismash.generic_modules.clusterblast.data_loading import prepare_data, generate_Storage_for_cb
-from knownclusterblast import perform_knownclusterblast
+from .knownclusterblast import perform_knownclusterblast
 
 # Tuple is ( binary_name, optional)
 _required_binaries = [
@@ -35,15 +35,30 @@ _required_files = [
 ]
 
 def check_prereqs(options):
-    "Check if all required applications are around"
+    """Check if all required applications and files are available, and print instructions if missing."""
     failure_messages = []
+    missing_files = []
     for binary_name, optional in _required_binaries:
         if utils.locate_executable(binary_name) is None and not optional:
-            failure_messages.append("Failed to locate file: %r" % binary_name)
+            failure_messages.append(f"Failed to locate binary: {binary_name}")
 
     for file_name, optional in _required_files:
-        if utils.locate_file(path.join(utils.get_full_path(__file__, ''), file_name)) is None and not optional:
-            failure_messages.append("Failed to locate file: %r" % file_name)
+        file_path = path.join(utils.get_full_path(__file__, ''), file_name)
+        if not path.exists(file_path) and not optional:
+            failure_messages.append(f"Failed to locate file: {file_name}")
+            missing_files.append(file_name)
+
+    # Special case: If the knownclusterprots.dmnd file is missing, print instructions
+    dmnd_file = "knownclusterprots.dmnd"
+    fasta_file = "knownclusterprots.fasta"
+    if dmnd_file in missing_files:
+        logging.error(
+            f"\n DIAMOND database file '{dmnd_file}' is missing! \n"
+            f"To generate it, run the following command:\n\n"
+            f"  diamond makedb --in {fasta_file} -d {dmnd_file.replace('.dmnd', '')}\n\n"
+            f"Ensure DIAMOND is installed and accessible by running:\n"
+            f"  diamond --version\n"
+        )
 
     return failure_messages
 

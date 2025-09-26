@@ -4,8 +4,8 @@
 (C) 2008, 2009 Kerim Mansour
 For licensing information please refer to license.txt
 '''
-from attributes import CoreAttrib, XLinkAttrib
-from core import BaseElement
+from .attributes import CoreAttrib, XLinkAttrib
+from .core import BaseElement
 
   
         

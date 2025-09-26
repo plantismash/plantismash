@@ -29,7 +29,7 @@ def smcog_analysis(inputgenes, inputnr, seq_record, smcogdict, smcogsoutputfolde
         seq = str(utils.get_aa_sequence(feature))
         #create input.fasta file with single query sequence to be used as input for MSA
         utils.writefasta([tag], [seq], "input" + str(inputnr) + ".fasta")
-        if smcogdict.has_key(k) and len(smcogdict[k]) > 0:
+        if k in smcogdict and len(smcogdict[k]) > 0:
             smcog = (smcogdict[k][0][0]).split(":")[0]
             alignsmcogs(smcog, inputnr)
             #Generate trimmed alignment

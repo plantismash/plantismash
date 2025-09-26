@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "create_date": "2024-08-07 16:03:16",
+        "format_version": "1.1",
+        "locus": "plant_UDPGTs"
+    },
+    "files": {
+        "phylo_model": "phylo_modeluxr91vyg.json",
+        "aln_fasta": "UGTs_all_to_check.afa",
+        "seq_info": "node-subgroup.txt",
+        "tree": "RAxML_bipartitions.UGTs_all_to_check",
+        "tree_stats": "RAxML_info.UGTs_all_to_check"
+    },
+    "md5": {
+        "phylo_model": "719ff0e6bc5fb77af11ede098f9885e2",
+        "aln_fasta": "cab8ce57618b23cab1693cf7381dccc5",
+        "seq_info": "5546b6af7ca8033579ade1b7151442b6",
+        "tree": "0b0db142a5dd1d6e0407117e04d6011c",
+        "tree_stats": "25ee6cb874fdcc104aca246b3010472c"
+    },
+    "log": [
+        "Stripped refpkg (removed 0 files)",
+        "Loaded initial files into empty refpkg"
+    ],
+    "rollback": null,
+    "rollforward": null
+}

@@ -77,7 +77,7 @@ def run(sequence, options):
                     continue
                 if not type(newFeature)==list:
                     newFeature=[newFeature]
-                newFeature=filter(None,newFeature)
+                newFeature=[_f for _f in newFeature if _f]
                 for n in newFeature:
                     if 'gene' in feature.qualifiers:
                         n.qualifiers['gene']=feature.qualifiers['gene']
@@ -131,7 +131,7 @@ def check_sub(feature, sequence, options):
                     TransLocList.append(FeatureLocation(loc[0]-(3-modulus),loc[1],strand=sub.strand))
             # For split features (CDSs), the final feature will have the same qualifiers as the children ONLY if
             # they're the same, i.e.: all children have the same "protein_ID" (key and value).
-            for qual in sub.qualifiers.keys():
+            for qual in list(sub.qualifiers.keys()):
                 if not qual in QualList:
                     QualList[qual]=sub.qualifiers[qual]
                 if qual in QualList and not QualList[qual]==sub.qualifiers[qual]:

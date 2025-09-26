@@ -1,13 +1,18 @@
+#!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 #
 # Copyright (C) 2010-2012 Marnix H. Medema
 # University of Groningen
 # Department of Microbial Physiology / Groningen Bioinformatics Centre
 #
-# Copyright (C) 2011-2013 Kai Blin
+# Copyright (C) 2011,2012 Kai Blin
 # University of Tuebingen
 # Interfaculty Institute of Microbiology and Infection Medicine
 # Div. of Microbiology/Biotechnology
+#
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences 
 #
 # License: GNU Affero General Public License v3 or later
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
@@ -15,72 +20,56 @@
 from pyquery import PyQuery as pq
 from antismash import utils
 from .specific_analysis import Result
-import output_repeatfinder as output
+from . import output_repeatfinder as output
 import logging
 
 def will_handle(product):
-    if product.find('cyclopeptide') > -1:
-        return True
-
-    return False
+    return 'cyclopeptide' in product
 
 def generate_details_div(cluster, seq_record, options, js_domains, details=None):
     logging.info("generating details div")
-    """Generate details div"""
-    cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
+    """Generate the details div for cyclopeptide clusters."""
+    cluster_feature = utils.get_cluster_by_nr(seq_record, cluster['idx'])
+    cluster_record = seq_record[cluster_feature.location.start:cluster_feature.location.end]
+
     details = pq('<div>')
     details.addClass('details')
+
     header = pq('<h3>')
     header.text('Repeatfinder output')
-    cluster_record = seq_record[cluster.location.start:cluster.location.end]
-    result_list = gather_results(cluster_record) 
-    sidepanel = pq('<div>')
-    if len(result_list) > 0:
-        # write visualization script for sidepanel here
-        output_html = ""
-        for r in result_list:
-                output_html += output.write_result_summary(r)
-        
-        details.html(output_html)
+    details.append(header)
+
+    result_list = gather_results(cluster_record)
+
+    if not result_list:
+        details.append(pq("<p>No repeats detected in this cluster.</p>"))
+        return details
+
+    output_html = ""
+    for r in result_list:
+        output_html += output.write_result_summary(r)
+
+    # —— guard against empty HTML ——  
+    if not output_html or not output_html.strip():
+        logging.debug(
+            "plant_cyclopeptides: no summary HTML produced for record %s cluster %s",
+            seq_record.id, cluster['idx']
+        )
+    else:
+        details.append(pq(output_html))
 
     return details
 
+
 def generate_sidepanel(cluster, seq_record, options, sidepanel=None):
-    logging.debug("generating sidepanel")
-    """Generate sidepanel div"""
-    result_list = None
-    cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
-    cluster_record = seq_record[cluster.location.start:cluster.location.end]
-    result_list = gather_results(cluster_record) 
-    sidepanel = pq('<div>')#TODO add class and put it in the details div class
-    sidepanel.addClass('sidepanel')
-    if len(result_list) > 0:
-    
-        # write visualization script for sidepanel here
-        #output_html = ""
-        #for r in result_list:
-        #    output_html += output.create_result_output(r)
-        
-        #sidepanel.html(output_html)
-        id_list = []
-        for result in result_list:
+    """No sidepanel output for cyclopeptide repeatfinder."""
+    return None
 
-            if result.cds_id:
-                id_list.append(result.cds_id)
 
-            else:
-                id_list.append("Region with unknown ID from %s to %s"%(result.position[0],result.position[1]))
-                
-        sidepanel.html("%s Coding sequences with repeats found:<br> %s"%(len(result_list),"<br>".join(id_list)))
-                
-        
-    else:
-        sidepanel.text("No repetition found")
-#SIDEPANEL DISABLED
 def gather_results(cluster):
-    result_list = [] 
+    """Collect cyclopeptide analysis results from cluster features."""
+    result_list = []
     for feat in cluster.features:
         if 'cyclopeptide_analysis' in feat.qualifiers:
             result_list.append(Result(feat.qualifiers['cyclopeptide_analysis'][0]))
-        
-    return set(result_list)
+    return result_list

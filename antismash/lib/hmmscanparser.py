@@ -59,12 +59,12 @@ def parse_hmmscan_results(hmmscan_results, hmmlengthsdict):
     results_by_id = {}
     for results in hmmscan_results:
         for hsp in results.hsps:
-            if not results_by_id.has_key(hsp.query_id):
+            if hsp.query_id not in results_by_id:
                 results_by_id[hsp.query_id] = [hsp]
             else:
                 if not hsp in results_by_id[hsp.query_id]:
                     results_by_id[hsp.query_id].append(hsp)
-    for cds in results_by_id.keys():
+    for cds in list(results_by_id.keys()):
         domainlist = []
         results = results_by_id[cds]
         for result in results:

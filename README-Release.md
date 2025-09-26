@@ -1,7 +1,7 @@
-antiSMASH release process
+PlantiSMASH release process
 =========================
 
-This file documents the release process of antiSMASH.
+This file documents the release process of plantiSMASH.
 
 
 Preparation work
@@ -15,7 +15,7 @@ from previous versions.
 What version number will the new release get?
 ---------------------------------------------
 
-antiSMASH is using [semantic versioning](http://semver.org/). Unfortunately,
+PlantiSMASH is using [semantic versioning](http://semver.org/). Unfortunately,
 semantic versioning focuses on libaries and other things that present APIs,
 making it an imperfect match for antiSMASH.
 
@@ -35,15 +35,16 @@ Tag the actual release
 
 * Make sure the `CONTRIBUTORS` file is up-to-date. Update and commit if
   necessary.
-* Update the version number in `antismash/__init__.py` and commit.
+* Update the version number in `antismash/__init__.py` and commit. You can check what is the current specified version by running `python run_antismash.py -h`. This will automatically update the version specified in the 
 * Grab a list of detailed changes using `git shortlog <last-release-tag>.. >
   changes.txt`
 * Edit `changes.txt` to add some release notes on top.
 * Tag the release using `git tag -s -F changes.txt
-  antismash-<MAJOR>-<MINOR>-<PATCH>`, filling in the correct values for MAJOR,
+  plantismash-<MAJOR>-<MINOR>-<PATCH>`, filling in the correct values for MAJOR,
   MINOR and PATCH, of course.
-* Push the changes to bitbucket `git push origin master && git push origin
-  master --tags`
+* The releases are automatically tracked in [Zenodo](https://zenodo.org)
+* Make sure to tag the right version of the changelog for the detection rules in the script `antismash/output_modules/html/generator.py` function `add_overview_entry`. E.g., "https://plantismash.github.io/documentation/changelog/2.0/#supported-cluster-types-version-2"
+
 
 
 Post-push work
@@ -92,15 +93,6 @@ push it to the Docker Hub by using `docker push antismash/standalone && docker
 push antismash/standalone:<VERSION>`.
 
 Then, repeat the process for the other container builds.
-
-### Update the download page
-
-In the `antismash/websmash.git` repository on bitbucket, update all relevant
-download links in `websmash/templates/download.html`. Make sure to also adjust
-the tests to check for the new release string. Run `nosetests -v` to make sure
-you got everything right.
-
-Push your changes, and pull from the webserver to roll out the new version.
 
 ### Send the release announcement to the mailing list
 

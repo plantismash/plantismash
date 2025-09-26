@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT4G27950
+*Experiment_Type: Expression
+*Technology/Method: RNASeq
+*Edge_Type: in planta:Regulated
+*Data_Source/Publication: Varala PNAS 2018
+*Genotype: CRF4-OX (CS2104639)
+*Treatments: 60N B-estradiol
+*Control: Col-0
+*Tissue/Sample: Whole Roots
+Treatment_Time: 24 hr
+Growth_Period_Days: 10 days
+Growth_Medium: 1x MS w/ 1% sucrose 0.5mM NH4NO3
+Analysis_Method: DESeq2
+Analysis_Cutoff: FDR<0.05
+DOI: 10.1073/pnas.1721487115

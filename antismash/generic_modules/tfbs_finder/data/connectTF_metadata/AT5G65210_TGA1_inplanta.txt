@@ -1,0 +1,15 @@
+*Transcription_Factor_ID: AT5G65210
+*Experiment_Type: Expression
+*Technology/Method: RNASeq
+*Edge_Type: in planta:Regulated
+*Data_Source/Publication: Brooks Nat Commun 2019
+*Genotype: 35S::TGA1
+*Treatments: 60N
+*Control: Col-0
+*Tissue/Sample: Whole Roots
+Treatment_Time: 180 min
+Growth_Period_Days: 10 days
+Growth_Medium: 1x MS w/ 1% sucrose 1mM KNO3
+Analysis_Method: DESeq2
+Analysis_Cutoff: FDR<0.05
+DOI: 10.1038/s41467-019-09522-1

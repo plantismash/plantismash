@@ -7,19 +7,22 @@
     <link rel="stylesheet" type="text/css" href="css/datatable.css">
     <link rel="stylesheet" type="text/css" href="css/coexpress.d3.hiveplot.css">
     <link rel="stylesheet" type="text/css" href="css/modal.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <meta charset="utf-8" />
   </head>
   <body>
     <div id="header">
       <div class="top-header">
         <img class="antismash-logo" src="images/plantismash.png" alt="plantiSMASH">
-        <span class="antismash-title"><a href="http://plantismash.secondarymetabolites.org">Plant Secondary Metabolite Analysis</a><br>
-            <span class="white">Version 1.0.0-beta<span id="antismash-version" style="display: none;"></span></span>
+        <span class="antismash-title"><a href="http://plantismash.secondarymetabolites.org">Plant Specialized Metabolite Analysis</a><br>
+            <span class="white">Version <span id="antismash-version" "></span></span>
         </span>
         <div id="icons">
           <a href="http://plantismash.secondarymetabolites.org/"><img src="images/home.png" alt="home" title="Go to start page"></a>
-          <a href="http://plantismash.secondarymetabolites.org/help.html"><img src="images/help.png" alt="help" title="Get help using plantiSMASH"></a>
-          <a href="http://plantismash.secondarymetabolites.org/about.html"><img src="images/about.png" alt="about" title="About plantiSMASH"></a>
+          <a href="https://plantismash.github.io/documentation/website_submission/"><img src="images/help.png" alt="help" title="Get help using plantiSMASH"></a>
+          <a href="https://plantismash.github.io/documentation/about/"><img src="images/about.png" alt="about" title="About plantiSMASH"></a>
           <a href="#" id="download"><img src="images/download.png" alt="download" title="Download results"></a>
           <div id="downloadmenu">
             <ul id="downloadoptions">
@@ -47,6 +50,7 @@
             <th>To</th>
             <th>Size (kb)</th>
             <th>Core domains</th>
+            <th>Product/substrate predicted by subgroup</th>
             <th>Most similar known cluster</th>
             <th>MIBiG BGC-ID</th>
           </tr>
@@ -56,29 +60,29 @@
       </table>
     </div>
 
-    <div id="footer">
-      <div id="logos">
-      	<table id="logo-table">
-      		<tr>
-      			<td>
-        			<img src='images/wur-logo.png' />
-        		</td>
-        		<td>
-        			<img src='images/unila-logo.png' />
-        		</td>
-        		<td>
-        			<img src='images/cfb-logo.png' />
-        		</td>
-        		<td>
-				      <img src='images/jic-logo.png' />
-        		</td>
-        	</tr>
-        </table>
+  <div id="footer" class="container">
+    <div class="row justify-content-center align-items-center text-center org-logos" style="gap: 1rem;">
+      <div class="col-1 col-md-3">
+        <img class="img-responsive org-logo" src="images/wur-logo1.png" alt="WUR Logo" style="padding-top: 1em; width: 100%;">
       </div>
-      <div id="copyright">
-        If you have found plantiSMASH useful, please <a href="http://plantismash.secondarymetabolites.org/about">cite us</a>.
+      <div class="col-1 col-md-2">
+        <img class="img-responsive org-logo" src="images/jic-logo.png" alt="JIC Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2">
+        <img class="img-responsive org-logo" src="images/hu-logo.png" alt="HU Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2">  
+        <img class="img-responsive org-logo" src="images/jgi-logo.png" alt="JGI Logo" style="width: 100%;">
+      </div>
+      <div class="col-1 col-md-2 d-flex justify-content-center">
+        <div class="copyright-box well well-small text-center">
+          If you have found plantiSMASH useful, please 
+          <a href="http://plantismash.secondarymetabolites.org/about">cite us</a>.
+        </div>
       </div>
     </div>
+  </div>
+
 
     <script src="js/jquery.js"></script>
     <script src="js/purl.js"></script>
@@ -221,7 +225,7 @@ function update_legends() {
 		gcs.push({ label: "(Other) Biosynthetic Genes", color: "#810e15", members : [] });
 		gcs.push({ label: "Other Genes", color: "gray", members : [] });
 		for (var i = 0; i < gcs.length; i++) {
-			var div = $("<div class='legend-container' style='width: 20em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
+			var div = $("<div class='legend-container' style='width: 25em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
 			div.append("<div class='legend-field' style='float: left; border: 2px solid " + gcs[i].color + "; background-color: " + gcs[i].color + ";'/>");
 			div.append("<div class='legend-label' style='float: left;'>" + gcs[i].label + "</div>");
 			if (gene_colors.indexOf(gcs[i]) >= 0) {
@@ -239,7 +243,7 @@ function update_legends() {
 			["other", "other genes"]
 		];
 		for (var i = 0; i < borders.length; i++) {
-			var div = $("<div style='width: 20em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
+			var div = $("<div style='width: 25em; float: left; overflow: hidden; margin-bottom: 1em;'/>");
 			div.append("<div class='legend-field legend-type-" + borders[i][0] + "' style='float: left;'/>");
 			div.append("<div class='legend-label' style='float: left;'>" + borders[i][1] + "</div>");
 			$(this).append(div);
@@ -378,9 +382,9 @@ function addCdhitSummary() {
     for (var clusterid in geneclusters) {
         if (geneclusters.hasOwnProperty(clusterid)) {
             var cluster = geneclusters[clusterid];
-                if ($("#cluster-overview>thead th:contains('CD-HIT Clusters')").length === 0) {
+                if ($("#cluster-overview>thead th:contains('CD-HIT')").length === 0) {
                 sibling_col_idx = $("#cluster-overview>thead th:contains('Most similar known cluster')").index();
-                $("#cluster-overview>thead th:contains('Most similar known cluster')").before("<th>CD-HIT Clusters</th");
+                $("#cluster-overview>thead th:contains('Most similar known cluster')").before("<th>CD-HIT</th");
             }
             if (sibling_col_idx > 0) {
                 if (!("cdhitclusters" in cluster)) {
@@ -397,7 +401,7 @@ function addTableSummary() {
     if (geneclusters.hasOwnProperty(anchor)) {
       var contStyle = "font-size: 80%; overflow: scroll; padding-left: 0.5em; margin-bottom: 0.5em;";
       var theTable = "<table style='margin-top: 1em; border: 1px solid black;'>";
-      theTable += "<thead><tr style='border: 1px solid black;'><th style='width: 13em;'>Locus tag</th><th style='width: 15em;'>Functional annotation</th><th style='width: 5.5em;'>From</th><th style='width: 5.5em;'>To</th><th style='width: 5em;'>Strand</th><th style='width: 10em;'>Category</th><th style='width: 15em;'>Domains</th></tr></thead><tbody>";
+      theTable += "<thead><tr style='border: 1px solid black;'><th style='width: 13em;'>Locus tag</th><th style='width: 15em;'>Functional annotation</th><th style='width: 5.5em;'>From</th><th style='width: 5.5em;'>To</th><th style='width: 5em;'>Strand</th><th style='width: 10em;'>Category</th><th style='width: 15em;'>Domains</th><th style='width: 15em;'>Subgroup</th></tr></thead><tbody>";
       for (var i in geneclusters[anchor]["orfs"]) {
         var orf = geneclusters[anchor]["orfs"][i];
         var locus_tag = orf["locus_tag"];
@@ -408,6 +412,7 @@ function addTableSummary() {
           strand = "-";
         }
         var annot_name = "-";
+        var subgroup = orf["subgroup"];
         var domains = "";
         var category = get_legend_obj(orf);
         if (category === null) {
@@ -439,14 +444,48 @@ function addTableSummary() {
           }
         }
         if (domains === "") {
-          domains = "n/a<br />"
+          domains = orf['domain_present']
         }
-        theTable += "<tr id='cl-summary-" + anchor +"-tab-" + locus_tag.replace(/(:|\.)/g, '-') + "' onmouseover='javascript: highlightGene(\"" + anchor + "\", \"" + locus_tag + "\");' onmouseout='javascript: deHighlightGene(\"" + anchor + "\", \"" + locus_tag + "\");'><td>" + locus_tag + "</td><td>" + annot_name + "</td><td style='text-align: right;'>" + from + "</td><td style='text-align: right;'>" + to + "</td><td style='text-align: center;'>" + strand + "</td><td>" + category + "</td><td>" + domains + "</td></tr>"
+        theTable += "<tr id='cl-summary-" + anchor +"-tab-" + locus_tag.replace(/(:|\.)/g, '-') + "' onmouseover='javascript: highlightGene(\"" + anchor + "\", \"" + locus_tag + "\");' onmouseout='javascript: deHighlightGene(\"" + anchor + "\", \"" + locus_tag + "\");'><td>" + locus_tag + "</td><td>" + annot_name + "</td><td style='text-align: right;'>" + from + "</td><td style='text-align: right;'>" + to + "</td><td style='text-align: center;'>" + strand + "</td><td>" + category + "</td><td>" + domains + "</td><td>" + subgroup + "</td></tr>"
       }
       theTable += "</tbody></table>";
-      $("#" + anchor + ".page .description-container").after("<div id='cl-summary-" + anchor +"' style='" + contStyle + "'><div><b>Genes:</b> <button class='showhidebutton' onclick='javascript: showHideTableSummary(\"" + anchor + "\");'>show</button></div><div class='cl-summary-tab hidden'>" + theTable + "</div></div>");
+      $("#" + anchor + ".page .description-container").after("<div id='cl-summary-" + anchor +"' style='" + contStyle + "'><div><b>Genes:</b> <button class='showhidebutton' onclick='javascript: showHideTableSummary(\"" + anchor + "\");'>hide</button></div><div class='cl-summary-tab'>" + theTable + "</div></div>");
+
+      $("#cl-summary-" + anchor + " .cl-summary-tab tr td:last-child").on("click", function() {
+          var locusTag = $(this).closest("tr").find("td:first").text();
+          var subgroup = $(this).text(); // Get the subgroup text
+          openSvgInWindow(locusTag, subgroup); // Pass subgroup as an additional parameter
+      });
     }
   }
+}
+
+var svgWindow = null;
+
+function openSvgInWindow(locusTag, subgroup) {
+    var svgUrl = "subgroup/tree_svg/" + locusTag + ".svg";
+    var legendUrl = "subgroup/tree_svg/" + locusTag + "_legend.svg";
+    var windowTitle = locusTag + " - subgroup: " + subgroup;
+
+    var content = `
+        <html>
+        <head><title>${windowTitle}</title></head>
+        <body>
+            <div><img src='${svgUrl}' alt='SVG'></div>
+            <div style='position: fixed; top: 0; left: 0;'><img src='${legendUrl}' alt='SVG Legend'></div>
+        </body>
+        </html>
+    `;
+
+    if (svgWindow && !svgWindow.closed) {
+        svgWindow.document.open();
+        svgWindow.document.write(content);
+        svgWindow.document.close();
+        svgWindow.focus();
+    } else {
+        svgWindow = window.open("", "_blank", "width=600,height=800,left=" + (window.screen.width - 600) + ",top=0");
+        svgWindow.document.write(content);
+    }
 }
 
 function showHideTableSummary(anchor) {

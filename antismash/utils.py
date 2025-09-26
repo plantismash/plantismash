@@ -9,60 +9,55 @@
 # Interfaculty Institute of Microbiology and Infection Medicine
 # Div. of Microbiology/Biotechnology
 #
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences
+#
 # License: GNU Affero General Public License v3 or later
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
+
 import logging
 import os
 import sys
 import shutil
-from os import path
 import subprocess
 import string
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-from argparse import Namespace
-import warnings
-# Don't display the SearchIO experimental warning, we know this.
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    from Bio import SearchIO
-from Bio.Alphabet import generic_protein
+from io import StringIO
+import argparse 
+import functools
+import re
+from zipfile import ZipFile, ZIP_DEFLATED, LargeZipFile
+from Bio import SearchIO
+from Bio.Seq import Seq
 from antismash.config import get_config
 from helperlibs.wrappers.io import TemporaryDirectory
+from argparse import Namespace
 
-from zipfile import ZipFile, ZIP_DEFLATED, LargeZipFile
-from Bio.Seq import Seq
-import re
 try:
     from antismash.db import biosql
     USE_BIOSQL = True
 except ImportError:
     USE_BIOSQL = False
-import argparse
 
 class Storage(dict):
     """Simple storage class"""
     def __init__(self, indict=None):
-        if indict is None:
-            indict = {}
-        dict.__init__(self, indict)
+        super().__init__(indict or {})
         self.__initialized = True
 
     def __getattr__(self, attr):
         try:
-            return self.__getitem__(attr)
+            return self[attr]
         except KeyError:
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if '_Storage__initialized' not in self.__dict__:
-            return dict.__setattr__(self, attr, value)
+        if not hasattr(self, "__initialized"):
+            super().__setattr__(attr, value)
         elif attr in self:
-            dict.__setattr__(self, attr, value)
+            super().__setattr__(attr, value)
         else:
-            self.__setitem__(attr, value)
+            self[attr] = value
 
 
 def getArgParser():
@@ -98,7 +93,7 @@ def getArgParser():
         def format_help(self):
             """Custom help format"""
             help_text = """
-########### antiSMASH ver. {version} #############
+########### plantiSMASH ver. {version} #############
 
 {usage}
 
@@ -115,7 +110,7 @@ Options
                 formatter = self._get_formatter()
                 formatter.add_usage(self.usage, self._actions, self._mutually_exclusive_groups)
                 return formatter.format_help()
-            return "usage: {prog} [-h] [options ..] [sequence [sequence ..]]".format(prog=self.prog) + "\n"
+            return f"usage: {self.prog} [-h] [options ..] [sequence [sequence ..]]\n"
 
         def _get_args_text(self):
             # fetch arg lists using formatter
@@ -155,82 +150,102 @@ Options
 
 
 def get_all_features_of_type(seq_record, types):
-    "Return all features of the specified types for a seq_record"
+    """Return all features of the specified types for a seq_record"""
     if isinstance(types, str):
-        # force into a tuple
-        types = (types, )
-    features = []
-    for f in seq_record.features:
-        if f.type in types:
-            features.append(f)
-    return features
+        types = (types,)  # Force into a tuple
+    return [f for f in seq_record.features if f.type in types]
 
 def get_all_features_of_type_with_query(seq_record, feature_type, query_tag, query_value):
-    """Return all features of type 'type' which contain a 'query_tag' with value 'query_value'
-    Note: query has to be exact!"""
-
-    features_with_type = get_all_features_of_type(seq_record, feature_type)
-    features = []
-    for feature_to_test in features_with_type:
-
-        if (query_tag in feature_to_test.qualifiers) and (query_value in feature_to_test.qualifiers[query_tag]):
-            features.append(feature_to_test)
-    return features
+    """Return all features of type 'feature_type' containing a 'query_tag' with value 'query_value'."""
+    return [
+        feature for feature in get_all_features_of_type(seq_record, feature_type)
+        if query_tag in feature.qualifiers and query_value in feature.qualifiers[query_tag]
+    ]
 
 def get_cds_features(seq_record):
-    "Return all CDS features for a seq_record"
+    """Return all CDS features for a seq_record"""
     return get_all_features_of_type(seq_record, "CDS")
 
 def get_withincluster_cds_features(seq_record):
+    """Return all CDS features within clusters for a given sequence record."""
     features = get_cds_features(seq_record)
     clusters = get_cluster_features(seq_record)
-    withinclusterfeatures = []
+    within_cluster_features = set()  # Use a set for fast membership checking
+
     for feature in features:
         for cluster in clusters:
-            if not (cluster.location.start <= feature.location.start <= cluster.location.end or \
-               cluster.location.start <= feature.location.end <= cluster.location.end):
-                continue
-            if feature not in withinclusterfeatures:
-                withinclusterfeatures.append(feature)
-    return withinclusterfeatures
+            if cluster.location.start <= feature.location.start <= cluster.location.end or \
+               cluster.location.start <= feature.location.end <= cluster.location.end:
+                within_cluster_features.add(feature)
+
+    return list(within_cluster_features)
 
 def get_cluster_cds_features(cluster, seq_record):
-    clustercdsfeatures = []
-    for feature in seq_record.features:
-        if feature.type != 'CDS':
-            continue
-        if cluster.location.start <= feature.location.start <= cluster.location.end or \
-           cluster.location.start <= feature.location.end <= cluster.location.end:
-            clustercdsfeatures.append(feature)
-    return clustercdsfeatures
+    """Return all CDS features within a specific cluster."""
+    return [
+        feature for feature in seq_record.features
+        if feature.type == 'CDS' and (
+            cluster.location.start <= feature.location.start <= cluster.location.end or
+            cluster.location.start <= feature.location.end <= cluster.location.end
+        )
+    ]
 
 def get_cluster_aSDomain_features(cluster, seq_record):
-    aSDomainfeatures = []
-    for feature in seq_record.features:
-        if feature.type != 'aSDomain':
-            continue
-        if cluster.location.start <= feature.location.start <= cluster.location.end or \
-           cluster.location.start <= feature.location.end <= cluster.location.end:
-            aSDomainfeatures.append(feature)
-    return aSDomainfeatures
+    """Return all aSDomain features within a specific cluster."""
+    return [
+        feature for feature in seq_record.features
+        if feature.type == 'aSDomain' and (
+            cluster.location.start <= feature.location.start <= cluster.location.end or
+            cluster.location.start <= feature.location.end <= cluster.location.end
+        )
+    ]
 
 
 def get_cluster_domains(cluster, seq_record):
-    "Get unique domains list of a gene cluster"
-    result = []
+    """Get a unique sorted list of domains detected in a gene cluster."""
+    domains = set()
     features = get_cluster_cds_features(cluster, seq_record)
+
     for feature in features:
         if 'sec_met' in feature.qualifiers:
             for note in feature.qualifiers.get('sec_met', []):
-                if not note.startswith('Domains detected'):
-                    continue
-                note = note[18:]
-                for domain in note.split(';'):
-                    domain = domain.split(" (")[0]
-                    if not domain in result:
-                        result.append(domain)
-    result.sort()
-    return result
+                if note.startswith('Domains detected:'):
+                    detected_domains = note[len('Domains detected: '):].split(';')
+                    domains.update(domain.split(" (")[0] for domain in detected_domains)
+
+    return sorted(domains)
+
+def sort_substrates(substrates, substrate_type):
+    """Sort substrates based on occurrence and specific type-based prioritization."""
+    from collections import Counter
+
+    # Count occurrences and sort by frequency (descending) then alphabetically
+    count_dict = Counter(substrates)
+    sorted_substrates = sorted(count_dict.items(), key=lambda x: (-x[1], x[0]))
+
+    prioritized, others = [], []
+
+    for substrate, count in sorted_substrates:
+        if any(x in substrate.lower() for x in ["terpenoid", "oleananes"]) and "terpene" in substrate_type:
+            substrate = f"*{substrate}"
+            prioritized.append(f"{substrate}-{count}" if count > 1 else substrate)
+        elif substrate in substrate_type:
+            substrate = f"*{substrate}"
+            prioritized.append(f"{substrate}-{count}" if count > 1 else substrate)
+        else:
+            others.append(f"{substrate}-{count}" if count > 1 else substrate)
+
+    return prioritized + others if prioritized + others else ["-"]
+
+
+def get_cluster_substrates(cluster, seq_record):
+    """Retrieve unique predicted substrate types for a gene cluster."""
+    substrates = [
+        sub for feature in get_cluster_cds_features(cluster, seq_record)
+        if 'substrates' in feature.qualifiers
+        for sub in feature.qualifiers['substrates']
+    ]
+    return sort_substrates(substrates, get_cluster_type(cluster).split("-"))
 
 
 def features_overlap(a, b):
@@ -354,7 +369,6 @@ def get_smcog_annotations(seq_record):
                     smcogdict[get_gene_id(feature)] = smcogid
                     smcogdescriptions[smcogid] = smcog_descr
     return smcogdict, smcogdescriptions
-
 def get_pfam_features(seq_record):
     "Return all CDS_motif features containing a 'PFAM-Id: ' note for a seq_record"
     pfam_features = []
@@ -379,7 +393,7 @@ def get_sorted_cluster_features(seq_record):
     numberdict = {}
     for cluster in clusters:
         numberdict[get_cluster_number(cluster)] = cluster
-    return [numberdict[clusternr] for clusternr in numberdict.keys()]
+    return [numberdict[clusternr] for clusternr in list(numberdict.keys())]
 
 def get_structure_pred(cluster):
     "Return all structure prediction for a cluster feature"
@@ -424,12 +438,12 @@ def locate_executable(name):
         name += ".exe"
     file_path, _ = os.path.split(name)
     if file_path != "":
-        if path.isfile(name) and os.access(name, os.X_OK):
+        if os.path.isfile(name) and os.access(name, os.X_OK):
             logging.debug("Found executable %r", name)
             return name
     for p in os.environ["PATH"].split(os.pathsep):
-        full_name = path.join(p, name)
-        if path.isfile(full_name) and os.access(full_name, os.X_OK):
+        full_name = os.path.join(p, name)
+        if os.path.isfile(full_name) and os.access(full_name, os.X_OK):
             logging.debug("Found executable %r", full_name)
             return full_name
 
@@ -439,7 +453,7 @@ def locate_file(name):
     "Find a file and return the full path"
     file_path, _ = os.path.split(name)
     if file_path != "":
-        if path.isfile(name) and os.access(name, os.R_OK):
+        if os.path.isfile(name) and os.access(name, os.R_OK):
             logging.debug("Found file %r", name)
             return name
     return None
@@ -447,25 +461,22 @@ def locate_file(name):
 # Ignore the pylint warning about input being redifined, as we're just
 # following the subprocess names here.
 # pylint: disable=redefined-builtin
-def execute(commands, input=None):
-    "Execute commands in a system-independent manner"
-
-    if input is not None:
-        stdin_redir = subprocess.PIPE
-    else:
-        stdin_redir = None
-
+def execute(commands, input_data=None):
+    """Execute commands in a system-independent manner"""
+    stdin_redir = subprocess.PIPE if input_data is not None else None
+    if isinstance(input_data, str):
+        input_data = input_data.encode("utf-8")
+    
     try:
-        proc = subprocess.Popen(commands, stdin=stdin_redir,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        out, err = proc.communicate(input=input)
-        retcode = proc.returncode
-        return out, err, retcode
-    except OSError, e:
-        logging.debug("%r %r returned %r", commands, input[:40] if input is not None else None, e)
+        proc = subprocess.Popen(commands, stdin=stdin_redir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = proc.communicate(input=input_data)
+        return out.decode("utf-8", errors="ignore"), err.decode("utf-8", errors="ignore"), proc.returncode
+    except OSError as e:
+        logging.debug(f"{commands!r} {input_data[:40] if input_data else None!r} returned {e!r}")
         raise
+
 # pylint: enable=redefined-builtin
+
 
 def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
     "Run hmmsearch"
@@ -499,29 +510,35 @@ def run_hmmsearch(query_hmmfile, target_sequence, cutoff = None):
             command.insert(1, str(cutoff))
             command.insert(1, "--domT")
     try:
-        out, err, retcode = execute(command, input=target_sequence)
+        out, err, retcode = execute(command, input_data=target_sequence)
     except OSError:
         return []
     if retcode != 0:
-        logging.debug('hmmsearch returned %d: %r while searching %r', retcode,
-                        err, query_hmmfile)
+        logging.debug(f'hmmsearch returned {retcode}: {err!r} while searching {query_hmmfile!r}')
         return []
     res_stream = StringIO(out)
     results = list(SearchIO.parse(res_stream, 'hmmer3-text'))
     return results
 
 
-def run_hmmscan(target_hmmfile, query_sequence, opts=None):
+def run_hmmscan(target_hmmfile, query_sequence, opts=None, query_sequence_path=None):
     "Run hmmscan"
     config = get_config()
     command = ["hmmscan", "--cpu", str(config.cpus), "--nobias"]
     if opts is not None:
         command.extend(opts)
-    command.extend([target_hmmfile, '-'])
-    try:
-        out, err, retcode = execute(command, input=query_sequence)
-    except OSError:
-        return []
+    if query_sequence_path:
+        command.extend([target_hmmfile, query_sequence])
+        try:
+            out, err, retcode = execute(command)
+        except OSError:
+            return []
+    else:
+        command.extend([target_hmmfile, '-'])
+        try:
+            out, err, retcode = execute(command, input_data=query_sequence)
+        except OSError:
+            return []
     if retcode != 0:
         logging.debug('hmmscan returned %d: %r while scanning %r' , retcode,
                         err, query_sequence)
@@ -537,7 +554,7 @@ def run_hmmpfam2(query_hmmfile, target_sequence):
     command = ["hmmpfam2", "--cpu", str(config.cpus),
                query_hmmfile, '-']
     try:
-        out, err, retcode = execute(command, input=target_sequence)
+        out, err, retcode = execute(command, input_data=target_sequence)
     except OSError:
         return []
     if retcode != 0:
@@ -575,15 +592,17 @@ def hmmlengths(hmmfile):
     return hmmlengthsdict
 
 def cmp_feature_location(a, b):
-    "Compare two features by their start/end locations"
-    ret = cmp(a.location.start, b.location.start)
-    if ret != 0:
-        return ret
-    return cmp(a.location.end, b.location.end)
+    # Example comparison
+    if a.location.start < b.location.start:
+        return -1
+    elif a.location.start > b.location.start:
+        return 1
+    else:
+        return 0
 
 def sort_features(seq_record):
     "Sort features in a seq_record by their position"
-    #Check if all features have a proper location assigned
+    # Check if all features have a proper location assigned
     for feature in seq_record.features:
         if feature.location is None:
             if feature.id != "<unknown id>":
@@ -592,9 +611,11 @@ def sort_features(seq_record):
                 logging.error("Feature '%s' has no proper location assigned", feature.qualifiers["locus_tag"][0])
             else:
                 logging.error("File contains feature without proper location assignment")
-            sys.exit(0) #FIXME: is sys.exit(0) really what we want to do here?
-    #Sort features by location
-    seq_record.features.sort(cmp=cmp_feature_location)
+            sys.exit(1)  # Changed to sys.exit(1) to indicate an error occurred
+
+    # Sort features by location
+    seq_record.features.sort(key=functools.cmp_to_key(cmp_feature_location))
+
 
 def fix_locus_tags(seq_record, config):
     "Fix CDS feature that don't have a locus_tag, gene name or protein id"
@@ -766,7 +787,7 @@ def get_gene_accession(feature):
 
 def get_full_path(current_file, file_to_add):
     "Get the full path of file_to_add in the same directory as current_file"
-    return path.join(path.dirname(path.abspath(current_file)), file_to_add)
+    return os.path.join(os.path.dirname(os.path.abspath(current_file)), file_to_add)
 
 def get_feature_dict(seq_record):
     """Get a dictionary mapping features to their IDs"""
@@ -800,7 +821,7 @@ def get_multifasta(seq_record):
         gene_id = get_gene_id(feature)
         fasta_seq = feature.qualifiers['translation'][0]
         if "-" in str(fasta_seq):
-            fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+            fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
         # Never write empty fasta entries
         if len(fasta_seq) == 0:
@@ -880,9 +901,9 @@ def get_aa_translation(seq_record, feature):
         logging.debug("Retranslating %s with stop codons", feature.id)
         fasta_seq = feature.extract(seq_record.seq).ungap('-').translate()
     if "*" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("*","X"), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("*","X"))
     if "-" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+        fasta_seq = Seq(str(fasta_seq).replace("-",""))
 
     return fasta_seq
 
@@ -899,27 +920,23 @@ def get_aa_sequence(feature, to_stop=False):
     return fasta_seq
 
 def writefasta(names, seqs, filename):
-    "Write sequence to a file"
-    e = 0
-    f = len(names) - 1
-    out_file = open(filename,"w")
-    while e <= f:
-        out_file.write(">")
-        out_file.write(names[e])
-        out_file.write("\n")
-        out_file.write(seqs[e])
-        out_file.write("\n")
-        e += 1
-    out_file.close()
+    """Write sequence to a FASTA file"""
+    try:
+        with open(filename, "w") as out_file:
+            for name, seq in zip(names, seqs):
+                out_file.write(f">{name}\n{seq}\n")
+    except Exception as e:
+        logging.error(f"Failed to write FASTA file {filename}. Error: {e}")
+
 
 def sortdictkeysbyvaluesrev(indict):
-    items = [(value, key) for key, value in indict.items()]
+    items = [(value, key) for key, value in list(indict.items())]
     items.sort()
     items.reverse()
     return [key for value, key in items]
 
 def sortdictkeysbyvaluesrevv(indict):
-    values = indict.values()
+    values = list(indict.values())
     values.sort()
     values.reverse()
     return values
@@ -1026,7 +1043,7 @@ def get_geotable_json(features):
                             return samples_order.index(a) - samples_order.index(b)
                         return -1
                     return 0
-                for sample_id in sorted([s_id for s_id in go["data"]], cmp = cmp_samples):
+                for sample_id in sorted([s_id for s_id in go["data"]], key=functools.cmp_to_key(cmp_samples)):
                     if sample_id not in result[go["rec_id"]]["data"]["feature_names"]:
                         result[go["rec_id"]]["data"]["feature_names"].append(sample_id)
                     data_buffer.append((go["rec_id"], sample_id, gene_id, go["data"][sample_id][0], go["data"][sample_id][1], go["evalue"]))
@@ -1041,7 +1058,7 @@ def get_geotable_json(features):
 
     for data in data_buffer:
         if len(result[data[0]]["data"]["nodes"][data[2]]["features"]) == 0:
-            for i in xrange(0, len(result[data[0]]["data"]["feature_names"])):
+            for i in range(0, len(result[data[0]]["data"]["feature_names"])):
                 result[data[0]]["data"]["nodes"][data[2]]["features"].append(None)
         result[data[0]]["data"]["nodes"][data[2]]["features"][result[data[0]]["data"]["feature_names"].index(data[1])] = data[3]
 
@@ -1131,8 +1148,8 @@ def zip_dir(dir_path, archive, prefix_to_remove=""):
     """Recursively add a directory's contents to a zip archive"""
     entries = os.listdir(dir_path)
     for entry in entries:
-        entry = path.join(dir_path, entry)
-        if path.isdir(entry):
+        entry = os.path.join(dir_path, entry)
+        if os.path.isdir(entry):
             zip_dir(entry, archive, prefix_to_remove)
         else:
             arcname = entry.replace(prefix_to_remove + os.sep, "", 1)
@@ -1143,27 +1160,24 @@ def zip_path(dir_path, name):
     with TemporaryDirectory(change=True):
         try:
             archive = ZipFile(name, 'w', ZIP_DEFLATED)
-            if path.isdir(dir_path):
-                zip_dir(dir_path, archive, path.dirname(dir_path))
+            if os.path.isdir(dir_path):
+                for root, _, files in os.walk(dir_path):
+                    for file in files:
+                        archive.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), dir_path))
             else:
                 archive.write(dir_path)
             archive.close()
         except LargeZipFile:
             archive = ZipFile(name, 'w', ZIP_DEFLATED, True)
-            if path.isdir(dir_path):
-                zip_dir(dir_path, archive, path.dirname(dir_path))
-            else:
-                archive.write(dir_path)
+            archive.write(dir_path)
             archive.close()
 
-        # small hack to make development testing easier
-        if path.exists(path.join(dir_path, name)):
-            os.remove(path.join(dir_path, name))
         shutil.move(name, dir_path)
 
 def log_status(status, level='running'):
-    """Write status to the status file"""
+    """Write status to the status file and print"""
     options = get_config()
+    print(f"STATUS: {level}: {status}", flush=True)  # clearer terminal output
     if 'statusfile' not in options:
         return
     with open(options.statusfile, 'w') as statusfile:
@@ -1171,15 +1185,12 @@ def log_status(status, level='running'):
 
 
 def get_git_version():
-    """Get the sha1 of the current git version"""
-    args = ['git', 'rev-parse', '--short', 'HEAD']
+    """Get the short sha1 of the current git version"""
     try:
-        out, _, retcode = execute(args)
+        out, _, _ = execute(["git", "rev-parse", "--short", "HEAD"])
         return out.strip()
     except OSError:
-        pass
-
-    return ""
+        return ""
 
 
 def get_version():
@@ -1187,13 +1198,10 @@ def get_version():
     import antismash
     version = antismash.__version__
     git_version = get_git_version()
-    if git_version != '':
-        version += "-%s" % git_version
-
-    return version
+    return f"{version}-{git_version}" if git_version else version
 
 
-def get_cluster_cdhit_table(cluster, seq_record):
+def get_cluster_cdhit_table(cluster, seq_record, options):
     "Get cd-hit clusters of a Cluster record"
     withinclusterfeatures = []
     for feature in get_cds_features(seq_record):
@@ -1203,7 +1211,7 @@ def get_cluster_cdhit_table(cluster, seq_record):
             continue
         if feature not in withinclusterfeatures:
             withinclusterfeatures.append(feature)
-    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures)
+    cdhit_table, gene_to_cluster = get_cdhit_table(withinclusterfeatures, options)
     return cdhit_table
 
 
@@ -1238,7 +1246,7 @@ def parse_cdhit_file(file_path):
     return clusters, gene_to_cluster
 
 
-def get_cdhit_table(cds_array, cutoff = None):
+def get_cdhit_table(cds_array, options, cutoff = None):
     "Do cdhit analysis on a cds arrays"
     config = get_config()
     if cutoff is None:
@@ -1268,7 +1276,7 @@ def get_cdhit_table(cds_array, cutoff = None):
     #for 0.4 <= cutoff <= 1.0, use cd-hit binary
     elif 0.4 <= cutoff <= 1.0:
         with TemporaryDirectory() as temp_dir:
-            file_prefix = path.join(temp_dir, "temp")
+            file_prefix = os.path.join(temp_dir, "temp")
 
             #temporarily assign numbers as gene_id to prevent error from long gene_id
             multifasta_text = ""
@@ -1295,7 +1303,7 @@ def get_cdhit_table(cds_array, cutoff = None):
                 word_length = 5
 
             #execute cd-hit and load result file to an array
-            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix,
+            command = ["cd-hit", "-i", fasta_file.name, "-o", file_prefix, "-M", options.cdh_memory,
                         "-c", str(cutoff), "-n", str(word_length), "-T", str(config.cpus), "-B", str(1)]
             error = False
             retcode = 0
@@ -1306,7 +1314,15 @@ def get_cdhit_table(cds_array, cutoff = None):
                 error = True
 
             if retcode != 0:
-                logging.debug('cd-hit returned %d: %r while scanning' , retcode, err)
+                logging.debug('cd-hit returned %d: %s while scanning', retcode, err.strip())
+
+                if "not enough memory" in err.lower():
+                    logging.warning(
+                        "cd-hit failed due to insufficient memory. "
+                        "Try re-running with a higher memory allocation using the --cdh-memory option. "
+                        "Example: --cdh-memory 5000 (for 5GB of RAM)."
+                        )
+
                 error = True
 
             if not error:
@@ -1329,69 +1345,71 @@ def get_cdhit_table(cds_array, cutoff = None):
 
 
 def get_percentage_identity(feature_1, feature_2):
-    """Get percentage identity value from 2 features using blastp alignment tools"""
-    result = 0.00
+    """Get percentage identity value using blastp alignment"""
     config = get_config()
-
     with TemporaryDirectory() as temp_dir:
-        fasta_file1 = open(path.join(temp_dir, "_tempfasta_1"), "w")
-        fasta_file1.write(">%s\n%s" % (get_gene_id(feature_1), feature_1.qualifiers['translation'][0]))
-        fasta_file1.close()
-        fasta_file2 = open(path.join(temp_dir, "_tempfasta_2"), "w")
-        fasta_file2.write(">%s\n%s" % (get_gene_id(feature_2), feature_2.qualifiers['translation'][0]))
-        fasta_file2.close()
-        command = ["blastp", "-query", fasta_file1.name, "-subject", fasta_file2.name, "-outfmt", "6 pident", "-evalue", "0.0001", "-num_threads",  str(config.cpus)]
+        fasta_file1 = os.path.join(temp_dir, "temp1.fasta")
+        fasta_file2 = os.path.join(temp_dir, "temp2.fasta")
+        
+        # use the shared helpers to write the FASTA files
+        ids1 = get_gene_id(feature_1)
+        ids2 = get_gene_id(feature_2)
+        seq1 = get_aa_sequence(feature_1)
+        seq2 = get_aa_sequence(feature_2)
+        with open(fasta_file1, "w") as f1, open(fasta_file2, "w") as f2:
+            f1.write(f">{ids1}\n{seq1}\n")
+            f2.write(f">{ids2}\n{seq2}\n")
+            
+        # execute blastp command
+        
+        command = ["blastp", "-query", fasta_file1, "-subject", fasta_file2, "-outfmt", "6 pident"]
         try:
-            out, err, retcode = execute(command)
-            if (len(out.split("\n")) > 1):
-                result = round(float(out.split("\n")[0]), 2)
+            out, _, _ = execute(command)
+            return float(out.split('\n')[0]) if out else 0.0
         except OSError:
-            result = 0.00
-
-    return result
+            return 0.0
 
 
 def get_pct_identity_table(features):
-    """Generate percentage identity tables from array of features"""
+    """Generate percentage identity tables from an array of features"""
     pct_values = {}
     for cds in features:
         cur_gene = get_gene_id(cds)
-        if not cur_gene in pct_values.keys():
+        if cur_gene not in pct_values:
             pct_values[cur_gene] = {}
         for othercds in [feature for feature in features if feature != cds]:
             other_gene = get_gene_id(othercds)
-            if not other_gene in pct_values[cur_gene].keys():
-                if other_gene in pct_values.keys():
-                    if cur_gene in pct_values[other_gene].keys():
-                        pct_values[cur_gene][other_gene] = pct_values[other_gene][cur_gene]
-                        continue
-                pct_values[cur_gene][other_gene] = get_percentage_identity(cds, othercds)
+            if other_gene not in pct_values[cur_gene]:
+                if other_gene in pct_values and cur_gene in pct_values[other_gene]:
+                    pct_values[cur_gene][other_gene] = pct_values[other_gene][cur_gene]
+                else:
+                    pct_values[cur_gene][other_gene] = get_percentage_identity(cds, othercds)
     return pct_values
 
 
 if USE_BIOSQL:
     def check_if_dbrecord_exists(name, options):
-        """Open database connection; check if record acc exists; close db connection"""
+        """Open database connection; check if record accession exists; close db connection"""
 
         if "BioSQLconfig" not in options:
             logging.warning("Parameters for database access not defined in default.cfg. Skipping database operations")
+            return False
 
         # Set up database object
         myDB = biosql.aSDB(options)
 
-        # connect to namespace for full genomes (dbgenomesnamespace)
+        # Connect to namespace for full genomes (dbgenomesnamespace)
         try:
             myDB.connect(namespace=options.BioSQLconfig.dbgenomenamespace)
-        except Exception, e:
-            logging.exception("Could not connect to database %s, namespace %s : %s",
+        except Exception as e:
+            logging.exception("Could not connect to database %s, namespace %s : %s", 
                               options.BioSQLconfig.dbdb, options.BioSQLconfig.dbgenomenamespace, e)
             return False
 
-        entryid = myDB.fetch_entryid_by_name(name=name)
+        entry_id = myDB.fetch_entryid_by_name(name=name)
         myDB.close()
 
-        if entryid:
-            logging.debug('check_if_dbrecord_exists: found record id %s for query %s', entryid, name)
+        if entry_id:
+            logging.debug('check_if_dbrecord_exists: found record id %s for query %s', entry_id, name)
             return True
-        else:
-            return False
+        return False

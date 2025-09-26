@@ -18,7 +18,7 @@
 
 import sys
 from os import path
-import ConfigParser
+import configparser
 from argparse import Namespace
 
 _config = None
@@ -37,7 +37,7 @@ def load_config(namespace):
     instance_file = path.join(_basedir, _instance_file_name)
 
     # load generic configuration settins
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     with open(default_file, 'r') as fp:
         config.readfp(fp)
 
@@ -47,18 +47,20 @@ def load_config(namespace):
     config.read([sys_file, _user_file_name, instance_file])
 
     for s in config.sections():
-        if s not in namespace:
-            namespace.__dict__[s] = Namespace()
+        section_obj = getattr(namespace, s, None)
+        if not isinstance(section_obj, Namespace):
+            section_obj = Namespace()
+            setattr(namespace, s, section_obj)
         for key, value in config.items(s):
             key = key.replace('-', '_')
-            if key not in namespace.__dict__[s]:
-                namespace.__dict__[s].__dict__[key] = value
+            if not hasattr(section_obj, key):
+                setattr(section_obj, key, value)
 
     # settings from the [DEFAULT] section go to the global namespace
     for key, value in config.items('DEFAULT'):
         key = key.replace('-', '_')
-        if key not in namespace:
-            namespace.__dict__[key] = value
+        if not hasattr(namespace, key):
+            setattr(namespace, key, value)
 
 def set_config(namespace):
     """Set a namespace object to be the global configuration"""

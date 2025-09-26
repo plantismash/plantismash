@@ -35,7 +35,7 @@ def generate_chemical_structure_preds(pksnrpsvars, seq_record, options):
     for genecluster in geneclusters:
         smiles_string = "N/A"
         geneclusternr = utils.get_cluster_number(genecluster)
-        if pksnrpsvars.compound_pred_dict.has_key(geneclusternr):
+        if geneclusternr in pksnrpsvars.compound_pred_dict:
             # if product is ectoine generate predefined SMILE string and generate structure
             if pksnrpsvars.compound_pred_dict[geneclusternr] == "ectoine":
                 smiles_string = "CC1=NCCC(N1)C(=O)O"

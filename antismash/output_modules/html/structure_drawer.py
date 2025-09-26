@@ -19,8 +19,8 @@ import sys
 from os import path
 import logging
 from antismash import utils
-from indigo import Indigo
-from indigo_renderer import IndigoRenderer
+from .indigo import Indigo
+from .indigo_renderer import IndigoRenderer
 from helperlibs.wrappers.io import TemporaryDirectory
 
 
@@ -40,7 +40,7 @@ def generate_chemical_structure_preds(pksnrpsvars, seq_record, options):
     for genecluster in geneclusters:
         geneclusternr = utils.get_cluster_number(genecluster)
         smiles_string = ""
-        if pksnrpsvars.compound_pred_dict.has_key(geneclusternr):
+        if geneclusternr in pksnrpsvars.compound_pred_dict:
 
             #print "output_modules/html/pksnrpsvars.compound_pred_dict:"
             #print pksnrpsvars.compound_pred_dict
@@ -87,7 +87,7 @@ def generate_chemical_structure_preds(pksnrpsvars, seq_record, options):
                 smiles_monomer.close()
 
                 for monomer in residuesList:
-                    if monomer in aa_smiles_dict.keys():
+                    if monomer in list(aa_smiles_dict.keys()):
                         smiles_string += aa_smiles_dict[monomer]
                 logging.debug("Cluster %s: smiles_string: %s", geneclusternr, smiles_string)
                 with TemporaryDirectory(change=True):

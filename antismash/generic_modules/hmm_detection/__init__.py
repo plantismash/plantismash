@@ -68,7 +68,7 @@ def check_prereqs():
         #Check if hmmdetails.txt is readable and well-formatted
         dir_path = path.dirname(path.abspath(__file__))
         model_name = ""
-        if not hmm_model is "default":
+        if hmm_model != "default":
             dir_path = path.join(dir_path, hmm_model)
             model_name = "(" + hmm_model + ")"
 
@@ -80,51 +80,147 @@ def check_prereqs():
                                         (model_name, lineno, line))
             lineno += 1
 
-        #Check if cluster_rules.txt is readable and well-formatted
-        lineno = 1
-        for line in open(path.join(dir_path, "cluster_rules.txt"),"r"):
-            if line.count("\t") != 3:
-                failure_messages.append("Failed to use cluster rules %s from the line %s due to misformatting:\n %r" %
-                                        (model_name, lineno, line))
-            lineno += 1
+        # Check cluster_rules.txt in the MODEL directory (e.g., plants/cluster_rules.txt)
+        rules_dir = path.dirname(path.abspath(__file__))
+        if hmm_model != "default":
+            rules_dir = path.join(rules_dir, hmm_model)
+        cluster_rules_path = path.join(rules_dir, "cluster_rules.txt")
+
+        try:
+            lineno = 1
+            with open(cluster_rules_path, "r") as f:
+                for line in f:
+                    if lineno == 1:
+                        lineno += 1
+                        continue  # skip legend/header
+                    if line.strip() and line.count("\t") < 3:
+                        failure_messages.append(
+                            "Failed to use cluster rules %s from line %s due to misformatting:\n %r" %
+                            (model_name or "(default)", lineno, line))
+                    lineno += 1
+            logging.info("cluster rules file found in directory %s", cluster_rules_path)
+        except IOError as e:
+            failure_messages.append("Could not read cluster rules at %s: %s" % (cluster_rules_path, e))
+
+
+    profiles_found = False  # Track if any profiles exist
 
     for sig in get_sig_profiles():
         if not path.exists(sig.path):
-            failure_messages.append("Failed to find HMM profile %r" %
-                                    sig.path)
+            failure_messages.append("Failed to find HMM profile %r" % sig.path)
+        else:
+            profiles_found = True  # At least one profile was found
+
+    if not profiles_found:
+        logging.error("No HMM profiles found in any module directory!")
+
     return failure_messages
 
 
 def get_supported_detection_models():
+    # TODO: This function might be removed, as plants is the only supported model
     "Get a list of all supported detection types"
     detection_types = ["default"]
     for fname in listdir(path.dirname(path.abspath(__file__))):
+        if fname == "__pycache__":
+            continue  # Skip the __pycache__ directory
+
         if path.isdir(path.join(path.dirname(path.abspath(__file__)), fname)):
             detection_types.append(fname)
     return detection_types
 
 
 def get_supported_cluster_types():
-    "Get a list of all supported cluster types"
-    clustertypes = [line.split("\t")[0] for line in open(utils.get_full_path(__file__, 'cluster_rules.txt'), "r")][1:]
-    for fname in listdir(path.dirname(path.abspath(__file__))):
-        dir_path = path.join(path.dirname(path.abspath(__file__)), fname)
-        if path.isdir(dir_path):
-            clustertypes.extend([(fname + "/" + line.split("\t")[0]) for line in open(path.join(dir_path, "cluster_rules.txt"), "r")][1:])
+    "Get a list of all supported cluster types."
+    cfg = config.get_config()
+    base_dir = path.dirname(path.abspath(__file__))
+
+    clustertypes = []
+
+    for hmm_model in getattr(cfg, "enabled_detection_models", []):
+        rules_dir = base_dir
+        prefix = ""
+        if hmm_model and hmm_model != "default":
+            rules_dir = path.join(base_dir, hmm_model)
+            prefix = hmm_model + "/"
+
+        rules_path = path.join(rules_dir, "cluster_rules.txt")
+        try:
+            with open(rules_path, "r") as f:
+                for i, line in enumerate(f):
+                    if i == 0:
+                        continue  # skip header
+                    name = line.split("\t")[0].strip()
+                    if not name:
+                        continue
+                    clustertypes.append(prefix + name)
+        except IOError:
+            # check_prereqs() will already report a clear error if missing
+            continue
+
     return clustertypes
 
 
 def get_sig_profiles():
     cfg = config.get_config()
     _signature_profiles = []
+
     for hmm_model in cfg.enabled_detection_models:
         dir_path = path.dirname(path.abspath(__file__))
         prefix = ""
         if hmm_model != "default":
             dir_path = path.join(dir_path, hmm_model)
             prefix = hmm_model + "/"
-        hmmdetails = [line.split("\t") for line in open(path.join(dir_path, "hmmdetails.txt"),"r").read().split("\n") if line.count("\t") == 3]
-        _signature_profiles.extend([HmmSignature(prefix + details[0], details[1], int(details[2]), path.join(dir_path, details[3])) for details in hmmdetails])
+
+        hmm_details_path = path.join(dir_path, "hmmdetails.txt")
+        existing_entries = {}
+        new_entries = []
+
+        # Load current entries
+        if path.exists(hmm_details_path):
+            with open(hmm_details_path, "r") as f:
+                for line in f:
+                    if line.count("\t") == 3:
+                        parts = line.strip().split("\t")
+                        existing_entries[parts[0]] = parts
+
+        # Scan for .hmm files
+        for fname in sorted(listdir(dir_path)):
+            if not fname.endswith(".hmm"):
+                continue
+
+            domain_id = fname[:-4]
+            if domain_id in existing_entries:
+                continue
+
+            # Extract DESC from HMM file
+            hmm_path = path.join(dir_path, fname)
+            desc = domain_id  # fallback
+            try:
+                with open(hmm_path, "r") as hmmfile:
+                    for line in hmmfile:
+                        if line.startswith("DESC"):
+                            desc = line.strip().split("DESC", 1)[1].strip()
+                            break
+            except Exception as e:
+                logging.warning(f"Failed to read DESC from {fname}: {e}")
+
+            entry = [domain_id, desc, "-1", fname]
+            existing_entries[domain_id] = entry
+            new_entries.append("\t".join(entry) + "\n")
+            logging.info(f"Added new HMM entry: {entry}")
+
+        # Append only the new entries
+        if new_entries:
+            with open(hmm_details_path, "a") as f:
+                f.writelines(new_entries)
+
+        # Build HmmSignature objects
+        for entry in existing_entries.values():
+            _signature_profiles.append(
+                HmmSignature(prefix + entry[0], entry[1], int(entry[2]), path.join(dir_path, entry[3]))
+            )
+
     return _signature_profiles
 
 
@@ -219,7 +315,7 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
             filterhmms = [(prefix + hmm) for hmm in line.split(",")]
             if filterhmms not in filterhmm_list:
                 filterhmm_list.append(filterhmms)
-            for cds in results_by_id.keys():
+            for cds in list(results_by_id.keys()):
                 cdsresults = results_by_id[cds]
                 hmmhits = [hit.query_id for hit in cdsresults]
                 #Check if multiple competing HMM hits are present
@@ -259,7 +355,7 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
                                     del results_by_id[cds]
 
     #Filter multiple results of the same model within a gene
-    for cds in results_by_id.keys():
+    for cds in list(results_by_id.keys()):
         best_hit_scores = {}
         to_delete = []
         for hit in results_by_id[cds]:
@@ -276,12 +372,12 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
 
     #Filter results of overlapping genes
     overlap_id_with_result = {}
-    for cds in results_by_id.keys():
-        if overlaps[1][cds] not in overlap_id_with_result.keys():
+    for cds in list(results_by_id.keys()):
+        if overlaps[1][cds] not in list(overlap_id_with_result.keys()):
             overlap_id_with_result[overlaps[1][cds]] = [cds]
         elif cds not in overlap_id_with_result[overlaps[1][cds]]:
             overlap_id_with_result[overlaps[1][cds]].append(cds)
-    for overlap_id in overlap_id_with_result.keys():
+    for overlap_id in list(overlap_id_with_result.keys()):
         best_hit_scores = {}
         for cds in overlap_id_with_result[overlap_id]:
             for hit in results_by_id[cds]:
@@ -299,7 +395,7 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
                         if hit.query_id not in filterhmms:
                             continue
                         for similar_hit in filterhmms:
-                            if similar_hit not in best_hit_scores.keys():
+                            if similar_hit not in list(best_hit_scores.keys()):
                                 continue
                             if (abs(feature.location.end - feature.location.start) < best_hit_scores[similar_hit]):
                                 to_delete.append(hit)
@@ -312,47 +408,65 @@ def filter_results(results, results_by_id, overlaps, feature_by_id):
 
     return results, results_by_id
 
-def create_rules_dict(enabled_clustertypes):
-    "Create a cluster rules dictionary from the cluster rules file"
+def create_rules_dict():
+    "Create a cluster rules dictionary from the cluster rules file (load ALL rules)"
     rulesdict = {}
-    first = True
     cfg = config.get_config()
+    base_dir = path.dirname(path.abspath(__file__))
+
     for hmm_model in cfg.enabled_detection_models:
-        dir_path = path.dirname(path.abspath(__file__))
+        rules_dir = base_dir
         prefix = ""
         if hmm_model != "default":
-            dir_path = path.join(dir_path, hmm_model)
+            rules_dir = path.join(base_dir, hmm_model)
             prefix = hmm_model + "/"
-        #TODO: We should move all user-customizable files into config subdirectory; the rulefiles are redundant also in hmm_detection_dblookup
-        for line in open(path.join(dir_path, "cluster_rules.txt"),"r"):
-            # skip the first line with the legend
-            if first:
-                first = False
-                continue
-            parts = line.split('\t')
-            if len(parts) < 3:
-                continue
-            key = prefix + parts.pop(0)
-            if key not in enabled_clustertypes:
-                continue
-            rules = parts.pop(0)
-            cutoff = int(float(parts.pop(0)) * 1000.00 * cfg.cutoff_multiplier)
-            extension = int(float(parts.pop(0)) * 1000.00 * cfg.cutoff_multiplier)
-            rulesdict[key] = (rules, cutoff, extension)
+
+        rules_path = path.join(rules_dir, "cluster_rules.txt")
+        try:
+            total = kept = bad = 0
+            with open(rules_path, "r") as f:
+                for i, line in enumerate(f):
+                    if i == 0:
+                        continue  # skip header per file
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split('\t')
+                    if len(parts) < 4:
+                        bad += 1
+                        continue
+                    name, rules, cutoff_s, ext_s = parts[0], parts[1], parts[2], parts[3]
+                    key = prefix + name
+                    cutoff = int(float(cutoff_s) * 1000.00 * cfg.cutoff_multiplier)
+                    extension = int(float(ext_s) * 1000.00 * cfg.cutoff_multiplier)
+                    rulesdict[key] = (rules, cutoff, extension)
+                    kept += 1
+                    total += 1
+            logging.info("Cluster rules file read from: %s (loaded %d rules, %d bad lines)", rules_path, kept, bad)
+        except IOError as e:
+            logging.error("Failed to read cluster rules at %s: %s", rules_path, e)
+
     return rulesdict
 
-def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps):
+
+def apply_cluster_rules(results_by_id, feature_by_id, rulesdict, overlaps, options):
     "Apply cluster rules to determine if HMMs lead to secondary metabolite core gene detection"
     typedict = {}
     cfg = config.get_config()
-    cds_with_hits = sorted(results_by_id.keys(), key = lambda gene_id: feature_by_id[gene_id].location.start)
+    cds_with_hits = sorted(list(results_by_id.keys()), key = lambda gene_id: feature_by_id[gene_id].location.start)
+    all_types = sorted(rulesdict.keys())
     for cds in cds_with_hits:
         _type = "none"
         #if typedict[cds] exist (the case of in-advance assignment from neighboring genes), use that instead of "none"
-        if cds in typedict.keys():
+        if cds in typedict:
             _type = typedict[cds]
         cdsresults = [res.query_id for res in results_by_id[cds]]
-        for clustertype in [ct for ct in enabled_clustertypes if ct not in _type.split("-")]:
+        for clustertype in [ct for ct in all_types if ct not in _type.split("-")]:
+            if clustertype not in rulesdict:
+                logging.warning("Skipping unknown clustertype %s; available: %s",
+                                clustertype, ", ".join(sorted(rulesdict.keys())))
+                continue
+
             prefix = ""
             if len(clustertype.split("/")) > 1:
                 prefix = clustertype.split("/")[0] + "/"
@@ -492,7 +606,7 @@ def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rule
                         #do cdhit filtering
                         clcds = [feature_by_id[key] for key in neighborcds]
                         clcds.append(feature_by_id[cds])
-                        cdhit_table, gene_to_cluster = utils.get_cdhit_table(clcds)
+                        cdhit_table, gene_to_cluster = utils.get_cdhit_table(clcds, options)
                         detected_cdh_cluster = [gene_to_cluster[cds]]
                         for othercds in neighborcds:
                             if not (gene_to_cluster[othercds] in detected_cdh_cluster):
@@ -509,7 +623,7 @@ def apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rule
                             _type = clustertype + "-" + _type
                     for ncds in neighborcds:
                         _ntype = "none"
-                        if ncds in typedict.keys():
+                        if ncds in list(typedict.keys()):
                             _ntype = typedict[ncds]
                         if not (_ntype != "none" and clustertype == "other"):
                             if _ntype == "none" or _ntype == "other" or _ntype == clustertype:
@@ -526,10 +640,11 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     "Function to be executed by module"
     logging.info('Detecting gene clusters using HMM library')
     feature_by_id = utils.get_feature_dict(seq_record)
-    rulesdict = create_rules_dict(enabled_clustertypes)
+    rulesdict = create_rules_dict()
     results = []
     sig_by_name = {}
     results_by_id = {}
+
     for sig in get_sig_profiles():
         sig_by_name[sig.name] = sig
 
@@ -548,7 +663,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
         if options.eukaryotic:
             min_length_aa = 100
         for f in seq_record.features:
-            if f.type == "CDS" and len(f.qualifiers['translation'][0]) < min_length_aa and not results_by_id.has_key(utils.get_gene_id(f)):
+            if f.type == "CDS" and len(f.qualifiers['translation'][0]) < min_length_aa and utils.get_gene_id(f) not in results_by_id:
                 short_cds_buffer.append(f)
                 seq_record.features.remove(f)
 
@@ -558,6 +673,13 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     #Filter results by comparing scores of different models (for PKS systems)
     results_to_delete = [gene_id for gene_id in results_by_id]
     results, results_by_id = filter_results(results, results_by_id, overlaps, feature_by_id)
+
+    logging.debug("MODELS: %s", config.get_config().enabled_detection_models)
+    logging.debug("RULE TYPES LOADED: %d", len(rulesdict))
+    logging.debug("RESULT GENES WITH HITS: %d", len(results_by_id))
+    if results_by_id:
+        sample_gid = next(iter(results_by_id))
+        logging.debug("SAMPLE HITS for %s: %s", sample_gid, [h.query_id for h in results_by_id[sample_gid]])
 
     #Update filtered results back to the options.hmm_results
     for gene_id in results_by_id:
@@ -571,7 +693,8 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
             del options.hmm_results[(prefix + gene_id)]
 
     #Use rules to determine gene clusters
-    typedict = apply_cluster_rules(results_by_id, feature_by_id, enabled_clustertypes, rulesdict, overlaps)
+    typedict = apply_cluster_rules(results_by_id, feature_by_id, rulesdict, overlaps, options)
+
 
     #Rearrange hybrid clusters name in typedict alphabetically
     fix_hybrid_clusters_typedict(typedict)
@@ -580,15 +703,20 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
     nseqdict = get_nseq()
 
     #Save final results to seq_record
-    for cds in results_by_id.keys():
+    for cds in list(results_by_id.keys()):
         feature = feature_by_id[cds]
+
+        # Add domain record to feature no matter what
+        result = "; ".join(["%s (E-value: %s, bitscore: %s, seeds: %s)" % (
+        res.query_id, res.evalue, res.bitscore, nseqdict.get(res.query_id, '?')) for res in results_by_id[cds]])
+        feature.qualifiers['domain_record'] = result
+
         if typedict[cds] != "none":
             _update_sec_met_entry(feature, results_by_id[cds], typedict[cds], nseqdict)
 
+
     find_clusters(seq_record, rulesdict, overlaps)
 
-    #Find additional NRPS/PKS genes in gene clusters
-    add_additional_nrpspks_genes(typedict, results_by_id, seq_record, nseqdict)
 
     #Rearrange hybrid clusters name alphabetically
     fix_hybrid_clusters(seq_record)
@@ -606,7 +734,7 @@ def detect_signature_genes(seq_record, enabled_clustertypes, options):
 
     #Display %identity
     if options.enable_cdhit:
-        store_percentage_identities(seq_record)
+        store_percentage_identities(seq_record, options)
 
 
 def get_nseq():
@@ -694,21 +822,21 @@ def remove_irrelevant_allorfs(seq_record):
     #Get features
     allfeatures = utils.get_cds_features(seq_record)
     #Remove auto-orf features without unique sec_met qualifiers; remove glimmer ORFs overlapping with sec_met auto-orfs not catched by Glimmer
-    auto_orf_features = [feature for feature in allfeatures if feature.qualifiers.has_key('note') and "auto-all-orf" in feature.qualifiers['note']]
-    other_features = [feature for feature in allfeatures if not feature.qualifiers.has_key('note') or "auto-all-orf" not in feature.qualifiers['note']]
+    auto_orf_features = [feature for feature in allfeatures if 'note' in feature.qualifiers and "auto-all-orf" in feature.qualifiers['note']]
+    other_features = [feature for feature in allfeatures if 'note' not in feature.qualifiers or "auto-all-orf" not in feature.qualifiers['note']]
     to_delete = []
     for autofeature in auto_orf_features:
-        if not autofeature.qualifiers.has_key("sec_met"):
+        if "sec_met" not in autofeature.qualifiers:
             to_delete.append(autofeature)
         else:
             glimmer_has_sec_met = False
             for otherfeature in other_features:
-                if overlaps(autofeature, otherfeature) and otherfeature.qualifiers.has_key('sec_met'):
+                if overlaps(autofeature, otherfeature) and 'sec_met' in otherfeature.qualifiers:
                     to_delete.append(autofeature)
                     glimmer_has_sec_met = True
             if glimmer_has_sec_met == False:
                 for otherfeature in other_features:
-                    if overlaps(autofeature, otherfeature) and not otherfeature.qualifiers.has_key('sec_met'):
+                    if overlaps(autofeature, otherfeature) and 'sec_met' not in otherfeature.qualifiers:
                         to_delete.append(otherfeature)
     featurenrs = []
     idx = 0
@@ -721,32 +849,22 @@ def remove_irrelevant_allorfs(seq_record):
         del seq_record.features[featurenr]
 
 
-def store_percentage_identities(seq_record):
+def store_percentage_identities(seq_record, options):
     clusters = utils.get_cluster_features(seq_record)
     cfg = config.get_config()
     for cluster in clusters:
         features = [feature for feature in utils.get_cluster_cds_features(cluster, seq_record) if 'sec_met' in feature.qualifiers]
-        cdhit_table, gene_to_cluster = utils.get_cdhit_table(features, float(cfg.cdh_display_cutoff))
+        cdhit_table, gene_to_cluster = utils.get_cdhit_table(features, options, float(cfg.cdh_display_cutoff))
         for cdhit_cluster in cdhit_table:
             if len(cdhit_cluster["genes"]) > 1:
-                cl_features = [feature for feature in features if utils.get_gene_id(feature) in cdhit_cluster["genes"].keys()]
+                cl_features = [feature for feature in features if utils.get_gene_id(feature) in list(cdhit_cluster["genes"].keys())]
                 pct_table = utils.get_pct_identity_table(cl_features)
                 for cds in cl_features:
-                    result = ",".join(["%s=%s" % (othercds, pct_table[utils.get_gene_id(cds)][othercds]) for othercds in pct_table[utils.get_gene_id(cds)].keys()])
+                    result = ",".join(["%s=%s" % (othercds, pct_table[utils.get_gene_id(cds)][othercds]) for othercds in list(pct_table[utils.get_gene_id(cds)].keys())])
                     for ann in cds.qualifiers['sec_met']:
                         if ann.startswith("Percentage identity"):
                             del ann
                     cds.qualifiers['sec_met'].append("Percentage identity: %s" % (result))
-
-
-def add_additional_nrpspks_genes(typedict, results_by_id, seq_record, nseqdict):
-    nrpspksdomains = ["PKS_KS", "PKS_AT", "ATd", "ene_KS", "mod_KS", "hyb_KS", "itr_KS", "tra_KS", "Condensation", "AMP-binding", "A-OX"]
-    clustercdsfeatures = utils.get_withincluster_cds_features(seq_record)
-    othercds_with_results = [cds for cds in clustercdsfeatures if results_by_id.has_key(utils.get_gene_id(cds)) and typedict[utils.get_gene_id(cds)] == "none"]
-    for cds in othercds_with_results:
-        cdsresults = [res.query_id for res in results_by_id[utils.get_gene_id(cds)]]
-        if len(set(nrpspksdomains) & set(cdsresults)) >= 1:
-            _update_sec_met_entry(cds, results_by_id[utils.get_gene_id(cds)], "other", nseqdict)
 
 
 def fix_hybrid_clusters(seq_record):
@@ -758,7 +876,7 @@ def fix_hybrid_clusters(seq_record):
 
 
 def fix_hybrid_clusters_typedict(typedict):
-    for key in typedict.keys():
+    for key in list(typedict.keys()):
         clustertypes = typedict[key].split("-")
         clustertypes.sort()
         typedict[key] = "-".join(clustertypes)

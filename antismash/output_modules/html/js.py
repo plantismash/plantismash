@@ -28,11 +28,11 @@ def convert_record(record, annotations, options):
     js_rec = {}
     js_rec['seq_id'] = record.id
     if "extrarecord" in options:
-        if options.extrarecord.has_key(record.id):
+        if record.id in options.extrarecord:
             if "extradata" in options.extrarecord[record.id]:
-                if options.extrarecord[record.id].extradata.has_key("orig_id"):
+                if "orig_id" in options.extrarecord[record.id].extradata:
                     js_rec['orig_id'] = options.extrarecord[record.id].extradata["orig_id"]
-    if not js_rec.has_key('orig_id'):
+    if 'orig_id' not in js_rec:
         js_rec['orig_id'] = ""
     js_rec['clusters'] = convert_clusters(record, annotations, options)
 
@@ -59,9 +59,11 @@ def convert_clusters(record, annotations, options):
         js_cluster['knowncluster'] = "-"
         js_cluster['BGCid'] = "-"
         js_cluster['domains'] = utils.get_cluster_domains(cluster, record)
+        js_cluster['substrates'] = utils.get_cluster_substrates(cluster, record)
+
 
         if options.enable_cdhit:
-            js_cluster['cdhitclusters'] = utils.get_cluster_cdhit_table(cluster, record)
+            js_cluster['cdhitclusters'] = utils.get_cluster_cdhit_table(cluster, record, options)
 
         if 'knownclusterblast' in cluster.qualifiers:
             knownclusters = cluster.qualifiers['knownclusterblast']
@@ -98,6 +100,9 @@ def convert_cds_features(record, features, annotations, options):
             for hsp in sorted(options.hmm_results[prefix + js_orf['locus_tag']], key=lambda x: x.bitscore, reverse=True):
                 domains.append(hsp.query_id)
         js_orf['domains'] = domains
+        js_orf['domain_present'] = "; ".join([domain.split("/")[1] for domain in domains]) if domains else "n/a"
+        js_orf['domain_record'] = feature.qualifiers.get('domain_record', "n/a")
+        js_orf['subgroup'] = "; ".join(feature.qualifiers.get('subgroup', ['-']))
         if options.coexpress:
             js_orf['geo'] = utils.parse_geo_feature(feature)
         js_orfs.append(js_orf)
@@ -195,7 +200,7 @@ def get_description(record, feature, type_, options):
         transport_blast_line = '<a href="%s" target="_new">TransportDB BLAST on this gene<br>' % url
         replacements['transport_blast_line'] = transport_blast_line
 
-    if options.searchgtr_links.has_key(record.id + "_" + utils.get_gene_id(feature)):
+    if record.id + "_" + utils.get_gene_id(feature) in options.searchgtr_links:
         url = options.searchgtr_links[record.id + "_" + utils.get_gene_id(feature)]
         searchgtr_line = '<a href="%s" target="_new">SEARCHGTr on this gene<br>' % url
         replacements['searchgtr_line'] = searchgtr_line

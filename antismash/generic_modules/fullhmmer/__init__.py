@@ -84,7 +84,7 @@ def _annotate(seq_record, options, results):
             if hsp.bitscore <= min_score or hsp.evalue >= max_evalue:
                 continue
 
-            if not feature_by_id.has_key(hsp.query_id):
+            if hsp.query_id not in feature_by_id:
                 continue
 
             feature = feature_by_id[hsp.query_id]
@@ -97,7 +97,7 @@ def _annotate(seq_record, options, results):
             quals = defaultdict(list)
             
             quals['label'].append(r.id)
-            if feature.qualifiers.has_key('locus_tag'):       
+            if 'locus_tag' in feature.qualifiers:       
                 quals['locus_tag'] = feature.qualifiers['locus_tag']
             else:
                 quals['locus_tag'] = [hsp.query_id]
@@ -110,7 +110,7 @@ def _annotate(seq_record, options, results):
             quals['aSTool'] = ["fullhmmer"]
             quals['detection'] = ["hmmscan"]
             quals['database'] = [path.basename(r.target)]
-            if feature.qualifiers.has_key('transl_table'):
+            if 'transl_table' in feature.qualifiers:
                 [transl_table] = feature.qualifiers['transl_table']
             else:
                 transl_table = 1
@@ -124,7 +124,7 @@ def _annotate(seq_record, options, results):
 
             try:
                 pfamid = name_to_pfamid[hsp.hit_id]
-                if quals.has_key('db_xref'):
+                if 'db_xref' in quals:
                     quals['db_xref'].append("PFAM: %s" % pfamid)
                 else:
                     quals['db_xref'] = ["PFAM: %s" % pfamid]    

@@ -4,8 +4,8 @@
 (C) 2008, 2009 Kerim Mansour
 For licensing information please refer to license.txt
 '''
-from attributes import *
-from core import BaseElement, DeltaPointAttrib, PointAttrib, DimensionAttrib
+from .attributes import *
+from .core import BaseElement, DeltaPointAttrib, PointAttrib, DimensionAttrib
 
 class filter(BaseElement, CoreAttrib, XLinkAttrib, ExternalAttrib, StyleAttrib, PresentationAttributes_All, PointAttrib, DimensionAttrib):
     """

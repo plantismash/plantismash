@@ -8,7 +8,7 @@
 
 """Compare detected clusters against prepared (GEO) Expression data"""
 
-from __future__ import division
+
 import logging
 import json
 import re
@@ -152,7 +152,7 @@ def run_coexpress(seq_record, all_gene_expressions, geo):
             clrefs.append(((cluster.location.start, cluster.location.end), utils.get_cluster_number(cluster)))
         clrefs = sorted(clrefs, key=lambda cl: cl[0][0])
         #build signals
-        for i in xrange(0, len(overlaps) - n):
+        for i in range(0, len(overlaps) - n):
             genes = []
             for overlap in overlaps[i:i+n]:
                 gene = overlap[0]
@@ -164,11 +164,11 @@ def run_coexpress(seq_record, all_gene_expressions, geo):
             cors = []
             checked = []
             hits = []
-            for x in xrange(0, len(genes)):
+            for x in range(0, len(genes)):
                 gene_x = utils.get_gene_id(genes[x])
                 if prefix + gene_x in options.hmm_results:
                     hits.append(options.hmm_results[prefix + gene_x][0].query_id)
-                for y in xrange(0, len(genes)):
+                for y in range(0, len(genes)):
                     if ((x,y) in checked) or ((y,x) in checked):
                         continue
                     cor_val = 0
@@ -379,7 +379,7 @@ def calc_sample_ranges(geo_dataset):
     for sample in geo_dataset["info"]["samples"]:
         expressions = []
         for id_ref in geo_dataset["data"]:
-            if sample in geo_dataset["data"][id_ref][1].keys():
+            if sample in list(geo_dataset["data"][id_ref][1].keys()):
                 expressions.append(geo_dataset["data"][id_ref][1][sample])
         expressions = np.array(expressions)
         geo_dataset["info"]["ranges"][sample] = (np.percentile(expressions, 10), np.percentile(expressions, 50), np.percentile(expressions, 90))
@@ -414,7 +414,7 @@ def parse_csv_file(csv_path):
                     dataset_data[cur_id].append([cur_id])
                     dataset_data[cur_id].append({})
                     for i,exp in enumerate(Bline):
-                        if (i is not 0) and (i not in skip_cols):
+                        if (i != 0) and (i not in skip_cols):
                             if exp=='': exp=0
                             if exp=='NA': exp=float('nan')
                             else:
@@ -432,7 +432,7 @@ def parse_csv_file(csv_path):
                 if skipped_col in dataset_data[cur_id][1]:
                     del dataset_data[cur_id][1][skipped_col]
         temp_header = []
-        for i in xrange(0, len(header)):
+        for i in range(0, len(header)):
             if i not in skip_cols:
                 temp_header.append(header[i])
         header = temp_header
@@ -451,7 +451,7 @@ def match_exp_to_genes(features, geo_dataset):
     col_gene_id = geo_info["col_id"]
     if col_gene_id < 0:
         return {} # gene_id columns not found
-    for id_ref, data in geo_data.items():
+    for id_ref, data in list(geo_data.items()):
         gene_to_ref[data[0][col_gene_id].upper()] = id_ref
 
     # fill cluster_genes
@@ -467,7 +467,7 @@ def match_exp_to_genes(features, geo_dataset):
         cg = cluster_genes[gene_id]
         if "ref" in cg:
             cg["exp"] = {}
-            for sample, value in geo_data[cg["ref"]][1].items():
+            for sample, value in list(geo_data[cg["ref"]][1].items()):
                 cg["exp"][sample] = value
 
     return cluster_genes
@@ -509,7 +509,7 @@ def calc_correlation_value(gene_1, gene_2):
     cor_val = (((len(set_sample) * sum([x**2 for x in Xi])) - (sum(Xi)**2)) ** 0.5)
     cor_val *= (((len(set_sample) * sum([y**2 for y in Yi])) - (sum(Yi)**2)) ** 0.5)
     if cor_val != 0:
-        cor_val = ((len(set_sample) * sum([Xi[i]*Yi[i] for i in xrange(0, len(set_sample))])) - (sum(Xi) * sum(Yi))) / cor_val
+        cor_val = ((len(set_sample) * sum([Xi[i]*Yi[i] for i in range(0, len(set_sample))])) - (sum(Xi) * sum(Yi))) / cor_val
     return cor_val
 
 
@@ -525,8 +525,8 @@ def find_col_id(geo_dataset, seq_records):
     if geo_dataset["info"]["type"] == "CSV":
         geo_dataset["info"]["col_id"] = 0
         return geo_dataset
-    for id_ref, data in geo_dataset["data"].items():
-        for i in xrange(0, len(data[0])):
+    for id_ref, data in list(geo_dataset["data"].items()):
+        for i in range(0, len(data[0])):
             for seq_record in seq_records:
                 for feature in utils.get_cds_features(seq_record):
                     gene_id = utils.get_gene_id(feature)
@@ -582,7 +582,7 @@ def get_inter_cluster_relation(seq_records, geo_id):
                         update_g(cur_gene1,interactions,cur_gene1_distances,full_g)
 
                         # From the second cluster onwards, we'll add inter-cluster edges backwards, i.e.: 2-1, 3-1, 3-2, 4-1, 4-2, etc...
-                        if cur_cluster1 is not 1:
+                        if cur_cluster1 != 1:
                             for cur_cluster2 in cluster_genes:
                                 if cur_cluster1 is not cur_cluster2:
                                     interactions=cur_gene1_neighbors.intersection(cluster_genes[cur_cluster2])

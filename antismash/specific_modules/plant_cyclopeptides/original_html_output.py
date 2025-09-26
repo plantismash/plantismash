@@ -27,7 +27,7 @@ def generate_details_div(cluster, seq_record, options, js_domains, details=None)
     cluster = utils.get_cluster_by_nr(seq_record, cluster['idx']) # use seqrecord.feature
     text_for_dt = '<div>'
     if "cyclopeptide_analysis" in cluster.qualifiers:
-        encoded_res = (cluster.qualifiers["cyclopeptide_analysis"][0]
+        encoded_res = (cluster.qualifiers["cyclopeptide_analysis"][0])
         for er in encoded_res:
             result = Result(er)
     if result != None:

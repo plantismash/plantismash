@@ -174,7 +174,7 @@ def write_NRPS_PKS(txt, info, options):
                 Minowa = ""
                 pkssignature = ""
                 consensus = ""
-                if aSDomain.qualifiers.has_key('specificity'):
+                if 'specificity' in aSDomain.qualifiers:
                     if len([qual for qual in aSDomain.qualifiers['specificity'] if qual.startswith("KR activity")]) > 0:
                         kr_activity = [qual.partition("KR activity: ")[2] for qual in aSDomain.qualifiers['specificity'] if qual.startswith("KR activity")][0]
                     if len([qual for qual in aSDomain.qualifiers['specificity'] if qual.startswith("KR stereochemistry")]) > 0:

@@ -27,12 +27,12 @@ import copy
 import os
 import sys
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import logging
 
 
@@ -42,8 +42,8 @@ import logging
 def get_rxnid_from_ECNumber(enzymeEC):
     url = "http://rest.kegg.jp/get/enzyme:%s"%(enzymeEC)
     try:
-        ecinfo_text = urllib2.urlopen(url).read()
-    except (urllib2.URLError, urllib2.HTTPError):
+        ecinfo_text = urllib.request.urlopen(url).read()
+    except (urllib.error.URLError, urllib.error.HTTPError):
         logging.exception("can't connect to KEGG with API query %s", url)
         # FIXME: modules should never call sys.exit()
         sys.exit(1)
@@ -71,8 +71,8 @@ def get_rxnid_from_ECNumber(enzymeEC):
 def get_rxnInfo_from_rxnid(rxnid):
     url = "http://rest.kegg.jp/get/rn:%s"%(rxnid)
     try:
-        reaction_info_text = urllib2.urlopen(url).read()
-    except urllib2.URLError:
+        reaction_info_text = urllib.request.urlopen(url).read()
+    except urllib.error.URLError:
         logging.exception("can't connect to KEGG with API query %s", url)
         sys.exit(1)
     split_text = reaction_info_text.strip().split('\n')
@@ -105,7 +105,7 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonB
     targetGenome_locusTag_ec_nonBBH_dict = {}
 
     for locusTag in nonBBH_list:
-        if locusTag in targetGenome_locusTag_ec_dict.keys():
+        if locusTag in list(targetGenome_locusTag_ec_dict.keys()):
             targetGenome_locusTag_ec_nonBBH_dict[locusTag] = targetGenome_locusTag_ec_dict[locusTag]
     return targetGenome_locusTag_ec_nonBBH_dict
 
@@ -116,7 +116,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict, options):
     rxnid_locusTag_dict = {}
 
     logging.debug("Querying KEGG to get reaction ID's for %s gene products..., this step can take a while",
-                  len(targetGenome_locusTag_ec_nonBBH_dict.keys()))
+                  len(list(targetGenome_locusTag_ec_nonBBH_dict.keys())))
 
     KEGG_EC_rxnCache = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'input1' + os.sep + 'KEGG_EC_rxnCache.p'
     KEGG_rxnInfoCache = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'input1' + os.sep + 'KEGG_rxnInfoCache.p'
@@ -149,7 +149,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict, options):
     except IOError as e:
         logging.warning("Can't open %s in rb mode: %s", KEGG_rxnInfoCache, e)
 
-    for locusTag in targetGenome_locusTag_ec_nonBBH_dict.keys():
+    for locusTag in list(targetGenome_locusTag_ec_nonBBH_dict.keys()):
         for enzymeEC in targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
             logging.debug("EC_number for locusTag: %s: %s", locusTag, enzymeEC)
 
@@ -182,7 +182,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict, options):
                         else:
                             logging.warn("Skipping rxnid %s for adding to cache as it equals None", rxnid)
 
-                    if rxnid not in rxnid_locusTag_dict.keys():
+                    if rxnid not in list(rxnid_locusTag_dict.keys()):
                         rxnid_locusTag_dict[rxnid] = [(locusTag)]
                     #Append additional different genes to the same reaction ID
                     else:
@@ -219,7 +219,7 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict):
 
     while index <= index_last:
         rxn = modelPrunedGPR.reactions[index].id
-        if rxn in bigg_mnxr_dict.keys():
+        if rxn in list(bigg_mnxr_dict.keys()):
             modelPrunedGPR_mnxr_list.append(bigg_mnxr_dict[rxn])
         index+=1
 
@@ -229,9 +229,9 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict):
 def check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, rxnid_info_dict):
     rxnid_to_add_list =[]
 
-    for rxnid in rxnid_info_dict.keys():
+    for rxnid in list(rxnid_info_dict.keys()):
         #Consider only reactions mapped in pathways
-        if rxnid in kegg_mnxr_dict.keys():
+        if rxnid in list(kegg_mnxr_dict.keys()):
             kegg_mnxr = kegg_mnxr_dict[rxnid]
 
             #Check with reactions in the template model through MNXref
@@ -246,7 +246,7 @@ def check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, rxnid_info_dic
 def get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict):
     mnxr_to_add_list = []
     for rxnid in rxnid_to_add_list:
-        if rxnid in kegg_mnxr_dict.keys():
+        if rxnid in list(kegg_mnxr_dict.keys()):
             mnxr_to_add_list.append(kegg_mnxr_dict[rxnid])
     return mnxr_to_add_list
 
@@ -309,11 +309,11 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
                 metab_type = 'substrate'
                 substrate = substrate.split()
 
-                if substrate[1] in mnxm_bigg_compound_dict.keys():
+                if substrate[1] in list(mnxm_bigg_compound_dict.keys()):
                     mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
                     mnxm_subs_list.append(mnxm_bigg_compound_dict[substrate[1]])
 
-                elif substrate[1] in mnxm_kegg_compound_dict.keys():
+                elif substrate[1] in list(mnxm_kegg_compound_dict.keys()):
                     mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
                     mnxm_subs_list.append(mnxm_kegg_compound_dict[substrate[1]])
 
@@ -327,11 +327,11 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
                 metab_type = 'product'
                 product = product.split()
 
-                if product[1] in mnxm_bigg_compound_dict.keys():
+                if product[1] in list(mnxm_bigg_compound_dict.keys()):
                     mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
                     mnxm_prod_list.append(mnxm_bigg_compound_dict[product[1]])
 
-                elif product[1] in mnxm_kegg_compound_dict.keys():
+                elif product[1] in list(mnxm_kegg_compound_dict.keys()):
                     mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
                     mnxm_prod_list.append(mnxm_kegg_compound_dict[product[1]])
                 else:
@@ -353,7 +353,7 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
 
 def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, tempModel_exrxnid_flux_dict, options):
 
-    for rxnid in rxnid_mnxm_coeff_dict.keys():
+    for rxnid in list(rxnid_mnxm_coeff_dict.keys()):
         logging.debug("%s being examined for a new nonBBH reaction..", rxnid)
         if rxnid_info_dict[rxnid] != None:
             #ID
@@ -376,7 +376,7 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
                     rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Add metabolites with bigg compoundID, but not in the model
-                elif metab in bigg_mnxm_compound_dict.keys():
+                elif metab in list(bigg_mnxm_compound_dict.keys()):
                     mnxm = bigg_mnxm_compound_dict[metab]
                     metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
                     rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
@@ -442,7 +442,7 @@ def get_exrxnid_flux(model, tempModel_exrxnid_flux_dict):
     target_exrxnid_flux_dict = {}
     model.optimize()
 
-    for exrxn_id in tempModel_exrxnid_flux_dict.keys():
+    for exrxn_id in list(tempModel_exrxnid_flux_dict.keys()):
         if exrxn_id in model.solution.x_dict:
             target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
         else:
@@ -455,8 +455,8 @@ def check_exrxn_flux_direction(tempModel_exrxnid_flux_dict, target_exrxnid_flux_
 
     exrxn_flux_change_list = []
 
-    for exrxn_id in tempModel_exrxnid_flux_dict.keys():
-        if exrxn_id in target_exrxnid_flux_dict.keys():
+    for exrxn_id in list(tempModel_exrxnid_flux_dict.keys()):
+        if exrxn_id in list(target_exrxnid_flux_dict.keys()):
             template_exrxn_flux = tempModel_exrxnid_flux_dict[exrxn_id]
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)

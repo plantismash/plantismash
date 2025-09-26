@@ -10,6 +10,10 @@
 # Interfaculty Institute of Microbiology and Infection Medicine
 # Div. of Microbiology/Biotechnology
 #
+# Copyright (C) 2024 Elena Del Pup 
+# Wageningen University & Research, NL
+# Bioinformatics Group, Department of Plant Sciences 
+#
 # License: GNU Affero General Public License v3 or later
 # A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 """Run the antiSMASH pipeline"""
@@ -29,37 +33,37 @@ import logging
 import argparse
 from os import path
 import multiprocessing
-import straight.plugin
+from straight.plugin import load
 from helperlibs.bio import seqio
 from antismash.config import load_config, set_config
 from antismash import utils
+from antismash.output_modules import xls
 from antismash.generic_modules import check_prereqs as generic_check_prereqs
 from antismash.generic_genome_modules import check_prereqs as ggm_check_prereqs
-from antismash.specific_modules import plant_cyclopeptides
 from antismash.generic_modules import (
     hmm_detection,
     genefinding,
     fullhmmer,
-    clusterfinder,
     smcogs,
     clusterblast,
     subclusterblast,
     knownclusterblast,
     active_site_finder,
     coexpress,
-    ecpredictor,
-    gff_parser
+    gff_parser,
+    subgroup, 
+    tfbs_finder 
 )
 try:
     from antismash.db.biosql import get_record
     from antismash.db.extradata import getExtradata
     USE_BIOSQL = True
-except ImportError:
+except ImportError: 
     USE_BIOSQL = False
 from numpy import array_split, array
-import urllib2
-from urllib2 import URLError
-import httplib
+import urllib.request, urllib.error, urllib.parse
+from urllib.error import URLError
+import http.client
 import time
 from collections import defaultdict
 from Bio import SeqIO
@@ -70,10 +74,11 @@ from Bio.Alphabet import NucleotideAlphabet
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 from datetime import datetime
+import re
 
 
 def ValidateDetectionTypes(detection_models):
@@ -88,8 +93,8 @@ def ValidateDetectionTypes(detection_models):
                         if value not in detection_models:
                             raise ValueError('invalid detection models {s!r}'.format(s = value))
                 except ValueError as e:
-                    print "\nInput error:", e, "\n"
-                    print "Please choose from the following list:\n", "\n".join(detection_models)
+                    print("\nInput error:", e, "\n")
+                    print("Please choose from the following list:\n", "\n".join(detection_models))
                     sys.exit(1)
             setattr(args, self.dest, values)
     return Validator
@@ -105,8 +110,8 @@ def ValidateClusterTypes(clustertypes):
                     if value not in clustertypes:
                         raise ValueError('invalid clustertype {s!r}'.format(s = value))
             except ValueError as e:
-                print "\nInput error:", e, "\n"
-                print "Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other"
+                print("\nInput error:", e, "\n")
+                print("Please choose from the following list:\n", "\n".join(clustertypes), "\n\nExample: --enable t1pks,nrps,other")
                 sys.exit(1)
             setattr(args, self.dest, values)
     return Validator
@@ -162,7 +167,7 @@ def main():
                         dest='taxon',
                         default='bacteria',
                         choices=['bacteria', 'fungi', 'plants'],
-                        help="Determine the taxon from which the sequence(s) came from. (default: bacteria)")
+                        help="Determine the taxon from which the sequence(s) came from. (default: plants)")
     group.add_argument('--hmmsearch-chunk',
                        dest='hmmsearch_chunk',
                        default=10000,
@@ -184,6 +189,16 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a database of antiSMASH-predicted clusters.")
+    group.add_argument('--update_clusterblast',
+                       dest='update_clusterblast',
+                       action='store_true',
+                       default=False,
+                       help="update the database of plantiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta, plantgeneclusterprots.dmnd) using this time found clusters.")
+    group.add_argument('--clusterblastdir',
+                       dest='clusterblastdir',
+                       type=str,
+                       default="",
+                       help="the clusterblastdir contain the database of antiSMASH-predicted clusters (plantgeneclusters.txt, plantgeneclusterprots.fasta).")
     group.add_argument('--subclusterblast',
                        dest='subclusterblast',
                        action='store_true',
@@ -199,6 +214,35 @@ def main():
                        action='store_true',
                        default=False,
                        help="Compare identified clusters against a prepared Expression data.")
+    group.add_argument('--tfbs',
+                   dest='tfbs_detection',
+                   action='store_true',
+                   default=False,
+                   help="Run transcription factor binding site (TFBS) prediction.")
+    group.add_argument('--tfbs-pvalue', dest='tfbs_pvalue', type=float, default= 1e-4,
+                   help="TFBS p-value cutoff (default from config)")
+    group.add_argument('--tfbs-range', dest='tfbs_range', type=int, default=500,
+                    help="Range around clusters to scan for TFBS (default from config)")
+    group.add_argument('--disable_subgroup',
+                       dest='disable_subgroup',
+                       action='store_true',
+                       default=False,
+                       help="disable identifying the subgroup.")
+    group.add_argument('--disable_treesvg',
+                       dest='disable_treesvg',
+                       action='store_true',
+                       default=False,
+                       help="disable making svg pictures of subgroupping tree to save time.")
+    group.add_argument('--subgroup_inputpath',
+                       dest="subgroup_inputpath",
+                       type=str,
+                       default="",
+                       help="give path of folder with the structure same to subgroup folder in antismash/generic_modules.")
+    group.add_argument('--disable_specific_modules',
+                       dest='disable_specific_modules',
+                       action='store_true',
+                       default=False,
+                       help="disable specific modules.")
     group.add_argument('--smcogs',
                        dest='smcogs',
                        action='store_true',
@@ -305,11 +349,15 @@ def main():
                        action='store_true',
                        default=True,
                        help="In hmm detection, ignore short AA without significant pfam hits (affect dynamic cutoffs).")
-
+    group.add_argument('--require-internal-cyclopeptide-repeats',
+                        dest='require_internal_cyclopeptide_repeats',
+                        action='store_true',
+                        default=False,
+                        help="Only accept cyclopeptide clusters where repeats occur inside BURP features (default: repeats can be anywhere if BURP is present)")
     group = parser.add_argument_group('Gene finding options (ignored when ORFs are annotated)')
     group.add_argument('--genefinding',
                        dest='genefinding',
-                       default='glimmer',
+                       default='none',
                        choices=['glimmer', 'prodigal', 'prodigal-m', 'none'],
                        help="Specify algorithm used for gene finding: Glimmer, "
                             "Prodigal, or Prodigal Metagenomic/Anonymous mode. (default: %(default)s).")
@@ -340,6 +388,11 @@ def main():
 
     group = parser.add_argument_group('CD-HIT specific options', '',
                                       param=["--cdhit"])
+    group.add_argument('--cdh-memory',
+                       dest='cdh_memory',
+                       type=str,
+                       default="2000",
+                       help="memory of using CD-HIT, default 2000M.")
     group.add_argument('--cdh-cutoff',
                        dest='cdh_cutoff',
                        default=0.5,
@@ -503,11 +556,11 @@ def main():
 
     #if -V, show version texts and exit
     if options.version:
-        print "antiSMASH %s" % utils.get_version()
+        print("antiSMASH %s" % utils.get_version())
         sys.exit(0)
 
-    logging.info("starting antiSMASH {version}, called with {cmdline}".format(version=utils.get_version(), cmdline=" ".join(sys.argv)))
-    logging.debug("antismash analysis started at %s", str(start_time))
+    logging.info("starting plantiSMASH {version}, called with {cmdline}".format(version=utils.get_version(), cmdline=" ".join(sys.argv)))
+    logging.debug("plantismash analysis started at %s", str(start_time))
     options.run_info = {}
     options.run_info["ver"] = utils.get_version()
     options.run_info["param"] = " ".join(sys.argv[1:-1])
@@ -585,12 +638,19 @@ def main():
     load_config(options)
     set_config(options)
 
+    # Unpack TFBS config section into top-level options
+    options.tfbs_pvalue = getattr(options, "tfbs_pvalue", 1e-4)
+    options.tfbs_range = getattr(options, "tfbs_range", 1000)
+
     # set up standard DB namespace
     options.dbnamespace = options.BioSQLconfig.dbgenomenamespace
 
     #Load and filter plugins
     utils.log_status("Loading detection plugins")
-    plugins = load_detection_plugins()
+    if not options.disable_specific_modules:
+        plugins = load_specific_modules()
+    else:
+        plugins = []
     if options.list_plugins:
         list_available_plugins(plugins, output_plugins)
         sys.exit(0)
@@ -598,7 +658,7 @@ def main():
 
     filter_outputs(output_plugins, options)
 
-    #Check prerequisites
+    # Check prerequisites
     if check_prereqs(plugins, options) > 0:
         logging.error("Not all prerequisites met")
         sys.exit(1)
@@ -616,6 +676,13 @@ def main():
     if not os.path.exists(options.outputfoldername):
         os.mkdir(options.outputfoldername)
     options.full_outputfolder_path = path.abspath(options.outputfoldername)
+
+    #Remove old clusterblast files
+    clusterblast_files = ["subclusterblastoutput.txt", "clusterblastoutput.txt", "knownclusterblastoutput.txt"]
+    for clusterblast_file in clusterblast_files:
+        clusterblastoutput_path = os.path.join(options.full_outputfolder_path, clusterblast_file)
+        if os.path.exists(clusterblastoutput_path):
+            os.remove(clusterblastoutput_path)
 
     if options.debug and os.path.exists(options.dbgclusterblast):
         logging.debug("Using %s instead of computing Clusterblasts and variantes!", options.dbgclusterblast)
@@ -683,7 +750,7 @@ def main():
         logging.info("Doing whole genome expression matching...")
         for seq_record in seq_records:
             features_to_match[seq_record.id] = utils.get_cds_features(seq_record)
-        for i in xrange(0, len(options.geo_dataset)):
+        for i in range(0, len(options.geo_dataset)):
             logging.debug("Matching expression for dataset (%d/%d).." % (i + 1, len(options.geo_dataset)))
             for seq_record in seq_records:
                 logging.debug("Seq_record %s.." % (seq_record.id))
@@ -698,7 +765,7 @@ def main():
                 for overlap in overlaps:
                     chosen_gene = -1
                     best_exp = 0
-                    for j in xrange(0, len(overlap)):
+                    for j in range(0, len(overlap)):
                         feature = overlap[j]
                         gene_id = utils.get_gene_id(feature)
                         if gene_id in all_gene_expressions:
@@ -747,7 +814,7 @@ def main():
                 new_hmm_results[new_id] = options.hmm_results[composite_id]
             options.hmm_results = new_hmm_results
             if options.coexpress:
-                for i in xrange(0, len(options.gene_expressions)):
+                for i in range(0, len(options.gene_expressions)):
                     if old_seq_id in options.gene_expressions[i]:
                         options.gene_expressions[i][seq_record.id] = options.gene_expressions[i][old_seq_id]
                         del options.gene_expressions[i][old_seq_id]
@@ -761,7 +828,7 @@ def main():
                     utils.log_status("retrieving record")
                     #TODO: This new association is not!!! Transferred to seq_records!!!
                     seq_record = get_record(seq_record.name, options)
-                except Exception, e:
+                except Exception as e:
                     logging.exception("Uncaptured error %s when reading entries from antiSMASH-DB. This should not have happened :-(", e)
                     sys.exit(1)
                 # set from_database flag to prevent updating the record in the output module
@@ -795,22 +862,23 @@ def main():
 
             # There must be a nicer solution...
             else:
-                run_analyses(seq_record, options, plugins)
-                utils.sort_features(seq_record)
                 options.from_database = False
-                temp_seq_records.append(seq_record)
+                run_analyses(seq_record, options, plugins)
+
         else:
-            run_analyses(seq_record, options, plugins)
-            utils.sort_features(seq_record)
             options.from_database = False
-            temp_seq_records.append(seq_record)
+            run_analyses(seq_record, options, plugins)
+            
+        # Add seq_record to temp_seq_records 
+        temp_seq_records.append(seq_record)
+
         options.record_idx += 1
         options.orig_record_idx += 1
         logging.debug("The record %s is originating from db %s", seq_record.name, options.from_database)
 
     # update coexpress data to calculate all possible high corelation betwen genes in clusters
     if options.coexpress:
-        for i in xrange(0, len(options.geo_dataset)):
+        for i in range(0, len(options.geo_dataset)):
             coexpress.update_dist_between_clusters(seq_records, options.gene_expressions[i], options.geo_dataset[i])
 
     #check CoExpressinter-cluster relation
@@ -883,17 +951,134 @@ def main():
                             temp_qual.append(row)
                     cds.qualifiers['sec_met'] = temp_qual
 
-    #Write results
-    options.plugins = plugins
-    utils.log_status("Writing the output files")
-    logging.debug("Writing output for %s sequence records", len(seq_records))
-    write_results(output_plugins, seq_records, options)
-    zip_results(seq_records, options)
-    end_time = datetime.now()
-    running_time = end_time-start_time
-    logging.debug("antiSMASH calculation finished at %s; runtime: %s", str(end_time), str(running_time))
-    utils.log_status("antiSMASH status: SUCCESS")
-    logging.debug("antiSMASH status: SUCCESS")
+    # run subgroup identification
+    # output family sequences fasta files and hmmscan results txt in the output folder, and update seq_records
+    if not options.disable_subgroup:
+        logging.info("identificating subgroup")
+        subgroup.subgroup_identification(seq_records,path.abspath(options.outputfoldername), options)
+    else:
+        logging.info("subgroup identification is disabled")
+
+    if options.update_clusterblast:
+        # Updated function to generate unique output files using the input sequence name.
+        logging.info("Updating ClusterBlast database for input: {0}".format(options.sequences))
+
+        # Make sure the clusterblastdir directory exists
+        if options.clusterblastdir == "":
+            options.clusterblastdir = clusterblast.where_is_clusterblast()
+        if not os.path.exists(options.clusterblastdir):
+            os.makedirs(options.clusterblastdir)
+
+        # Generate unique identifiers based on the input sequence
+        try:
+            # Split the input path into parts
+            input_basename = os.path.normpath(options.sequences[0]).split(os.sep)
+            # Get the last two elements of the filepath name 
+            last_two_parts = "_".join(input_basename[-2:])  # Join with an underscore
+            # Sanitize the combined parts to ensure filename safety
+            sanitized_path = re.sub(r'[^\w\-_\.]', '_', last_two_parts)
+            # Add more unique identifiers like timestamp if needed
+            unique_name = sanitized_path
+        except IndexError:
+            raise ValueError("No sequences provided in options.sequences!")
+
+        # File paths
+        clusteblast_txt = os.path.join(options.clusterblastdir, "plantgeneclusters_{0}.txt".format(unique_name))
+        clusteblast_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+
+         # Generate and write the plantgeneclusterprots.fasta file
+        try:
+            logging.debug("Calling make_geneclusterprots to generate FASTA file...")
+            clusterblast.make_geneclusterprots(seq_records, options, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            generated_fasta = os.path.join(options.clusterblastdir, "plantgeneclusterprots_{0}.fasta".format(unique_name))
+            logging.debug("Expected generated FASTA file path: {0}".format(generated_fasta))
+
+            if os.path.exists(generated_fasta) and os.path.getsize(generated_fasta) > 0:
+                logging.debug("FASTA file {} exists and is non-empty.".format(generated_fasta))
+            else:
+                logging.error("FASTA file {} is missing or empty!".format(generated_fasta))
+                logging.debug("ClusterBlast directory: {0}".format(options.clusterblastdir))
+                raise IOError("FASTA file generation failed.")
+        except Exception as e:
+            logging.error("Error generating ClusterBlast FASTA file: {0}".format(e))
+            raise
+
+        # Generate and write the plantgeneclusters.txt file
+        try:
+            # generate the file in the result directory 
+            xls.write(seq_records, options)
+            print("plantgeneclusters.txt saved in the results directory")
+
+             # Write the TXT file explicitly for the clusterblast directory
+            with open(clusteblast_txt, "w") as clusteblast_file:
+                for seq_record in seq_records:
+                    clusters = utils.get_sorted_cluster_features(seq_record)
+                    for cluster in clusters:
+                        clustertype = utils.get_cluster_type(cluster)
+                        clusternr = utils.get_cluster_number(cluster)
+                        clustergenes = [utils.get_gene_id(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        accessions = [utils.get_gene_acc(cds) for cds in utils.get_cluster_cds_features(cluster, seq_record)]
+                        # Write cluster data to TXT
+                        clusteblast_file.write(
+                            "\t".join(
+                                [
+                                    seq_record.id,
+                                    seq_record.description,
+                                    "c{0}".format(clusternr),
+                                    clustertype,
+                                    ";".join(clustergenes),
+                                    ";".join(accessions),
+                                ]
+                            )
+                            + "\n"
+                        )
+            print(("plantgeneclusters_{0}.txt saved in the clusterblast directory".format(unique_name)))
+            
+            # Validation: Ensure the file was created
+            if not os.path.exists(clusteblast_txt):
+                raise IOError("TXT file generation failed for clusterblast directory.")
+            logging.info("TXT file successfully created at {0}".format(clusteblast_txt))
+
+            # Count non-empty lines in the generated TXT file
+            try:
+                non_empty_line_count = 0
+                with open(clusteblast_txt, "r") as txtfile:
+                    non_empty_line_count = sum(1 for line in txtfile if line.strip())
+                logging.info(
+                    "Number of clusters for {0}: {1}, {2}".format(
+                        unique_name, options.sequences, non_empty_line_count
+                    )
+                )
+            except Exception as e:
+                logging.error("Error counting non-empty lines in TXT file: {0}".format(e))
+                raise
+
+        except Exception as e:
+            logging.error("Error generating ClusterBlast TXT file: {0}".format(e))
+            raise
+
+    # Write results and complete the process
+    try:
+        options.plugins = plugins
+        utils.log_status("Writing the output files")
+        logging.debug("Writing output for {0} sequence records".format(len(seq_records)))
+        write_results(output_plugins, seq_records, options)
+        zip_results(seq_records, options)
+
+        # Log runtime
+        end_time = datetime.now()
+        running_time = end_time - start_time
+        logging.debug(
+            "antiSMASH calculation finished at {0}; runtime: {1}".format(
+                str(end_time), str(running_time)
+            )
+        )
+        utils.log_status("antiSMASH status: SUCCESS")
+        logging.debug("antiSMASH status: SUCCESS")
+    except Exception as e:
+        logging.error("Error during results writing or finalizing: {0}".format(e))
+        raise
+
 
 def strip_record(seq_record):
     features = utils.get_cds_features(seq_record)
@@ -929,6 +1114,10 @@ def apply_taxon_preset(options):
         logging.debug("Applying preset for %s", options.taxon)
         options.eukaryotic = True
 
+    # force the default preset for plants
+    if not options.taxon:
+        options.taxon = "plants"
+
     if options.taxon == "plants":
         logging.debug("Applying preset for %s", options.taxon)
         options.eukaryotic = True
@@ -949,89 +1138,112 @@ def apply_taxon_preset(options):
             if not "plants" in options.enabled_detection_models:
                 options.enabled_detection_models.append("plants")
 
-
 def run_analyses(seq_record, options, plugins):
-    "Run antiSMASH analyses for a single SeqRecord"
+    """Run antiSMASH analyses for a single SeqRecord"""
 
     if 'next_clusternr' not in options:
         options.next_clusternr = 1
 
     options.clusternr_offset = options.next_clusternr
 
-    #Detect gene clusters
+    # Detect gene clusters
     detect_geneclusters(seq_record, options)
 
     for f in utils.get_cluster_features(seq_record):
         logging.debug(f)
 
-    #Do specific analyses
-    # TODO: Run this in parallel, perhaps?
-    if len(utils.get_cluster_features(seq_record)) > 0:
-        cluster_specific_analysis(plugins, seq_record, options)
-    unspecific_analysis(seq_record, options)
+    logging.debug(f"[DEBUG] run_analyses: disable_specific_modules = {options.disable_specific_modules}")
+    logging.debug(f"[DEBUG] run_analyses: plugins passed in: {[p.name for p in plugins]}")
 
     if len(utils.get_cluster_features(seq_record)) > 0:
-        #Run smCOG analysis
-        if options.smcogs:
-            utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
-            smcogs.run_smcog_analysis(seq_record, options)
+        # Run specific analyses first
+        logging.debug("Running specific analyses for %s", seq_record.id)
+        run_specific_analyses(seq_record, options, plugins)
 
-        #Run ClusterBlast
-        if options.clusterblast:
-            utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
-            clusterblast.run_clusterblast(seq_record, options)
-            #clusterblastvars info could also be pickled are transferred some other way if we want it to be possible to reconstruct complete output from files
+        # Renumber the clusters to maintain contiguous numbering
+        renumber_clusters(seq_record, options)
 
-        #Run SubClusterBlast
-        if options.subclusterblast:
-            utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
-            subclusterblast.run_subclusterblast(seq_record, options)
+        # Run general analyses
+        logging.debug("Running general analyses for %s", seq_record.id)
+        run_general_analyses(seq_record, options)
 
-        #Run KnownClusterBlast
-        if options.knownclusterblast:
-            utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
-            knownclusterblast.run_knownclusterblast(seq_record, options)
 
-        #Run CoExpress
-        if options.coexpress:
-            utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
-            for i in xrange(0, len(options.geo_dataset)):
-                coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+def run_specific_analyses(seq_record, options, plugins):
+    """Run specific cluster related analyses"""
+    if options.disable_specific_modules:
+        logging.debug("Skipping run_specific_analyses because --disable_specific_modules is set.")
+        return
+    cluster_specific_analysis(plugins, seq_record, options)
 
-        # run active site finder
-        if options.run_asf:
-            ASFObj = active_site_finder.active_site_finder(seq_record, options)
-            status = ASFObj.execute()
-            if status:
-                logging.debug("Active site finder execution successful")
-            else:
-                logging.error("Error in active site finder module!")
 
-    # run modeling pipeline
-#     if not options.modeling == "none":
-#         options.modeling_successful = False
-# #        try:
-#         modeling_result = metabolicmodel.run_modeling_pipeline(seq_record, options)
-#         if modeling_result == True:
-#             options.modeling_successful = True
-#             logging.debug('Metabolic model sucessfully generated')
-#         else:
-#             logging.error("Error generating metabolic model")
-# #        except :
-# #            logging.error("Modeling pipeline crashed! Continuing without...")
+
+def run_general_analyses(seq_record, options):
+    """Run general analyses that are independent of specific cluster types"""
+    
+    # Run smCOG analysis
+    if options.smcogs:
+        utils.log_status("Detecting smCOGs for contig #%d" % options.record_idx)
+        smcogs.run_smcog_analysis(seq_record, options)
+
+    # Run ClusterBlast
+    if options.clusterblast:
+        utils.log_status("ClusterBlast analysis for contig #%d" % options.record_idx)
+        clusterblast.run_clusterblast(seq_record, options)
+    
+    # Run SubClusterBlast
+    if options.subclusterblast:
+        utils.log_status("SubclusterBlast analysis for contig #%d" % options.record_idx)
+        subclusterblast.run_subclusterblast(seq_record, options)
+    
+    # Run KnownClusterBlast
+    if options.knownclusterblast:
+        utils.log_status("KnownclusterBlast analysis for contig #%d" % options.record_idx)
+        knownclusterblast.run_knownclusterblast(seq_record, options)
+    
+    # Run CoExpress
+    if options.coexpress:
+        utils.log_status("Coexpression analysis for contig #%d" % options.record_idx)
+        for i in range(0, len(options.geo_dataset)):
+            coexpress.run_coexpress(seq_record, options.gene_expressions[i], options.geo_dataset[i])
+
+    # Run Transcription Factor Binding Site (TFBS) analysis
+    if options.tfbs_detection:
+        utils.log_status(
+            f"TFBS analysis for contig #{options.record_idx} (p-value={options.tfbs_pvalue}, region ±{options.tfbs_range} bp)")
+        tfbs_finder.run_tfbs_finder_for_record(seq_record, options)
+    
+    # Run Active Site Finder
+    if options.run_asf:
+        ASFObj = active_site_finder.active_site_finder(seq_record, options)
+        status = ASFObj.execute()
+        if status:
+            logging.debug("Active site finder execution successful")
+        else:
+            logging.error("Error in active site finder module!")
+
+
+
+def renumber_clusters(seq_record, options):
+    """Renumber clusters in the SeqRecord to be contiguous across all chromosomes."""
+    if 'global_cluster_counter' not in options:
+        options.global_cluster_counter = 1  
+    for cluster in utils.get_cluster_features(seq_record):
+        cluster.qualifiers['note'] = [note if not note.startswith("Cluster number") else "Cluster number: %d" % options.global_cluster_counter for note in cluster.qualifiers.get('note', [])]
+        options.global_cluster_counter += 1
+
 
 
 def list_available_plugins(plugins, output_plugins):
     print("Support for detecting the following secondary metabolites:")
     for plugin in plugins:
-        print(" * %s" % plugin.short_description)
+        print((" * %s" % plugin.short_description))
 
     print("\nSupport for the following modules acting in whole-genome scope")
     for plugin in load_generic_genome_plugins():
-        print(" * %s: %s" % (plugin.name, plugin.short_description))
+        print((" * %s: %s" % (plugin.name, plugin.short_description)))
     print("\nSupport for the following output formats:")
     for plugin in output_plugins:
-        print(" * %s" % plugin.short_description)
+        print((" * %s" % plugin.short_description))
 
 
 def filter_plugins(plugins, options, clustertypes):
@@ -1042,7 +1254,7 @@ def filter_plugins(plugins, options, clustertypes):
         if plugin.name in clustertypes and plugin.name not in options.enabled_cluster_types:
             plugins.remove(plugin)
 
-    if plugins == []:
+    if not options.disable_specific_modules and plugins == []:
         print("No plugins enabled, use --list-plugins to show available plugins")
         sys.exit(1)
 
@@ -1089,10 +1301,10 @@ def setup_logging(options):
         logging.getLogger('').addHandler(fh)
 
 
-def load_detection_plugins():
+def load_specific_modules():
     "Load available secondary metabolite detection modules"
-    logging.info('Loading detection modules')
-    detection_plugins = list(straight.plugin.load('antismash.specific_modules'))
+    logging.info('Loading specific modules')
+    detection_plugins = list(load('antismash.specific_modules'))
 
     logging.info("The following modules were loaded:%s "%(detection_plugins))
     #TODO remove this logging block
@@ -1105,14 +1317,15 @@ def load_detection_plugins():
 
 def load_output_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.output_modules'))
-    plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
+    plugins = list(load('antismash.output_modules'))
+    plugins.sort(key=lambda x: x.priority)
     return plugins
 
 def load_generic_genome_plugins():
     "Load available output formats"
-    plugins = list(straight.plugin.load('antismash.generic_genome_modules'))
-    plugins.sort(cmp=lambda x, y: cmp(x.priority, y.priority))
+    plugins = list(load('antismash.generic_genome_modules'))
+    plugins.sort(key=lambda x: x.priority)
+
     return plugins
 
 def fetch_entries_from_ncbi(efetch_url):
@@ -1123,12 +1336,12 @@ def fetch_entries_from_ncbi(efetch_url):
         try:
             nrtries += 1
             time.sleep(3)
-            req = urllib2.Request(efetch_url)
-            response = urllib2.urlopen(req)
+            req = urllib.request.Request(efetch_url)
+            response = urllib.request.urlopen(req)
             output = response.read()
             if len(output) > 5:
                 urltry = "y"
-        except (IOError,httplib.BadStatusLine,URLError,httplib.HTTPException):
+        except (IOError,http.client.BadStatusLine,URLError,http.client.HTTPException):
             logging.error("Entry fetching from NCBI failed. Waiting for connection...")
             time.sleep(5)
     return output
@@ -1162,7 +1375,7 @@ def fix_wgs_master_record(seq_record):
                 nrzeros += 1
             else:
                 break
-        contigrange = [alpha_tag + nrzeros * "0" + str(number) for number in xrange(int(startnumber), int(endnumber))]
+        contigrange = [alpha_tag + nrzeros * "0" + str(number) for number in range(int(startnumber), int(endnumber))]
         allcontigs.extend(contigrange)
     #Create contig groups of 50 (reasonable download size per download)
     nr_groups = len(allcontigs) / 50 + 1
@@ -1183,7 +1396,7 @@ def fix_wgs_master_record(seq_record):
         try:
             handle = StringIO(output)
             updated_seq_records.extend(list(SeqIO.parse(handle, 'genbank')))
-        except ValueError, e:
+        except ValueError as e:
             logging.error('Parsing %r failed: %s', "temporary contig file", e)
     return updated_seq_records
 
@@ -1320,7 +1533,7 @@ def add_translations(seq_records):
                     import Bio.Data.CodonTable
                     try:
                         translation = str(utils.get_aa_translation(seq_record, cdsfeature))
-                    except Bio.Data.CodonTable.TranslationError, e:
+                    except Bio.Data.CodonTable.TranslationError as e:
                         logging.error('Getting amino acid sequences from %s, CDS %r failed: %s',
                                 seq_record.name, cdsfeature.id, e)
                         sys.exit(1)
@@ -1372,7 +1585,7 @@ def fix_id_lines(options, filename):
 
     try:
         filetype = seqio._get_seqtype_from_ext(filename)
-    except ValueError, e:
+    except ValueError as e:
         logging.debug("Got ValueError %s trying to guess the file format", e)
         return filename
 
@@ -1437,13 +1650,13 @@ def parse_input_sequences(options):
             if len(record_list) == 0:
                 logging.error('No sequence in file %r', filename)
             sequences.extend(record_list)
-        except ValueError, e:
+        except ValueError as e:
             logging.error('Parsing %r failed: %s', filename, e)
             sys.exit(1)
-        except AssertionError, e:
+        except AssertionError as e:
             logging.error('Parsing %r failed: %s', filename, e)
             sys.exit(1)
-        except Exception, e:
+        except Exception as e:
             logging.error('Parsing %r failed with unhandled exception: %s',
                           filename, e)
             sys.exit(1)
@@ -1524,43 +1737,44 @@ def parse_input_sequences(options):
     sequences = new_seqs
 
     # Concatenate contigs < 100kbp that are having no annotations and run genefinding at once
-    new_seqs = []
-    concated_seq_loc = []
-    seq_type = generic_dna
-    num_concated = 0
-    if options.input_type == 'prot':
-        seq_type = generic_protein
-    concat_seq_text = ""
-    for sequence in sequences:
-        concated_seq_loc.append((-1, -1))
-        if len(utils.get_cds_features(sequence)) < 1:
-            if options.gff3:
-                if sequence.id in options.gff_ids: # sequence is covered in provided gff, skip genefinding
-                    continue
-            if len(concat_seq_text) > 1:
-                concat_seq_text += "TGA-TGA--TGA" # 3-frames stop codon to prevent cross-contig gene prediction
-                for ix in xrange(0, 30): # create gaps to separate between contigs
-                    concat_seq_text += "-"
-            s_pos = len(concat_seq_text)
-            concat_seq_text += "%s" % sequence.seq
-            e_pos = len(concat_seq_text) - 1
-            concated_seq_loc[-1] =  (s_pos, e_pos) # take note of the contig's start and end position
-            num_concated += 1
-    if num_concated > 0:
-        concat_seq = SeqRecord(Seq(concat_seq_text, seq_type))
-        logging.info("Running genefinding on %s Contigs without annotations.." % num_concated)
-        genefinding.find_genes(concat_seq, options)
-        for det_gene in utils.get_cds_features(concat_seq): # pass the annotations back into the sequences
-            gene_start = det_gene.location.start
-            gene_end = det_gene.location.end
-            for ci in xrange(0, len(concated_seq_loc)):
-                s_pos, e_pos = concated_seq_loc[ci]
-                if (e_pos >= gene_start >= s_pos) and (e_pos >= gene_end >= s_pos):
-                    det_gene.location = FeatureLocation((gene_start - s_pos), (e_pos - gene_end))
-                    sequences[ci].features.append(det_gene)
-                    break
-        del concat_seq
-    del concated_seq_loc
+    if options.genefinding != 'none':  # changed
+        new_seqs = []
+        concated_seq_loc = []
+        seq_type = generic_dna
+        num_concated = 0
+        if options.input_type == 'prot':
+            seq_type = generic_protein
+        concat_seq_text = ""
+        for sequence in sequences:
+            concated_seq_loc.append((-1, -1))
+            if len(utils.get_cds_features(sequence)) < 1:
+                if options.gff3:
+                    if sequence.id in options.gff_ids: # sequence is covered in provided gff, skip genefinding
+                        continue
+                if len(concat_seq_text) > 1:
+                    concat_seq_text += "TGA-TGA--TGA" # 3-frames stop codon to prevent cross-contig gene prediction
+                    for ix in range(0, 30): # create gaps to separate between contigs
+                        concat_seq_text += "-"
+                s_pos = len(concat_seq_text)
+                concat_seq_text += "%s" % sequence.seq
+                e_pos = len(concat_seq_text) - 1
+                concated_seq_loc[-1] =  (s_pos, e_pos) # take note of the contig's start and end position
+                num_concated += 1
+        if num_concated > 0:
+            concat_seq = SeqRecord(Seq(concat_seq_text, seq_type))
+            logging.info("Running genefinding on %s Contigs without annotations.." % num_concated)
+            genefinding.find_genes(concat_seq, options)
+            for det_gene in utils.get_cds_features(concat_seq): # pass the annotations back into the sequences
+                gene_start = det_gene.location.start
+                gene_end = det_gene.location.end
+                for ci in range(0, len(concated_seq_loc)):
+                    s_pos, e_pos = concated_seq_loc[ci]
+                    if (e_pos >= gene_start >= s_pos) and (e_pos >= gene_end >= s_pos):
+                        det_gene.location = FeatureLocation((gene_start - s_pos), (e_pos - gene_end))
+                        sequences[ci].features.append(det_gene)
+                        break
+            del concat_seq
+        del concated_seq_loc
 
     # re-filter the resulting sequences, discard checked contigs without genes
     new_seqs = []
@@ -1654,7 +1868,7 @@ def parse_input_sequences(options):
                             if hsp.bitscore > sig[2]:
                                 if len(sig[0].split("/")) > 1:
                                     hsp.query_id = sig[0].split("/")[0] + "/" + hsp.query_id
-                                if not results_by_id.has_key(hsp.hit_id):
+                                if hsp.hit_id not in results_by_id:
                                     results_by_id[hsp.hit_id] = [hsp]
                                 else:
                                     results_by_id[hsp.hit_id].append(hsp)
@@ -1672,7 +1886,7 @@ def parse_input_sequences(options):
                     if hsp.bitscore > sig[2]:
                         if len(sig[0].split("/")) > 1:
                             hsp.query_id = sig[0].split("/")[0] + "/" + hsp.query_id
-                        if not results_by_id.has_key(hsp.hit_id):
+                        if hsp.hit_id not in results_by_id:
                             results_by_id[hsp.hit_id] = [hsp]
                         else:
                             results_by_id[hsp.hit_id].append(hsp)
@@ -1685,7 +1899,7 @@ def parse_input_sequences(options):
     #Remove records without potential hits, checked by HMMer - saves time for inputs with many contigs
     contigs_hits = check_signature_gene_presence(sequences, options)
     new_sequences = []
-    for idx in xrange(len(sequences)):
+    for idx in range(len(sequences)):
         if len(contigs_hits[idx]) > 0:
             new_sequences.append(sequences[idx])
     del contigs_hits
@@ -1777,20 +1991,21 @@ def detect_geneclusters(seq_record, options):
 
 
 def cluster_specific_analysis(plugins, seq_record, options):
-    "Run specific analysis steps for every detected gene cluster"
+    if options.disable_specific_modules:
+        logging.debug("Skipping cluster-specific analyses because --disable_specific_modules is set.")
+        return
+
     logging.info('Running cluster-specific analyses')
 
     for plugin in plugins:
-        if  options.taxon == "plants":
-            if not plugin.name.startswith("plant_"):
-                continue
-        if 'specific_analysis' in dir(plugin):
-            logging.debug('Running analyses specific to %s clusters',
-                          plugin.short_description)
+        if options.taxon == "plants" and not plugin.name.startswith("plant_"):
+            continue
+        if hasattr(plugin, "specific_analysis"):
+            logging.debug('Running analyses specific to %s clusters', plugin.short_description)
             plugin.specific_analysis(seq_record, options)
         else:
-            logging.debug('No specific analyses implemented for %s clusters',
-                          plugin.short_description)
+            logging.debug('No specific analyses implemented for %s clusters', plugin.short_description)
+
 
 def run_generic_genome_modules(seq_records, options):
     "Run genome wide analysis modules"
@@ -1822,7 +2037,7 @@ def check_signature_gene_presence(seq_records, options):
     logging.info('Checking gene clusters for presence of profile hits using HMM library')
     #Identify contigs with HMM hits
     contigs_hits = []
-    for idx in xrange(len(seq_records)):
+    for idx in range(len(seq_records)):
         contigs_hits.append([])
         seq_record = seq_records[idx]
         for feature in utils.get_cds_features(seq_record):

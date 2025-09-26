@@ -240,7 +240,7 @@ def write_result_summary(result,instance_line_nr = 5):
                 #repeat and known motifs
                 known_motifs = list(result.evidence.keys())
                 print(known_motifs)
-                print(type(known_motifs))
+                print((type(known_motifs)))
                 html_seq = generate_html_seq(result.sequence,result.pattern,known_motifs)
             else:
                 #repeat but no known motifs
@@ -361,9 +361,9 @@ def add_html_output(seqrecord):
 
     for feat in seqrecord.features:
         if "has_repeat" in feat.qualifiers:
-            print(feat.qualifiers["table"])
-            print(feat.qualifiers["ripp_evidence"])
+            print((feat.qualifiers["table"]))
+            print((feat.qualifiers["ripp_evidence"]))
             if len(feat.qualifiers["table"]) > 0 or len(feat.qualifiers["ripp_evidence"]) >0: 
                 create_output(feat)
-                print("condition reached")
-                exit(0)
+                print("Annotated repeat feature.")
+                # exit(0)
