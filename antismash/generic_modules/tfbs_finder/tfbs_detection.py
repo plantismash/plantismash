@@ -1,4 +1,15 @@
-# License: GNU AGPL v3 or later
+
+#
+# Copyright (C) 2025 Hannah E. Augustijn 
+# Wageningen University & Research & Leiden University
+# Department: Department of Bioinformatics & Institute of Biology Leiden
+#
+# Copyright (C) 2025 Elena Del Pupo
+# Wageningen University & Research
+# Bioinformatics Group
+#
+# License: GNU Affero General Public License v3 or later
+# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 
 """
 TFBS detection (per-BGC) using PWMs with MOODS.
@@ -37,7 +48,7 @@ from antismash import utils
 # Constants / cache
 # --------------------------------------------------------------------------
 
-PWM_PATH = utils.get_full_path(__file__, os.path.join("data", "Athaliana_motifs.filtered.json"))
+PWM_PATH = utils.get_full_path(__file__, os.path.join("data", "Athaliana_motifs.manualfromexcluded.json"))
 _MATRIX_CACHE: Dict[str, List["Matrix"]] = {}   # cache parsed matrices per file path
 
 
@@ -233,10 +244,14 @@ def _merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
 
 def _collect_windows_for_cluster(record: SeqRecord,
                                  cluster_feature,
-                                 half_window: int) -> Tuple[List[Tuple[int, int]], int]:
+                                 upstream_bp: int) -> Tuple[List[Tuple[int, int]], int]:
     """
-    Build CDS promoter windows for CDS overlapping this cluster and clip to cluster span.
-    Returns (raw_intervals_inclusive, cds_count_included).
+    Build strand-aware promoter windows centered at the TSS proxy (CDS start fallback):
+      + strand: [TSS - upstream_bp, TSS + 50]
+      – strand: [TSS - 50, TSS + upstream_bp]
+    Then clip each window to the cluster span and contig bounds.
+
+    Returns (intervals_inclusive, cds_count_included).
     """
     seqlen = len(record.seq)
     cstart = int(cluster_feature.location.start)
@@ -247,20 +262,29 @@ def _collect_windows_for_cluster(record: SeqRecord,
     for cds in utils.get_cds_features(record):
         cds_start = int(cds.location.start)
         cds_end   = int(cds.location.end) - 1  # inclusive
+        # only consider CDS that overlap this cluster span
         if cds_end < cstart or cds_start > cend:
-            continue  # CDS does not overlap cluster
-
-        tss, _ = _cds_tss_and_strand(cds)
-        if tss is None:
             continue
 
-        # Build ±window around TSS, then clip to cluster span and contig
-        a = max(0, tss - half_window)
-        b = min(seqlen - 1, tss + half_window)
+        tss, strand = _cds_tss_and_strand(cds)
+        if tss is None or strand is None:
+            continue
+
+        if strand == 1:
+            a, b = tss - upstream_bp, tss + 50
+        else:
+            a, b = tss - 50, tss + upstream_bp
+
+        # clip to contig bounds
+        a = max(0, a)
+        b = min(seqlen - 1, b)
+
+        # clip to cluster
         a = max(a, cstart)
         b = min(b, cend)
+
         if b >= a:
-            raw.append((a, b))
+            raw.append((int(a), int(b)))
             cds_count += 1
 
     return raw, cds_count

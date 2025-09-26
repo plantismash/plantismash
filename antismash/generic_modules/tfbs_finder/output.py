@@ -1,4 +1,14 @@
+
+# Copyright (C) 2025 Hannah E. Augustijn 
+# Wageningen University & Research & Leiden University
+# Department: Department of Bioinformatics & Institute of Biology Leiden
+#
+# Copyright (C) 2025 Elena Del Pupo
+# Wageningen University & Research
+# Bioinformatics Group
+#
 # License: GNU Affero General Public License v3 or later
+# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 
 from typing import Any, Dict, List, Tuple
 from pyquery import PyQuery as pq

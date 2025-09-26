@@ -1,6 +1,13 @@
 # validation.py
 # Helpers for TAIR symbols and connectTF validation/evidence
+
+#
+# Copyright (C) 2025 Elena Del Pupo
+# Wageningen University & Research
+# Bioinformatics Group
+#
 # License: GNU Affero General Public License v3 or later
+# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
 
 from __future__ import annotations
 from typing import Dict, Tuple
