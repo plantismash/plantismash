@@ -1,4 +1,4 @@
-name: plantismash_tfbs_test
+name: plantismash
 channels:
   - conda-forge
   - bioconda

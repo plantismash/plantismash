@@ -28,3 +28,4 @@ antismash/generic_modules/hmm_detection/**/*.hmm
 /results/*
 *.vscode
 __pycache__/
+/test_genomes/* 
