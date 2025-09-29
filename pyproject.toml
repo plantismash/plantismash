@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plantismash"
+version = "2.0.0"            # bump as needed
+description = "Detection of plant specialized metabolism gene clusters in plants"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "plantiSMASH authors" }]
+keywords = ["bioinformatics", "genomics", "secondary metabolism"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: OS Independent",
+]
+
+# Only Python deps here (not hmmer/diamond/etc.)
+dependencies = [
+  "biopython==1.76",
+  "numpy==1.24.4",
+  "cssselect",
+  "pyquery==1.2.9",
+  "helperlibs",
+  "svgwrite",
+  "openpyxl",
+  "networkx==3.1",
+  "python-louvain==0.16",
+  "bcbio-gff==0.6.7",
+  "ete3",
+  "tqdm",
+  "logomaker",
+  "MOODS-python==1.9.4.1",
+  "straight.plugin==1.4.0.post1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+plantismash = "antismash.run_antismash:main"   # adjust module:function if needed
+
+# If your package code lives in src/antismash, keep this. If not, delete the two blocks below.
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["antismash*"]
+
+[tool.setuptools.package-data]
+antismash = ["**/*.html", "**/*.tpl", "**/*.css", "**/*.js", "**/*.json", "**/*.txt", "**/*.hmm", "**/*.pfam", "**/*.png", "**/*.svg"]
