@@ -4,26 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "plantismash"
-version = "2.0.0"            # bump as needed
+version = "2.0.0"
 description = "Detection of plant specialized metabolism gene clusters in plants"
 readme = "README.md"
-requires-python = ">=3.9"
-license = { file = "LICENSE" }
+requires-python = ">=3.8,<3.9"
+license = { file = "LICENSE.txt" }
 authors = [{ name = "plantiSMASH authors" }]
 keywords = ["bioinformatics", "genomics", "secondary metabolism"]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
   "Operating System :: OS Independent",
 ]
 
-# Only Python deps here (not hmmer/diamond/etc.)
 dependencies = [
   "biopython==1.76",
   "numpy==1.24.4",
   "cssselect",
-  "pyquery==1.2.9",
-  "helperlibs",
+  "pyquery==1.2.9",               # PyPI-only; pip will install this during the conda build
+  "helperlibs",                   # PyPI-only; pip will install
   "svgwrite",
   "openpyxl",
   "networkx==3.1",
@@ -32,23 +30,27 @@ dependencies = [
   "ete3",
   "tqdm",
   "logomaker",
-  "MOODS-python==1.9.4.1",
-  "straight.plugin==1.4.0.post1",
+  "MOODS-python==1.9.4.1",        # PyPI-only; pip will install
+  "straight.plugin==1.4.0.post-1" # PyPI-only; pip will install
 ]
 
 [project.optional-dependencies]
 dev = ["pytest"]
 
 [project.scripts]
-plantismash = "antismash.run_antismash:main"   # adjust module:function if needed
+plantismash = "run_antismash:main" # plantismash --help 
+plantismash_download_databases = "download_databases:main" # plantismash_download_databases
 
-# If your package code lives in src/antismash, keep this. If not, delete the two blocks below.
 [tool.setuptools]
-package-dir = {"" = "src"}
+py-modules = ["run_antismash", "download_databases"]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
 include = ["antismash*"]
 
 [tool.setuptools.package-data]
-antismash = ["**/*.html", "**/*.tpl", "**/*.css", "**/*.js", "**/*.json", "**/*.txt", "**/*.hmm", "**/*.pfam", "**/*.png", "**/*.svg"]
+antismash = [
+  "**/*.html", "**/*.tpl", "**/*.css", "**/*.js", "**/*.json",
+  "**/*.txt", "**/*.hmm", "**/*.pfam", "**/*.png", "**/*.svg",
+  "**/*.cfg"
+]
