@@ -346,7 +346,7 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
             else:
                 #Creating:
                 #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
-	        rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
+                rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
 
     return rxnid_mnxm_coeff_dict
 
@@ -357,7 +357,7 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
         logging.debug("%s being examined for a new nonBBH reaction..", rxnid)
         if rxnid_info_dict[rxnid] != None:
             #ID
-	    rxn = Reaction(rxnid)
+            rxn = Reaction(rxnid)
 
             #Name
             #Some reaction IDs do not have NAME despite the presence of PATHWAY
@@ -426,7 +426,7 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
             exrxn_flux_change_list = check_exrxn_flux_direction(tempModel_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
             if 'F' in exrxn_flux_change_list:
-	        modelPrunedGPR.remove_reactions(rxn)
+                modelPrunedGPR.remove_reactions(rxn)
 
                 write_cobra_model_to_sbml_file(modelPrunedGPR, options.metabolicmodeldir+os.sep+"modelPrunedGPR.xml")
                 modelPrunedGPR = create_cobra_model_from_sbml_file(options.metabolicmodeldir+os.sep+"modelPrunedGPR.xml")

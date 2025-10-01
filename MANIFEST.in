@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include antismash *.hmm *.pfam *.h3* *.json *.txt *.tpl *.html *.css *.js *.png *.svg
+recursive-include src/antismash *.hmm *.pfam *.h3* *.json *.txt *.tpl *.html *.css *.js *.png *.svg
