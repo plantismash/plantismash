@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plantismash"
+version = "2.0.1"
+description = "Detection of plant specialized metabolism gene clusters in plants"
+readme = "README.md"
+requires-python = ">=3.8,<3.9"
+license = { file = "LICENSE.txt" }
+authors = [{ name = "plantiSMASH authors" }]
+keywords = ["bioinformatics", "genomics", "secondary metabolism"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "biopython==1.76",
+  "numpy==1.24.4",
+  "cssselect",
+  "pyquery==1.2.9",               # PyPI-only; pip will install this during the conda build
+  "helperlibs",                   # PyPI-only; pip will install
+  "svgwrite",
+  "openpyxl",
+  "networkx==3.1",
+  "python-louvain==0.16",
+  "bcbio-gff==0.6.7",
+  "ete3",
+  "tqdm",
+  "logomaker",
+  "MOODS-python==1.9.4.1",        # PyPI-only; pip will install
+  "straight.plugin==1.4.0.post-1" # PyPI-only; pip will install
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+plantismash = "run_antismash:main" # plantismash --help 
+plantismash_download_databases = "download_databases:main" # plantismash_download_databases
+
+[tool.setuptools]
+py-modules = ["run_antismash", "download_databases"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["antismash*"]
+
+[tool.setuptools.package-data]
+antismash = [
+  "**/*.html", "**/*.tpl", "**/*.css", "**/*.js", "**/*.json",
+  "**/*.txt", "**/*.hmm", "**/*.pfam", "**/*.png", "**/*.svg",
+  "**/*.cfg"
+]

@@ -1,7 +1,8 @@
-name: plantismash_tfbs_test
+name: plantismash
 channels:
   - conda-forge
   - bioconda
+channel_priority: strict
 dependencies:
   # Conda dependencies
   - python=3.8
@@ -31,15 +32,15 @@ dependencies:
       - straight.plugin==1.4.0-post-1
       - cssselect
       - pyquery==1.2.9
-      - numpy==1.24.4
       - helperlibs
+      - numpy==1.24.4
       - svgwrite
       - openpyxl
       - networkx==3.1
       - python-louvain==0.16
       - bcbio-gff==0.6.7
       - ete3
-      - ./graphlan
+      - ./graphlan # or a git URL if not local
       # TFBS specific dependencies
       - MOODS-python==1.9.4.1
 
