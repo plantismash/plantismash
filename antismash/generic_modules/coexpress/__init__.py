@@ -407,7 +407,10 @@ def calc_sample_ranges(geo_dataset):
         geo_dataset["info"]["ranges"][sample] = (p10, p50, p90)
         # quick summary for debugging
         n_samples = len(geo_dataset["info"]["samples"])
-        n_nonempty = sum(1 for s in geo_dataset["info"]["samples"] if not np.isnan(geo_dataset["info"]["ranges"].get(s, (np.nan,))[1]))
+        n_nonempty = sum(
+            1 for s in geo_dataset["info"]["samples"]
+            if not np.isnan(geo_dataset["info"]["ranges"].get(s, (np.nan, np.nan, np.nan))[1])
+        )
         logging.info("GEO %s: samples=%d, samples_with_data=%d", geo_dataset["info"].get("id","<unknown>"), n_samples, n_nonempty)
 
 
