@@ -253,6 +253,7 @@ def parse_geofiles(geo_paths):
     result = []
     for geo_path in geo_paths:
         result.append(parse_geofile(geo_path))
+    
     return result
 
 
@@ -381,8 +382,33 @@ def calc_sample_ranges(geo_dataset):
         for id_ref in geo_dataset["data"]:
             if sample in list(geo_dataset["data"][id_ref][1].keys()):
                 expressions.append(geo_dataset["data"][id_ref][1][sample])
-        expressions = np.array(expressions)
-        geo_dataset["info"]["ranges"][sample] = (np.percentile(expressions, 10), np.percentile(expressions, 50), np.percentile(expressions, 90))
+        # convert to numpy array
+        expressions = np.array(expressions, dtype=float)
+
+        if expressions.size == 0:
+            # No data for this sample — set ranges to None (or np.nan) and warn
+            logging.warning("No expression values found for sample '%s' in GEO %s; setting ranges to (nan,nan,nan).",
+                            sample, geo_dataset["info"].get("id", "<unknown>"))
+            geo_dataset["info"]["ranges"][sample] = (np.nan, np.nan, np.nan)
+            continue
+
+        # compute percentiles
+        try:
+            p10 = np.percentile(expressions, 10)
+            p50 = np.percentile(expressions, 50)
+            p90 = np.percentile(expressions, 90)
+        except Exception as e:
+            logging.warning("Percentile computation failed for sample '%s' in GEO %s: %s. Setting ranges to (nan,nan,nan).",
+                            sample, geo_dataset["info"].get("id", "<unknown>"), e)
+            geo_dataset["info"]["ranges"][sample] = (np.nan, np.nan, np.nan)
+            continue
+        
+
+        geo_dataset["info"]["ranges"][sample] = (p10, p50, p90)
+        # quick summary for debugging
+        n_samples = len(geo_dataset["info"]["samples"])
+        n_nonempty = sum(1 for s in geo_dataset["info"]["samples"] if not np.isnan(geo_dataset["info"]["ranges"].get(s, (np.nan,))[1]))
+        logging.info("GEO %s: samples=%d, samples_with_data=%d", geo_dataset["info"].get("id","<unknown>"), n_samples, n_nonempty)
 
 
 def parse_csvfiles(csv_paths):
