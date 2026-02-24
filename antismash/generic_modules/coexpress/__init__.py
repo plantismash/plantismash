@@ -588,10 +588,9 @@ def get_inter_cluster_relation(seq_records, geo_id):
                                     interactions=cur_gene1_neighbors.intersection(cluster_genes[cur_cluster2])
                                     update_g(cur_gene1,interactions,cur_gene1_distances,full_g)
 
-    # Remove single nodes
-    for node in full_g.nodes():
-        if full_g.degree(node)==0:
-            full_g.remove_node(node)
+    # Remove isolated nodes safely
+    isolates = [n for n in list(full_g.nodes()) if full_g.degree(n) == 0]
+    full_g.remove_nodes_from(isolates)
 
     # Get communities
     community_dict  =community.best_partition(full_g)
@@ -615,7 +614,7 @@ def get_inter_cluster_relation(seq_records, geo_id):
                 cur_community_nodes =[n for n in cluster3 if n in community_dict and community_dict[n]==cur_community]
                 cur_community_g =cluster_pair_g.subgraph(cur_community_nodes)
 
-                decomposed_g=list(nx.connected_component_subgraphs(cur_community_g))
+                decomposed_g = [cur_community_g.subgraph(c).copy() for c in nx.connected_components(cur_community_g)]
                 for cur_g in decomposed_g:
                     # CRITERIA 2 = no isolates. anything with a clustering_coefficient=0 will be pruned out.
                     clustering_coefficient  =nx.clustering(cur_g)
