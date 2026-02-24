@@ -29,3 +29,25 @@ antismash/generic_modules/hmm_detection/**/*.hmm
 *.vscode
 __pycache__/
 /test_genomes/* 
+
+# Virtual environments
+.venv/
+.venv39/
+
+# macOS hidden files
+._*
+.DS_Store
+
+# Build artifacts
+build/
+
+# Clusterblast generated data
+antismash/generic_modules/clusterblast/*.dmnd
+antismash/generic_modules/clusterblast/*.fasta
+antismash/generic_modules/clusterblast/*.txt
+antismash/generic_modules/clusterblast/*.tar.gz
+antismash/generic_modules/clusterblast/*.json
+antismash/generic_modules/clusterblast/CLUSTERBLAST_RELEASE.txt
+
+# TFBS generated / helper scripts
+antismash/generic_modules/tfbs_finder/data/logo_included/
