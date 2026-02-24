@@ -51,3 +51,6 @@ antismash/generic_modules/clusterblast/CLUSTERBLAST_RELEASE.txt
 
 # TFBS generated / helper scripts
 antismash/generic_modules/tfbs_finder/data/logo_included/
+
+# CoExpress GEO downloads (large)
+antismash/generic_modules/coexpress/data/geo_soft/
